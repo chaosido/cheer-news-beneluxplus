@@ -196,6 +196,7 @@ async function main() {
           title: rep.title,
           description: rep.description,
           type: rep.type,
+          allDay: rep.allDay ?? false,
           startsAt: Timestamp.fromDate(new Date(rep.start)),
           endsAt: rep.end ? Timestamp.fromDate(new Date(rep.end)) : null,
           locationText: rep.location.name ?? rep.location.address ?? null,

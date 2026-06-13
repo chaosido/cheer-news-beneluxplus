@@ -15,6 +15,8 @@ export interface CalendarItem {
   clubId: string | null;
   title: string;
   type: EventType;
+  /** All-day (date-only) event — renders as a date block, not a timed slot. */
+  allDay: boolean;
   startsAt: string;
   endsAt: string | null;
   /** Click target: event url, else the club profile, else null. */

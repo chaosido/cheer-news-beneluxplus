@@ -109,6 +109,7 @@ export interface EventBase {
   title: string;
   description: string | null;
   type: EventType;
+  allDay: boolean;
   locationText: string | null;
   lat: number | null;
   lng: number | null;

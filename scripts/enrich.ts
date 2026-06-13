@@ -46,6 +46,14 @@ const AGES = new Set(["mini", "youth", "junior", "senior", "open"]);
 
 const nz = (s?: string) => (s && s.trim() ? s.trim() : null);
 
+const TZ = "Europe/Amsterdam";
+/** An enriched event is all-day when it has no end and starts at local midnight. */
+async function isAllDay(start: Date, hasEnd: boolean): Promise<boolean> {
+  if (hasEnd) return false;
+  const { formatInTimeZone } = await import("date-fns-tz");
+  return formatInTimeZone(start, TZ, "HH:mm") === "00:00";
+}
+
 async function main() {
   const { adminDb } = await import("../lib/firebaseAdmin");
   const { FieldValue, Timestamp } = await import("firebase-admin/firestore");
@@ -148,8 +156,10 @@ async function main() {
       if (isNaN(start.getTime())) continue;
       const type = (EVENT_TYPES.has(e.type as EventType) ? e.type : "other") as EventType;
       const id = `${slug}-ev-${i}`;
+      const hasEnd = Boolean(e.end && !isNaN(new Date(e.end).getTime()));
       await adminDb.collection("events").doc(id).set({
         canonicalEventId: id, clubId: slug, title: e.title, description: nz(e.description), type,
+        allDay: await isAllDay(start, hasEnd),
         startsAt: Timestamp.fromDate(start),
         endsAt: e.end && !isNaN(new Date(e.end).getTime()) ? Timestamp.fromDate(new Date(e.end)) : null,
         locationText: nz(e.locationText), lat: typeof c.lat === "number" ? c.lat : null, lng: typeof c.lng === "number" ? c.lng : null,

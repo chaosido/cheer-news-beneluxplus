@@ -33,6 +33,28 @@ interface CalendarProps {
   onSelect: (id: string | null) => void;
 }
 
+/**
+ * Compute the FullCalendar `end` for a CalendarItem.
+ *
+ * - Timed events: pass `endsAt` through as-is (literal end instant).
+ * - All-day events with an `endsAt` on a LATER date: FullCalendar uses `end`
+ *   exclusively for all-day events, so we pass the day AFTER the last day
+ *   (last day + 1) so the block spans inclusively across all its days.
+ * - All-day events with no `endsAt` (or same-day end): omit `end` → a single
+ *   all-day block on the start date.
+ */
+function allDayEnd(item: CalendarItem): string | undefined {
+  if (!item.allDay) return item.endsAt ?? undefined;
+  if (!item.endsAt) return undefined;
+  const startDay = item.startsAt.slice(0, 10);
+  const endDay = item.endsAt.slice(0, 10);
+  if (endDay <= startDay) return undefined; // single all-day block
+  // Exclusive end = last day + 1.
+  const next = new Date(`${endDay}T00:00:00Z`);
+  next.setUTCDate(next.getUTCDate() + 1);
+  return next.toISOString().slice(0, 10);
+}
+
 export function Calendar({
   items,
   view,
@@ -50,7 +72,12 @@ export function Calendar({
         id: item.id,
         title: item.title,
         start: item.startsAt,
-        end: item.endsAt ?? undefined,
+        // FullCalendar treats `end` as EXCLUSIVE for all-day events. For a
+        // multi-day all-day event we must therefore pass the day AFTER the last
+        // day so it spans correctly; for timed events `end` is the literal
+        // instant. All-day events with no end get no `end` (single-day block).
+        end: allDayEnd(item),
+        allDay: item.allDay,
         backgroundColor: EVENT_TYPE_COLOR[item.type],
         borderColor: EVENT_TYPE_COLOR[item.type],
         textColor: "#ffffff",
