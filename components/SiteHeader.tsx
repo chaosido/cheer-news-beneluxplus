@@ -29,7 +29,7 @@ export function SiteHeader() {
         </nav>
         <div className="ml-auto">
           <Button asChild size="sm">
-            <Link href="/submit">Evenement melden</Link>
+            <Link href="/submit">Ontbrekend item melden</Link>
           </Button>
         </div>
       </div>
