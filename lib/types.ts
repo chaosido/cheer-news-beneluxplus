@@ -146,9 +146,16 @@ export interface EventClient extends EventBase {
 
 // ---- Open gyms (recurring) ----
 
+/** A recurring session is either a team training or a public open gym. */
+export type SessionType = "training" | "open_gym";
+
 export interface OpenGymBase {
   clubId: string;
   dedupKey: string;
+  // Distinguishes a team's training slot from a public open-gym/drop-in.
+  // Optional for back-compat; defaults treated as "open_gym".
+  sessionType?: SessionType;
+  teamLabel?: string | null; // which team trains in this slot (for trainings)
   rrule: string | null; // iCal RRULE; null => one-off using validFrom
   exdates: string[]; // ISO dates excluded from the recurrence
   startTime: string; // local "HH:mm"
