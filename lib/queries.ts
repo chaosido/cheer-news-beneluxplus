@@ -121,10 +121,13 @@ export async function getSubmissionsByStatus(
 
 /** Low-confidence / pending scraped events awaiting review. */
 export async function getPendingEvents(): Promise<EventClient[]> {
+  // Single-field query (no composite index needed); sort in memory since the
+  // pending set is small.
   const snap = await adminDb
     .collection(COLLECTIONS.events)
     .where("status", "==", "pending")
-    .orderBy("updatedAt", "desc")
     .get();
-  return snap.docs.map((d) => docToClient<EventClient>(d));
+  return snap.docs
+    .map((d) => docToClient<EventClient>(d))
+    .sort((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""));
 }
