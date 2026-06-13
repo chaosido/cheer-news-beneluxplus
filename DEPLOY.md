@@ -30,12 +30,10 @@ gcloud projects add-iam-policy-binding cheer-news-beneluxplus \
 
 1. https://console.firebase.google.com/project/cheer-news-beneluxplus/authentication
 2. **Get started** → enable the **Email/Password** provider.
-3. Create the maintainer user (Authentication → Users → Add user), or run:
-   ```bash
-   # one-off: create an admin user with the Admin SDK
-   GOOGLE_APPLICATION_CREDENTIALS=./.secrets/scraper-sa.json \
-   npx tsx -e "import('firebase-admin/app').then(async()=>{const {initializeApp}=await import('firebase-admin/app');const {getAuth}=await import('firebase-admin/auth');initializeApp({projectId:'cheer-news-beneluxplus'});await getAuth().createUser({email:'jesse@adapta.nl',password:'CHANGE_ME'});console.log('created');})"
-   ```
+3. Create the maintainer user the simplest way: **Authentication → Users → Add user**, entering the
+   maintainer email + a password in the console. (You can also script it with the Admin SDK
+   `getAuth().createUser({ email, password })` — read both values from environment variables, never
+   hard-code them.)
 4. The allowlist of admin emails is `ADMIN_EMAILS` (set in `apphosting.yaml` / `.env.local`).
 
 ## Daily aggregation
