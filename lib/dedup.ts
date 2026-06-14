@@ -71,7 +71,7 @@ function haversineMeters(
   aLat: number,
   aLng: number,
   bLat: number,
-  bLng: number
+  bLng: number,
 ): number {
   const R = 6371000;
   const toRad = (d: number) => (d * Math.PI) / 180;
@@ -101,12 +101,14 @@ function sameLocation(a: ExtractedEvent, b: ExtractedEvent): boolean {
       a.location.lat as number,
       a.location.lng as number,
       b.location.lat as number,
-      b.location.lng as number
+      b.location.lng as number,
     );
     if (dist <= PROXIMITY_METERS) return true;
   }
-  const an = normalizeText(a.location.name) || normalizeText(a.location.address);
-  const bn = normalizeText(b.location.name) || normalizeText(b.location.address);
+  const an =
+    normalizeText(a.location.name) || normalizeText(a.location.address);
+  const bn =
+    normalizeText(b.location.name) || normalizeText(b.location.address);
   if (an && bn && an === bn) return true;
   // Fallback: when neither event carries geo OR location text, location is
   // entirely unknown on both sides. Many scraped events omit a venue, so we
@@ -123,8 +125,10 @@ function sameLocation(a: ExtractedEvent, b: ExtractedEvent): boolean {
 export function isSameEvent(a: ExtractedEvent, b: ExtractedEvent): boolean {
   if (eventDayKey(a) !== eventDayKey(b)) return false;
   if (!sameLocation(a, b)) return false;
-  const an = normalizeText(a.location.name) || normalizeText(a.location.address);
-  const bn = normalizeText(b.location.name) || normalizeText(b.location.address);
+  const an =
+    normalizeText(a.location.name) || normalizeText(a.location.address);
+  const bn =
+    normalizeText(b.location.name) || normalizeText(b.location.address);
   const locationless = !hasGeo(a) && !hasGeo(b) && !an && !bn;
   const threshold = locationless
     ? TITLE_SIM_THRESHOLD_NO_LOCATION
@@ -137,7 +141,8 @@ export function isSameEvent(a: ExtractedEvent, b: ExtractedEvent): boolean {
  * still requires `isSameEvent`. Exposed for callers that want a coarse key.
  */
 export function eventMatchKey(e: ExtractedEvent): string {
-  const loc = normalizeText(e.location.name) || normalizeText(e.location.address);
+  const loc =
+    normalizeText(e.location.name) || normalizeText(e.location.address);
   return `${eventDayKey(e)}|${loc}`;
 }
 
@@ -162,7 +167,8 @@ function canonicalId(members: ExtractedEvent[]): string {
   // the cluster (stable regardless of input order or which source won).
   let loc = "";
   for (const m of members) {
-    const n = normalizeText(m.location.name) || normalizeText(m.location.address);
+    const n =
+      normalizeText(m.location.name) || normalizeText(m.location.address);
     if (n && (loc === "" || n < loc)) loc = n;
   }
 
@@ -212,7 +218,7 @@ export function pickRepresentative(members: ExtractedEvent[]): ExtractedEvent {
  * existing cluster any of whose members it matches.
  */
 export function dedupeEvents(
-  events: ExtractedEvent[]
+  events: ExtractedEvent[],
 ): { canonicalEventId: string; members: ExtractedEvent[] }[] {
   const clusters: ExtractedEvent[][] = [];
 

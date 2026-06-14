@@ -29,7 +29,9 @@ export interface AdminUser {
  * Verify a Firebase ID token and confirm the user is an allowlisted admin.
  * Returns the user on success, or null on any failure (invalid token, not allowlisted).
  */
-export async function verifyAdmin(idToken: string | undefined): Promise<AdminUser | null> {
+export async function verifyAdmin(
+  idToken: string | undefined,
+): Promise<AdminUser | null> {
   if (!idToken) return null;
   try {
     const decoded = await adminAuth.verifyIdToken(idToken);
@@ -64,7 +66,9 @@ export async function verifyUser(
 }
 
 /** Extract a bearer token from an Authorization header value. */
-export function bearerToken(authHeader: string | null | undefined): string | undefined {
+export function bearerToken(
+  authHeader: string | null | undefined,
+): string | undefined {
   if (!authHeader) return undefined;
   const m = /^Bearer\s+(.+)$/i.exec(authHeader);
   return m?.[1];

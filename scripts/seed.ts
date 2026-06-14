@@ -233,7 +233,9 @@ async function main(): Promise<void> {
   console.log("Seed complete:");
   console.log(`  clubs written:       ${clubCount}`);
   console.log(`  teams written:       ${teamCount}`);
-  console.log(`  sources written:     ${sourceCount} (incl. ${federations.length} federations)`);
+  console.log(
+    `  sources written:     ${sourceCount} (incl. ${federations.length} federations)`,
+  );
   console.log(`  batches committed:   ${batches.length}`);
 }
 

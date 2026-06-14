@@ -71,7 +71,10 @@ function hashIp(ip: string): string {
   return createHash("sha256").update(`${ip}:${ipHashSalt()}`).digest("hex");
 }
 
-async function verifyTurnstile(token: string | undefined, ip: string): Promise<boolean> {
+async function verifyTurnstile(
+  token: string | undefined,
+  ip: string,
+): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) return true; // Not configured (dev) → skip verification.
   if (!token) return false;
@@ -97,11 +100,17 @@ export async function POST(req: Request) {
   try {
     body = (await req.json()) as Record<string, unknown>;
   } catch {
-    return NextResponse.json({ ok: false, error: "Ongeldige aanvraag" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Ongeldige aanvraag" },
+      { status: 400 },
+    );
   }
 
   // 2. Honeypot — pretend success so bots don't learn they were caught.
-  if (typeof body[HONEYPOT_FIELD] === "string" && body[HONEYPOT_FIELD].trim() !== "") {
+  if (
+    typeof body[HONEYPOT_FIELD] === "string" &&
+    body[HONEYPOT_FIELD].trim() !== ""
+  ) {
     return NextResponse.json({ ok: true });
   }
 
@@ -135,7 +144,10 @@ export async function POST(req: Request) {
   const human = await verifyTurnstile(turnstileToken, ip);
   if (!human) {
     return NextResponse.json(
-      { ok: false, error: "Verificatie mislukt. Vernieuw de pagina en probeer opnieuw." },
+      {
+        ok: false,
+        error: "Verificatie mislukt. Vernieuw de pagina en probeer opnieuw.",
+      },
       { status: 400 },
     );
   }

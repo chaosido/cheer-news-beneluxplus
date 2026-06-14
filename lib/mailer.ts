@@ -55,7 +55,10 @@ function buildTransport() {
 /** Render a payload's non-empty fields as "key: value" lines. */
 function payloadLines(payload: Record<string, unknown>): string[] {
   return Object.entries(payload)
-    .filter(([, val]) => val !== undefined && val !== null && String(val).trim() !== "")
+    .filter(
+      ([, val]) =>
+        val !== undefined && val !== null && String(val).trim() !== "",
+    )
     .map(([key, val]) => `${key}: ${String(val)}`);
 }
 

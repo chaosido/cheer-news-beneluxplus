@@ -11,6 +11,7 @@ because they involve interactive OAuth / console toggles.
 App Hosting builds and serves the Next.js app, and redeploys automatically on every push to `main`.
 
 **Console (easiest):**
+
 1. https://console.firebase.google.com/project/cheer-news-beneluxplus/apphosting
 2. **Get started** → connect the GitHub repo `chaosido/cheer-news-beneluxplus` (authorize the
    Firebase GitHub app), live branch `main`, root directory `/`.
@@ -18,6 +19,7 @@ App Hosting builds and serves the Next.js app, and redeploys automatically on ev
 4. First rollout builds and deploys; the URL is `https://<backend>--cheer-news-beneluxplus.web.app`.
 
 After the backend exists, grant it access to the Gemini secret and Firestore:
+
 ```bash
 npx firebase-tools apphosting:secrets:grantaccess gemini-api-key --project cheer-news-beneluxplus
 # Grant the App Hosting compute service account Firestore access:
@@ -44,6 +46,7 @@ with **no `gemini-api-key` secret** and the aggregator runs JSON-LD only. The
 `GEMINI_API_KEY` / `GEMINI_MODEL` blocks in `apphosting.yaml` and the workflow are commented out.
 
 To re-enable LLM extraction:
+
 1. Set `GEMINI_ENABLED=true` and provide `GEMINI_API_KEY` (env / Secret Manager).
 2. Uncomment the `GEMINI_API_KEY` + `GEMINI_MODEL` blocks in `apphosting.yaml` and
    re-grant the secret: `npx firebase-tools apphosting:secrets:grantaccess gemini-api-key`.

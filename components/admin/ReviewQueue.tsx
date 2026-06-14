@@ -43,7 +43,10 @@ export function ReviewQueue({ user }: ReviewQueueProps) {
         error?: string;
       };
       if (!res.ok || !data.ok) {
-        setState({ phase: "error", message: data.error ?? "Kon items niet laden." });
+        setState({
+          phase: "error",
+          message: data.error ?? "Kon items niet laden.",
+        });
         return;
       }
       setState({
@@ -108,7 +111,10 @@ export function ReviewQueue({ user }: ReviewQueueProps) {
   if (state.phase === "loading") {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 className="size-6 animate-spin text-[var(--muted)]" aria-hidden />
+        <Loader2
+          className="size-6 animate-spin text-[var(--muted)]"
+          aria-hidden
+        />
       </div>
     );
   }
@@ -131,7 +137,12 @@ export function ReviewQueue({ user }: ReviewQueueProps) {
     return (
       <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-8 text-center">
         <p className="text-sm text-[var(--muted)]">{state.message}</p>
-        <Button variant="secondary" size="sm" className="mt-4" onClick={refresh}>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="mt-4"
+          onClick={refresh}
+        >
           <RefreshCw className="size-4" aria-hidden /> Opnieuw proberen
         </Button>
       </div>
@@ -144,12 +155,7 @@ export function ReviewQueue({ user }: ReviewQueueProps) {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
         <span className="tabular-nums">{total} in de wachtrij</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="ml-auto"
-          onClick={refresh}
-        >
+        <Button variant="ghost" size="sm" className="ml-auto" onClick={refresh}>
           <RefreshCw className="size-4" aria-hidden /> Vernieuwen
         </Button>
       </div>

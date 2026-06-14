@@ -14,7 +14,11 @@
 import { spawnSync } from "node:child_process";
 const RS = "--conditions=react-server";
 if (!process.execArgv.includes(RS)) {
-  const r = spawnSync(process.argv[0], [...process.execArgv, RS, ...process.argv.slice(1)], { stdio: "inherit" });
+  const r = spawnSync(
+    process.argv[0],
+    [...process.execArgv, RS, ...process.argv.slice(1)],
+    { stdio: "inherit" },
+  );
   process.exit(r.status ?? 1);
 }
 
@@ -24,7 +28,13 @@ import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { slugify } from "../lib/utils";
 import { safeUrl } from "../lib/safeUrl";
-import { EXTRACTOR_VERSION, type EventType, type Level, type Division, type AgeGroup } from "../lib/types";
+import {
+  EXTRACTOR_VERSION,
+  type EventType,
+  type Level,
+  type Division,
+  type AgeGroup,
+} from "../lib/types";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -44,23 +54,71 @@ const enrichedClubSchema = z.object({
   foundedYear: z.string().optional(),
   lat: z.number().optional(),
   lng: z.number().optional(),
-  teams: z.array(z.object({ level: z.string(), division: z.string(), ageGroup: z.string() })).optional(),
-  events: z.array(z.object({
-    title: z.string(), type: z.string(), start: z.string(), end: z.string().optional(),
-    locationText: z.string().optional(), url: z.string().optional(), description: z.string().optional(),
-  })).optional(),
-  openGyms: z.array(z.object({
-    weekday: z.string(), startTime: z.string(), endTime: z.string(), notes: z.string().optional(),
-  })).optional(),
+  teams: z
+    .array(
+      z.object({
+        level: z.string(),
+        division: z.string(),
+        ageGroup: z.string(),
+      }),
+    )
+    .optional(),
+  events: z
+    .array(
+      z.object({
+        title: z.string(),
+        type: z.string(),
+        start: z.string(),
+        end: z.string().optional(),
+        locationText: z.string().optional(),
+        url: z.string().optional(),
+        description: z.string().optional(),
+      }),
+    )
+    .optional(),
+  openGyms: z
+    .array(
+      z.object({
+        weekday: z.string(),
+        startTime: z.string(),
+        endTime: z.string(),
+        notes: z.string().optional(),
+      }),
+    )
+    .optional(),
 });
 
 type EnrichedClub = z.infer<typeof enrichedClubSchema>;
 
 const BYDAY: Record<string, string> = {
-  monday: "MO", tuesday: "TU", wednesday: "WE", thursday: "TH", friday: "FR", saturday: "SA", sunday: "SU",
+  monday: "MO",
+  tuesday: "TU",
+  wednesday: "WE",
+  thursday: "TH",
+  friday: "FR",
+  saturday: "SA",
+  sunday: "SU",
 };
-const EVENT_TYPES = new Set<EventType>(["competition", "open_gym", "clinic", "tryout", "showcase", "training", "other"]);
-const LEVELS = new Set(["1", "2", "3", "4", "5", "6", "elite", "prep", "recreational"]);
+const EVENT_TYPES = new Set<EventType>([
+  "competition",
+  "open_gym",
+  "clinic",
+  "tryout",
+  "showcase",
+  "training",
+  "other",
+]);
+const LEVELS = new Set([
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "elite",
+  "prep",
+  "recreational",
+]);
 const DIVISIONS = new Set(["all_girl", "coed", "all_boy"]);
 const AGES = new Set(["mini", "youth", "junior", "senior", "open"]);
 
@@ -85,7 +143,9 @@ function loadEnrichedClubs(): EnrichedClub[] {
   }
   const parsed = z.array(enrichedClubSchema).safeParse(raw);
   if (!parsed.success) {
-    throw new Error(`${path} failed validation:\n${z.prettifyError(parsed.error)}`);
+    throw new Error(
+      `${path} failed validation:\n${z.prettifyError(parsed.error)}`,
+    );
   }
   return parsed.data;
 }
@@ -95,7 +155,11 @@ async function main() {
   const { adminDb } = await import("../lib/firebaseAdmin");
   const { FieldValue, Timestamp } = await import("firebase-admin/firestore");
 
-  let pruned = 0, updated = 0, teamsW = 0, gymsW = 0, eventsW = 0;
+  let pruned = 0,
+    updated = 0,
+    teamsW = 0,
+    gymsW = 0,
+    eventsW = 0;
 
   for (const c of data) {
     const slug = slugify(c.name);
@@ -105,9 +169,15 @@ async function main() {
       // Prune the fake/non-club: club doc, its teams subcollection, its sources, its events.
       const teams = await clubRef.collection("teams").get();
       await Promise.all(teams.docs.map((d) => d.ref.delete()));
-      const srcs = await adminDb.collection("sources").where("club_id", "==", slug).get();
+      const srcs = await adminDb
+        .collection("sources")
+        .where("club_id", "==", slug)
+        .get();
       await Promise.all(srcs.docs.map((d) => d.ref.delete()));
-      const evs = await adminDb.collection("events").where("clubId", "==", slug).get();
+      const evs = await adminDb
+        .collection("events")
+        .where("clubId", "==", slug)
+        .get();
       await Promise.all(evs.docs.map((d) => d.ref.delete()));
       await clubRef.delete();
       pruned++;
@@ -117,16 +187,26 @@ async function main() {
 
     // Normalize teams.
     const teams = (c.teams ?? []).filter(
-      (t) => LEVELS.has(t.level) && DIVISIONS.has(t.division) && AGES.has(t.ageGroup),
+      (t) =>
+        LEVELS.has(t.level) &&
+        DIVISIONS.has(t.division) &&
+        AGES.has(t.ageGroup),
     );
-    const teamsSummary = teams.map((t) => ({ level: t.level as Level, division: t.division as Division, ageGroup: t.ageGroup as AgeGroup }));
+    const teamsSummary = teams.map((t) => ({
+      level: t.level as Level,
+      division: t.division as Division,
+      ageGroup: t.ageGroup as AgeGroup,
+    }));
 
     // Update club profile (merge; never clobber locked docs).
     const existing = await clubRef.get();
     if (existing.exists && existing.data()?.locked === true) {
       console.log(`[skip-locked] ${c.name}`);
     } else {
-      const founded = c.foundedYear && /^\d{4}$/.test(c.foundedYear) ? Number(c.foundedYear) : null;
+      const founded =
+        c.foundedYear && /^\d{4}$/.test(c.foundedYear)
+          ? Number(c.foundedYear)
+          : null;
       await clubRef.set(
         {
           name: c.name,
@@ -161,10 +241,18 @@ async function main() {
     for (const d of old.docs) teamsBatch.delete(d.ref);
     for (let i = 0; i < teams.length; i++) {
       const t = teams[i];
-      teamsBatch.set(clubRef.collection("teams").doc(`${t.level}-${t.division}-${t.ageGroup}-${i}`), {
-        name: `${t.division} ${t.ageGroup} L${t.level}`,
-        level: t.level, division: t.division, ageGroup: t.ageGroup, status: "active",
-      });
+      teamsBatch.set(
+        clubRef
+          .collection("teams")
+          .doc(`${t.level}-${t.division}-${t.ageGroup}-${i}`),
+        {
+          name: `${t.division} ${t.ageGroup} L${t.level}`,
+          level: t.level,
+          division: t.division,
+          ageGroup: t.ageGroup,
+          status: "active",
+        },
+      );
       teamsW++;
     }
     await teamsBatch.commit();
@@ -174,18 +262,39 @@ async function main() {
     for (let i = 0; i < gyms.length; i++) {
       const g = gyms[i];
       const day = BYDAY[g.weekday?.toLowerCase()];
-      if (!day || !/^\d{1,2}:\d{2}$/.test(g.startTime) || !/^\d{1,2}:\d{2}$/.test(g.endTime)) continue;
-      await adminDb.collection("open_gyms").doc(`${slug}-og-${i}`).set({
-        clubId: slug,
-        dedupKey: `${slug}-${day}-${g.startTime}`,
-        rrule: `FREQ=WEEKLY;BYDAY=${day}`,
-        exdates: [],
-        startTime: g.startTime, endTime: g.endTime, tz: "Europe/Amsterdam",
-        validFrom: null, validUntil: null,
-        locationText: nz(g.notes), lat: typeof c.lat === "number" ? c.lat : null, lng: typeof c.lng === "number" ? c.lng : null,
-        notes: nz(g.notes), origin: "scrape", confidence: 0.9, extractorVersion: EXTRACTOR_VERSION,
-        status: "published", locked: false, updatedAt: FieldValue.serverTimestamp(),
-      }, { merge: true });
+      if (
+        !day ||
+        !/^\d{1,2}:\d{2}$/.test(g.startTime) ||
+        !/^\d{1,2}:\d{2}$/.test(g.endTime)
+      )
+        continue;
+      await adminDb
+        .collection("open_gyms")
+        .doc(`${slug}-og-${i}`)
+        .set(
+          {
+            clubId: slug,
+            dedupKey: `${slug}-${day}-${g.startTime}`,
+            rrule: `FREQ=WEEKLY;BYDAY=${day}`,
+            exdates: [],
+            startTime: g.startTime,
+            endTime: g.endTime,
+            tz: "Europe/Amsterdam",
+            validFrom: null,
+            validUntil: null,
+            locationText: nz(g.notes),
+            lat: typeof c.lat === "number" ? c.lat : null,
+            lng: typeof c.lng === "number" ? c.lng : null,
+            notes: nz(g.notes),
+            origin: "scrape",
+            confidence: 0.9,
+            extractorVersion: EXTRACTOR_VERSION,
+            status: "published",
+            locked: false,
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
       gymsW++;
     }
 
@@ -195,23 +304,52 @@ async function main() {
       const e = events[i];
       const start = new Date(e.start);
       if (isNaN(start.getTime())) continue;
-      const type = (EVENT_TYPES.has(e.type as EventType) ? e.type : "other") as EventType;
+      const type = (
+        EVENT_TYPES.has(e.type as EventType) ? e.type : "other"
+      ) as EventType;
       const id = `${slug}-ev-${i}`;
       const hasEnd = Boolean(e.end && !isNaN(new Date(e.end).getTime()));
-      await adminDb.collection("events").doc(id).set({
-        canonicalEventId: id, clubId: slug, title: e.title, description: nz(e.description), type,
-        allDay: await isAllDay(start, hasEnd),
-        startsAt: Timestamp.fromDate(start),
-        endsAt: e.end && !isNaN(new Date(e.end).getTime()) ? Timestamp.fromDate(new Date(e.end)) : null,
-        locationText: nz(e.locationText), lat: typeof c.lat === "number" ? c.lat : null, lng: typeof c.lng === "number" ? c.lng : null,
-        url: safeUrl(e.url), ticketUrl: null, origin: "scrape", confidence: 0.8, extractorVersion: EXTRACTOR_VERSION,
-        status: "pending", locked: false, sources: [], updatedAt: FieldValue.serverTimestamp(),
-      }, { merge: true });
+      await adminDb
+        .collection("events")
+        .doc(id)
+        .set(
+          {
+            canonicalEventId: id,
+            clubId: slug,
+            title: e.title,
+            description: nz(e.description),
+            type,
+            allDay: await isAllDay(start, hasEnd),
+            startsAt: Timestamp.fromDate(start),
+            endsAt:
+              e.end && !isNaN(new Date(e.end).getTime())
+                ? Timestamp.fromDate(new Date(e.end))
+                : null,
+            locationText: nz(e.locationText),
+            lat: typeof c.lat === "number" ? c.lat : null,
+            lng: typeof c.lng === "number" ? c.lng : null,
+            url: safeUrl(e.url),
+            ticketUrl: null,
+            origin: "scrape",
+            confidence: 0.8,
+            extractorVersion: EXTRACTOR_VERSION,
+            status: "pending",
+            locked: false,
+            sources: [],
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
       eventsW++;
     }
   }
 
-  console.log(`\n[enrich] done: pruned=${pruned} clubsUpdated=${updated} teams=${teamsW} openGyms=${gymsW} pendingEvents=${eventsW}`);
+  console.log(
+    `\n[enrich] done: pruned=${pruned} clubsUpdated=${updated} teams=${teamsW} openGyms=${gymsW} pendingEvents=${eventsW}`,
+  );
 }
 
-main().catch((e) => { console.error("[enrich] fatal:", e); process.exit(1); });
+main().catch((e) => {
+  console.error("[enrich] fatal:", e);
+  process.exit(1);
+});

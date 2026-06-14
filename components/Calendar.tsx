@@ -68,10 +68,7 @@ export function Calendar({
   // legitimate render-time value (unlike reading a ref during render).
   const [now] = useState(() => new Date());
 
-  const groups = useMemo(
-    () => buildAgenda(items, now),
-    [items, now],
-  );
+  const groups = useMemo(() => buildAgenda(items, now), [items, now]);
 
   const focusId = selectedClubId ?? hoveredClubId;
 
@@ -225,7 +222,10 @@ function AgendaRowItem({
   );
 
   return (
-    <li onMouseEnter={() => onHover(item.clubId)} onMouseLeave={() => onHover(null)}>
+    <li
+      onMouseEnter={() => onHover(item.clubId)}
+      onMouseLeave={() => onHover(null)}
+    >
       {interactive ? (
         <button
           type="button"

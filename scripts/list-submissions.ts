@@ -82,7 +82,9 @@ async function main(): Promise<void> {
   console.log(`${rows.length} inzending(en) — status: ${label}\n`);
   rows.forEach((r, i) => {
     console.log(`${i + 1}. [${r.kind}] (${r.status})  id=${r.id}`);
-    console.log(`   ingezonden: ${r.createdAt ?? "?"} door ${r.submittedByEmail ?? "onbekend"}`);
+    console.log(
+      `   ingezonden: ${r.createdAt ?? "?"} door ${r.submittedByEmail ?? "onbekend"}`,
+    );
     for (const [k, v] of Object.entries(r.payload)) {
       if (v === null || v === undefined || String(v).trim() === "") continue;
       console.log(`   ${k}: ${String(v)}`);

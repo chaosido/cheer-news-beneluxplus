@@ -35,7 +35,7 @@ describe("validateExtractedEvent", () => {
   it("rejects out-of-window dates (too far in the past)", () => {
     const res = validateExtractedEvent(
       baseRaw({ start: "2000-01-01T10:00:00+01:00" }),
-      SOURCE
+      SOURCE,
     );
     expect(res.ok).toBe(false);
     if (!res.ok) {
@@ -46,7 +46,7 @@ describe("validateExtractedEvent", () => {
   it("rejects out-of-window dates (too far in the future)", () => {
     const res = validateExtractedEvent(
       baseRaw({ start: "2099-01-01T10:00:00+01:00" }),
-      SOURCE
+      SOURCE,
     );
     expect(res.ok).toBe(false);
   });
@@ -57,7 +57,7 @@ describe("validateExtractedEvent", () => {
         url: "https://evil.example.com/phish",
         ticketUrl: "https://www.eventbrite.nl/e/12345",
       }),
-      SOURCE
+      SOURCE,
     );
     expect(res.ok).toBe(true);
     if (res.ok) {
@@ -69,7 +69,7 @@ describe("validateExtractedEvent", () => {
   it("keeps same-registrable-domain URLs (across subdomains)", () => {
     const res = validateExtractedEvent(
       baseRaw({ url: "https://tickets.myclub.nl/buy" }),
-      SOURCE
+      SOURCE,
     );
     expect(res.ok).toBe(true);
     if (res.ok) expect(res.value.url).toContain("myclub.nl");
@@ -89,7 +89,7 @@ describe("validateExtractedEvent", () => {
         title: "<b>Hack</b> <script>alert(1)</script>Showcase",
         description: `<p>${longDesc}</p>`,
       }),
-      SOURCE
+      SOURCE,
     );
     expect(res.ok).toBe(true);
     if (res.ok) {
@@ -105,7 +105,7 @@ describe("validateExtractedEvent", () => {
       baseRaw({
         location: { name: "X", address: null, lat: 52.1, lng: 4.3 },
       }),
-      SOURCE
+      SOURCE,
     );
     expect(res.ok).toBe(true);
     if (res.ok) {
@@ -127,7 +127,7 @@ describe("validateExtractedEvent", () => {
         start: start.toISOString(),
         end: endBeforeStart.toISOString(),
       }),
-      SOURCE
+      SOURCE,
     );
     expect(res.ok).toBe(true);
     if (res.ok) expect(res.value.end).toBeNull();
@@ -140,7 +140,7 @@ describe("validateExtractedEvent", () => {
         start: start.toISOString(),
         end: "2099-01-01T10:00:00+01:00", // far future, dropped
       }),
-      SOURCE
+      SOURCE,
     );
     expect(res.ok).toBe(true);
     if (res.ok) expect(res.value.end).toBeNull();
@@ -156,7 +156,7 @@ describe("validateExtractedEvent", () => {
       .slice(0, 10);
     const res = validateExtractedEvent(
       baseRaw({ start: startDate, end: endDate, allDay: true }),
-      SOURCE
+      SOURCE,
     );
     expect(res.ok).toBe(true);
     if (res.ok) {
@@ -171,7 +171,7 @@ describe("validateExtractedEvent", () => {
     const end = new Date(start.getTime() + 3 * 24 * 60 * 60 * 1000); // +3 days
     const res = validateExtractedEvent(
       baseRaw({ start: start.toISOString(), end: end.toISOString() }),
-      SOURCE
+      SOURCE,
     );
     expect(res.ok).toBe(true);
     if (res.ok) expect(res.value.end).toBe(end.toISOString());

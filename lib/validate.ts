@@ -75,7 +75,7 @@ export const extractedEventSchema = z.object({
   ticketUrl: z.string().nullable(),
   sourceUrl: z.string(),
   extractionMethod: z.enum(
-    EXTRACTION_METHODS as [ExtractionMethod, ...ExtractionMethod[]]
+    EXTRACTION_METHODS as [ExtractionMethod, ...ExtractionMethod[]],
   ),
   confidence: z.number(),
 });
@@ -151,7 +151,7 @@ function domainBaseName(hostname: string): string {
  */
 function sanitizeUrl(
   candidate: string | null,
-  sourceUrl: string
+  sourceUrl: string,
 ): string | null {
   if (!candidate) return null;
   let cand: URL;
@@ -194,7 +194,7 @@ function clamp01(n: number): number {
  */
 export function validateExtractedEvent(
   raw: unknown,
-  sourceUrl: string
+  sourceUrl: string,
 ): ValidationResult {
   // sourceUrl itself must be a usable http(s) URL for the domain check.
   try {
@@ -211,7 +211,7 @@ export function validateExtractedEvent(
     return {
       ok: false,
       errors: parsed.error.issues.map(
-        (i) => `${i.path.join(".") || "(root)"}: ${i.message}`
+        (i) => `${i.path.join(".") || "(root)"}: ${i.message}`,
       ),
     };
   }

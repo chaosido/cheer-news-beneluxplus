@@ -29,7 +29,10 @@ export function FieldShell({
 }: FieldShellProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={htmlFor} className="text-sm font-medium text-[var(--ink)]">
+      <label
+        htmlFor={htmlFor}
+        className="text-sm font-medium text-[var(--ink)]"
+      >
         {label}
         {required && <span className="ml-0.5 text-[var(--accent)]">*</span>}
       </label>

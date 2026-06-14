@@ -25,7 +25,12 @@ interface FiltersProps {
   resultCount: number;
 }
 
-export function Filters({ filters, onChange, provinces, resultCount }: FiltersProps) {
+export function Filters({
+  filters,
+  onChange,
+  provinces,
+  resultCount,
+}: FiltersProps) {
   function toggleType(type: EventType) {
     const next = new Set(filters.types);
     if (next.has(type)) next.delete(type);
@@ -93,7 +98,9 @@ export function Filters({ filters, onChange, provinces, resultCount }: FiltersPr
               <span
                 aria-hidden
                 className="size-2 rounded-full"
-                style={{ backgroundColor: active ? "rgba(255,255,255,0.9)" : color }}
+                style={{
+                  backgroundColor: active ? "rgba(255,255,255,0.9)" : color,
+                }}
               />
               {EVENT_TYPE_LABEL[type]}
             </button>
@@ -135,7 +142,9 @@ export function Filters({ filters, onChange, provinces, resultCount }: FiltersPr
           <input
             type="date"
             value={filters.to ?? ""}
-            onChange={(e) => onChange({ ...filters, to: e.target.value || null })}
+            onChange={(e) =>
+              onChange({ ...filters, to: e.target.value || null })
+            }
             className="h-8 rounded-full border border-[var(--border)] bg-[var(--surface)] px-2.5 text-xs text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
           />
         </label>

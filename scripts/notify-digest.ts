@@ -67,7 +67,9 @@ async function main(): Promise<void> {
       kind: data.kind,
       payload: (data.payload ?? {}) as Record<string, unknown>,
       submittedByEmail:
-        typeof data.submittedByEmail === "string" ? data.submittedByEmail : null,
+        typeof data.submittedByEmail === "string"
+          ? data.submittedByEmail
+          : null,
       createdAt:
         createdAt && typeof createdAt.toDate === "function"
           ? createdAt.toDate().toISOString()
@@ -75,7 +77,9 @@ async function main(): Promise<void> {
     };
   });
 
-  console.log(`[digest] ${submissions.length} new submission(s) pending review:`);
+  console.log(
+    `[digest] ${submissions.length} new submission(s) pending review:`,
+  );
   for (const s of submissions) {
     console.log(`  - [${s.kind}] ${JSON.stringify(s.payload)}`);
   }

@@ -51,13 +51,7 @@ export function ClubCard({ club }: { club: ClubClient }) {
   );
 }
 
-function ClubLogo({
-  name,
-  logoUrl,
-}: {
-  name: string;
-  logoUrl: string | null;
-}) {
+function ClubLogo({ name, logoUrl }: { name: string; logoUrl: string | null }) {
   // Re-validate against the http(s) allowlist before using as <img src>.
   const safeLogoUrl = safeUrl(logoUrl);
   if (safeLogoUrl) {

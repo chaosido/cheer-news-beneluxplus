@@ -32,8 +32,8 @@ export default function PrivacyPage() {
           <p className="text-[var(--muted)]">
             De getoonde clubgegevens (naam, locatie, teams, contactgegevens,
             social media) komen uit openbare bronnen of zijn door clubs zelf
-            aangeleverd. We slaan geen persoonlijke accountgegevens van bezoekers
-            op en gebruiken geen tracking-cookies voor advertenties.
+            aangeleverd. We slaan geen persoonlijke accountgegevens van
+            bezoekers op en gebruiken geen tracking-cookies voor advertenties.
           </p>
         </section>
 

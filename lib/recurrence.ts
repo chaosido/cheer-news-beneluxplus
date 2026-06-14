@@ -36,7 +36,7 @@ const RRULE_WEEKDAYS: Weekday[] = [
  */
 export function buildWeeklyRRule(
   weekday: number,
-  opts: { count?: number; until?: Date; interval?: number } = {}
+  opts: { count?: number; until?: Date; interval?: number } = {},
 ): string {
   const wd = RRULE_WEEKDAYS[((weekday % 7) + 7) % 7];
   const rule = new RRule({
@@ -74,7 +74,7 @@ function zonedDateKey(d: Date, tz: string): string {
 function localWallClockToIso(
   dayKey: string,
   time: { h: number; m: number },
-  tz: string
+  tz: string,
 ): string {
   const hh = String(time.h).padStart(2, "0");
   const mm = String(time.m).padStart(2, "0");
@@ -100,7 +100,7 @@ function localWallClockToIso(
 export function expandOpenGym(
   gym: OpenGymClient,
   rangeStart: Date,
-  rangeEnd: Date
+  rangeEnd: Date,
 ): OpenGymOccurrence[] {
   const tz = gym.tz || "Europe/Amsterdam";
   // `validUntil` marks the last date a recurring gym runs. The stored RRULE has
@@ -115,8 +115,7 @@ export function expandOpenGym(
   // Strict `<`: equal start/end times are zero-duration (same day), not a
   // 24-hour midnight crossing. `crossesMidnight` is true only when the end
   // wall-clock is numerically before the start.
-  const crossesMidnight =
-    end.h * 60 + end.m < start.h * 60 + start.m;
+  const crossesMidnight = end.h * 60 + end.m < start.h * 60 + start.m;
 
   // Local calendar days on which the gym occurs (as YYYY-MM-DD in tz).
   const dayKeys: string[] = [];
@@ -138,8 +137,8 @@ export function expandOpenGym(
         Date.UTC(
           anchor.getUTCFullYear(),
           anchor.getUTCMonth(),
-          anchor.getUTCDate()
-        )
+          anchor.getUTCDate(),
+        ),
       );
     }
     const rule = new RRule(parsed);
@@ -149,7 +148,7 @@ export function expandOpenGym(
     const between = rule.between(
       new Date(rangeStart.getTime() - pad),
       new Date(rangeEnd.getTime() + pad),
-      true
+      true,
     );
     for (const occ of between) {
       // rrule emits floating times as UTC; format the UTC clock to a day key.
@@ -161,7 +160,7 @@ export function expandOpenGym(
 
   // Normalize exdates to local day keys for comparison.
   const exDayKeys = new Set(
-    (gym.exdates ?? []).map((iso) => zonedDateKey(new Date(iso), tz))
+    (gym.exdates ?? []).map((iso) => zonedDateKey(new Date(iso), tz)),
   );
 
   const occurrences: OpenGymOccurrence[] = [];
@@ -269,8 +268,7 @@ export function weeklySlots(gym: OpenGymClient): WeeklySlot[] {
 
   slots.sort(
     (a, b) =>
-      a.weekdayIndex - b.weekdayIndex ||
-      a.startTime.localeCompare(b.startTime),
+      a.weekdayIndex - b.weekdayIndex || a.startTime.localeCompare(b.startTime),
   );
   return slots;
 }

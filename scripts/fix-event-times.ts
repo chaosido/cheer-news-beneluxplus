@@ -61,9 +61,11 @@ async function main() {
   const { formatInTimeZone } = await import("date-fns-tz");
 
   /** Local "HH:mm" for a Timestamp in Europe/Amsterdam. */
-  const localTime = (ts: TimestampType) => formatInTimeZone(ts.toDate(), TZ, "HH:mm");
+  const localTime = (ts: TimestampType) =>
+    formatInTimeZone(ts.toDate(), TZ, "HH:mm");
   /** Local "yyyy-MM-dd" for a Timestamp in Europe/Amsterdam. */
-  const localDay = (ts: TimestampType) => formatInTimeZone(ts.toDate(), TZ, "yyyy-MM-dd");
+  const localDay = (ts: TimestampType) =>
+    formatInTimeZone(ts.toDate(), TZ, "yyyy-MM-dd");
 
   const snap = await adminDb.collection("events").get();
 
@@ -128,7 +130,8 @@ async function main() {
         const endTime = localTime(endsAt);
         if (endTime === "23:59" || endTime === "23:58") allDay = true;
         // Some date-only items are stored end-of-day at next-midnight too.
-        else if (endTime === "00:00" && localDay(endsAt) > localDay(startsAt)) allDay = true;
+        else if (endTime === "00:00" && localDay(endsAt) > localDay(startsAt))
+          allDay = true;
       }
     }
 

@@ -5,7 +5,8 @@ export function SiteFooter() {
     <footer className="mt-auto border-t border-[var(--border)] bg-[var(--surface)]">
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
         <p>
-          Cheer News BeneluxPlus — een open overzicht van cheerleading in Nederland.
+          Cheer News BeneluxPlus — een open overzicht van cheerleading in
+          Nederland.
         </p>
         <nav className="flex gap-4">
           <Link href="/submit" className="hover:text-[var(--ink)]">

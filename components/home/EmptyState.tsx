@@ -15,7 +15,9 @@ export function EmptyState({
       <span className="flex size-12 items-center justify-center rounded-full border border-dashed border-[var(--border)] bg-[var(--surface-2)] text-[var(--muted)]">
         <Icon className="size-5" aria-hidden />
       </span>
-      <p className="font-display text-sm font-semibold text-[var(--ink)]">{title}</p>
+      <p className="font-display text-sm font-semibold text-[var(--ink)]">
+        {title}
+      </p>
       {hint && <p className="max-w-xs text-xs text-[var(--muted)]">{hint}</p>}
     </div>
   );

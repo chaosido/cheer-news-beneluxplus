@@ -41,7 +41,7 @@ describe("expandOpenGym", () => {
 
     const occ = expandOpenGym(gym, start, end);
     const fridays = occ.map((o) =>
-      formatInTimeZone(new Date(o.startsAt), TZ, "yyyy-MM-dd HH:mm")
+      formatInTimeZone(new Date(o.startsAt), TZ, "yyyy-MM-dd HH:mm"),
     );
 
     expect(fridays).toContain("2025-03-28 19:00"); // before DST (CET)
@@ -160,7 +160,7 @@ describe("expandOpenGym", () => {
     const occ = expandOpenGym(
       gym,
       new Date("2025-06-01T00:00:00Z"),
-      new Date("2025-06-30T00:00:00Z")
+      new Date("2025-06-30T00:00:00Z"),
     );
     expect(occ).toHaveLength(1);
     expect(occ[0].startsAt).toBe("2025-06-13T19:00:00+02:00");

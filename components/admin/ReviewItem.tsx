@@ -91,8 +91,12 @@ export function ReviewItem(props: Props) {
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-display text-base font-semibold">{title}</h3>
-                <Badge>{props.kind === "submission" ? "Inzending" : "Event"}</Badge>
+                <h3 className="font-display text-base font-semibold">
+                  {title}
+                </h3>
+                <Badge>
+                  {props.kind === "submission" ? "Inzending" : "Event"}
+                </Badge>
               </div>
               <p className="mt-0.5 text-xs text-[var(--muted)]">{meta}</p>
             </div>

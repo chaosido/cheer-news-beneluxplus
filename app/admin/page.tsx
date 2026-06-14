@@ -38,7 +38,10 @@ export default function AdminPage() {
   if (!authReady) {
     return (
       <main className="mx-auto flex max-w-md items-center justify-center px-4 py-24">
-        <Loader2 className="size-6 animate-spin text-[var(--muted)]" aria-hidden />
+        <Loader2
+          className="size-6 animate-spin text-[var(--muted)]"
+          aria-hidden
+        />
       </main>
     );
   }
@@ -60,7 +63,11 @@ export default function AdminPage() {
           </h1>
           <p className="text-sm text-[var(--muted)]">{user.email}</p>
         </div>
-        <Button variant="secondary" size="sm" onClick={() => signOut(clientAuth)}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => signOut(clientAuth)}
+        >
           <LogOut className="size-4" aria-hidden /> Uitloggen
         </Button>
       </div>
@@ -89,7 +96,9 @@ function SignIn() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Beheer</h1>
+        <h1 className="font-display text-2xl font-bold tracking-tight">
+          Beheer
+        </h1>
         <p className="mt-1 text-sm text-[var(--muted)]">
           Log in met Google om inzendingen te beoordelen.
         </p>

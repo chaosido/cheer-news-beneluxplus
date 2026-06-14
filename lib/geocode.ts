@@ -10,7 +10,8 @@
  */
 
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
-const USER_AGENT = "CheerNewsBeneluxPlus/1.0 (contact: wonnink.jesse@gmail.com)";
+const USER_AGENT =
+  "CheerNewsBeneluxPlus/1.0 (contact: wonnink.jesse@gmail.com)";
 const MIN_INTERVAL_MS = 1100; // > 1s to stay safely under the rate limit.
 
 export interface GeoResult {
@@ -58,7 +59,8 @@ async function fetchNominatim(query: string): Promise<GeoResult | null> {
     const first: unknown = data[0];
     if (!first || typeof first !== "object") return null;
     const record = first as Record<string, unknown>;
-    if (typeof record.lat !== "string" || typeof record.lon !== "string") return null;
+    if (typeof record.lat !== "string" || typeof record.lon !== "string")
+      return null;
     const lat = Number.parseFloat(record.lat);
     const lng = Number.parseFloat(record.lon);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
@@ -83,7 +85,7 @@ export async function geocode(query: string): Promise<GeoResult | null> {
   // swallows errors — but be defensive).
   chain = run.then(
     () => undefined,
-    () => undefined
+    () => undefined,
   );
 
   const result = await run;

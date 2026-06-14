@@ -9,11 +9,7 @@
  * (the trust boundary) before it can be returned.
  */
 import { load } from "cheerio";
-import type {
-  ExtractedEvent,
-  EventType,
-  ExtractionMethod,
-} from "@/lib/types";
+import type { ExtractedEvent, EventType, ExtractionMethod } from "@/lib/types";
 import { validateExtractedEvent } from "@/lib/validate";
 
 // ---------------------------------------------------------------------------
@@ -31,8 +27,7 @@ import { validateExtractedEvent } from "@/lib/validate";
 // While disabled, the `@google/genai` SDK is NEVER imported or executed at
 // runtime: the import is dynamic (`await import`) and lives inside the guarded
 // branch below, which is unreachable when the flag is off.
-const GEMINI_ENABLED =
-  process.env.GEMINI_ENABLED === "true"; // default false — Gemini is off.
+const GEMINI_ENABLED = process.env.GEMINI_ENABLED === "true"; // default false — Gemini is off.
 
 const JSON_LD_CONFIDENCE = 0.95;
 const LLM_CONFIDENCE = 0.65;
@@ -105,13 +100,14 @@ function isEventNode(node: unknown): node is Record<string, unknown> {
   if (!node || typeof node !== "object") return false;
   const t = (node as Record<string, unknown>)["@type"];
   const types = Array.isArray(t) ? t : [t];
-  return types.some(
-    (x) => typeof x === "string" && /event/i.test(x)
-  );
+  return types.some((x) => typeof x === "string" && /event/i.test(x));
 }
 
 /** Recursively collect Event nodes from a parsed JSON-LD value (@graph, arrays). */
-function collectEventNodes(value: unknown, out: Record<string, unknown>[]): void {
+function collectEventNodes(
+  value: unknown,
+  out: Record<string, unknown>[],
+): void {
   if (Array.isArray(value)) {
     for (const v of value) collectEventNodes(v, out);
     return;
@@ -126,7 +122,7 @@ function collectEventNodes(value: unknown, out: Record<string, unknown>[]): void
 
 function mapEventNode(
   node: Record<string, unknown>,
-  sourceUrl: string
+  sourceUrl: string,
 ): Partial<ExtractedEvent> {
   const start = asString(node.startDate);
   const end = asString(node.endDate);
@@ -163,7 +159,7 @@ function extractTicketUrl(offers: unknown): string | null {
  */
 export function parseJsonLdEvents(
   html: string,
-  sourceUrl: string
+  sourceUrl: string,
 ): ExtractedEvent[] {
   const $ = load(html);
   const nodes: Record<string, unknown>[] = [];
@@ -223,7 +219,10 @@ function buildGeminiResponseSchema(Type: typeof import("@google/genai").Type) {
           ],
         },
         start: { type: Type.STRING, description: "ISO-8601 with UTC offset" },
-        end: { type: Type.STRING, description: "ISO-8601 with offset, or empty" },
+        end: {
+          type: Type.STRING,
+          description: "ISO-8601 with offset, or empty",
+        },
         allDay: { type: Type.BOOLEAN },
         locationName: { type: Type.STRING },
         locationAddress: { type: Type.STRING },
@@ -269,7 +268,7 @@ function emptyToNull(s: string | undefined): string | null {
 
 function geminiRawToExtracted(
   r: GeminiRawEvent,
-  sourceUrl: string
+  sourceUrl: string,
 ): Partial<ExtractedEvent> {
   const type =
     r.type && VALID_EVENT_TYPES.has(r.type as EventType)
@@ -329,7 +328,7 @@ function buildPrompt(text: string): string {
  */
 export async function extractWithGemini(
   text: string,
-  sourceUrl: string
+  sourceUrl: string,
 ): Promise<ExtractedEvent[]> {
   // Kill-switch: Gemini is off — never touch the SDK or the network.
   if (!GEMINI_ENABLED) return [];
@@ -393,7 +392,7 @@ export function htmlToText(html: string): string {
  */
 export async function extractEvents(
   html: string,
-  sourceUrl: string
+  sourceUrl: string,
 ): Promise<ExtractedEvent[]> {
   const jsonLd = parseJsonLdEvents(html, sourceUrl);
   if (jsonLd.length > 0) return jsonLd;

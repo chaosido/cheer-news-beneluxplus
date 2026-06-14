@@ -33,12 +33,7 @@ import {
   getPublishedEvents,
   getPublishedOpenGyms,
 } from "@/lib/queries";
-import type {
-  ClubClient,
-  EventClient,
-  OpenGymClient,
-  Team,
-} from "@/lib/types";
+import type { ClubClient, EventClient, OpenGymClient, Team } from "@/lib/types";
 import { safeUrl } from "@/lib/safeUrl";
 import { TeamBadges } from "@/components/TeamBadges";
 import { EventsList } from "@/components/clubs/EventsList";

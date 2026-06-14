@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  dedupeEvents,
-  isSameEvent,
-  titleSimilarity,
-} from "@/lib/dedup";
+import { dedupeEvents, isSameEvent, titleSimilarity } from "@/lib/dedup";
 import type { ExtractedEvent } from "@/lib/types";
 
 function ev(overrides: Partial<ExtractedEvent>): ExtractedEvent {
@@ -15,7 +11,12 @@ function ev(overrides: Partial<ExtractedEvent>): ExtractedEvent {
     end: null,
     allDay: false,
     recurrence: null,
-    location: { name: "Topsporthal Almere", address: null, lat: null, lng: null },
+    location: {
+      name: "Topsporthal Almere",
+      address: null,
+      lat: null,
+      lng: null,
+    },
     description: null,
     url: null,
     ticketUrl: null,
@@ -31,13 +32,13 @@ describe("titleSimilarity", () => {
     expect(
       titleSimilarity(
         "Dutch Open Cheerleading Championship 2025",
-        "Dutch Open Championship 2025"
-      )
+        "Dutch Open Championship 2025",
+      ),
     ).toBeGreaterThanOrEqual(0.6);
   });
   it("is low for unrelated titles", () => {
     expect(titleSimilarity("Open Gym Friday", "National Tryouts")).toBeLessThan(
-      0.6
+      0.6,
     );
   });
 });
@@ -118,7 +119,12 @@ describe("dedupeEvents", () => {
   it("keeps genuinely different events separate", () => {
     const comp = ev({
       title: "Dutch Open Championship 2025",
-      location: { name: "Topsporthal Almere", address: null, lat: null, lng: null },
+      location: {
+        name: "Topsporthal Almere",
+        address: null,
+        lat: null,
+        lng: null,
+      },
     });
     const gym = ev({
       title: "Open Gym Friday",
@@ -129,9 +135,7 @@ describe("dedupeEvents", () => {
 
     const clusters = dedupeEvents([comp, gym]);
     expect(clusters).toHaveLength(2);
-    expect(clusters[0].canonicalEventId).not.toBe(
-      clusters[1].canonicalEventId
-    );
+    expect(clusters[0].canonicalEventId).not.toBe(clusters[1].canonicalEventId);
   });
 
   it("assigns a stable canonicalEventId regardless of input order", () => {
@@ -150,7 +154,12 @@ describe("dedupeEvents", () => {
     const run1 = dedupeEvents([
       ev({
         title: "Dutch Open Championship 2025",
-        location: { name: "Topsporthal Almere", address: null, lat: null, lng: null },
+        location: {
+          name: "Topsporthal Almere",
+          address: null,
+          lat: null,
+          lng: null,
+        },
         confidence: 0.9,
       }),
     ])[0].canonicalEventId;
@@ -161,12 +170,22 @@ describe("dedupeEvents", () => {
     const run2 = dedupeEvents([
       ev({
         title: "DUTCH open Championship 2025 — Senior Coed",
-        location: { name: "Topsporthal Almere", address: null, lat: null, lng: null },
+        location: {
+          name: "Topsporthal Almere",
+          address: null,
+          lat: null,
+          lng: null,
+        },
         confidence: 0.7,
       }),
       ev({
         title: "Dutch Open Championship 2025",
-        location: { name: "Topsporthal Almere", address: null, lat: null, lng: null },
+        location: {
+          name: "Topsporthal Almere",
+          address: null,
+          lat: null,
+          lng: null,
+        },
         confidence: 0.95,
       }),
     ])[0].canonicalEventId;

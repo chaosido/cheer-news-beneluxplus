@@ -58,7 +58,9 @@ interface RunStats {
 }
 
 function normalizedHash(text: string): string {
-  return createHash("sha256").update(text.replace(/\s+/g, " ").trim()).digest("hex");
+  return createHash("sha256")
+    .update(text.replace(/\s+/g, " ").trim())
+    .digest("hex");
 }
 
 async function fetchHtml(url: string): Promise<string> {
@@ -66,7 +68,10 @@ async function fetchHtml(url: string): Promise<string> {
   const t = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": USER_AGENT, Accept: "text/html,application/xhtml+xml" },
+      headers: {
+        "User-Agent": USER_AGENT,
+        Accept: "text/html,application/xhtml+xml",
+      },
       signal: ctrl.signal,
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -80,7 +85,8 @@ async function main() {
   // Dynamic imports AFTER the react-server re-exec so `server-only` is a no-op.
   const { adminDb } = await import("../lib/firebaseAdmin");
   const { FieldValue, Timestamp } = await import("firebase-admin/firestore");
-  const { parseJsonLdEvents, extractWithGemini, htmlToText } = await import("../lib/extract");
+  const { parseJsonLdEvents, extractWithGemini, htmlToText } =
+    await import("../lib/extract");
   const { validateExtractedEvent } = await import("../lib/validate");
   const { dedupeEvents, pickRepresentative } = await import("../lib/dedup");
   const { geocode } = await import("../lib/geocode");
@@ -97,7 +103,9 @@ async function main() {
     lockedSkipped: 0,
   };
 
-  console.log(`[aggregate] start ${DRY_RUN ? "(DRY RUN)" : ""} extractorVersion=${EXTRACTOR_VERSION}`);
+  console.log(
+    `[aggregate] start ${DRY_RUN ? "(DRY RUN)" : ""} extractorVersion=${EXTRACTOR_VERSION}`,
+  );
   if (!GEMINI_ENABLED) {
     console.log("[aggregate] Gemini disabled — JSON-LD only");
   }
@@ -106,7 +114,10 @@ async function main() {
   // `doc.data()` is untyped (`DocumentData` => `any` per field), so narrow each
   // field with an explicit runtime guard before trusting it.
   const clubsSnap = await adminDb.collection("clubs").get();
-  const clubBySlug = new Map<string, { id: string; lat: number | null; lng: number | null; city: string }>();
+  const clubBySlug = new Map<
+    string,
+    { id: string; lat: number | null; lng: number | null; city: string }
+  >();
   for (const d of clubsSnap.docs) {
     const c = d.data();
     const slug = typeof c.slug === "string" ? c.slug : "";
@@ -163,10 +174,14 @@ async function main() {
 
     // ---- Diff gate ----
     const hash = normalizedHash(htmlToText(html));
-    const unchanged = src.contentHash === hash && src.extractorVersion === EXTRACTOR_VERSION;
+    const unchanged =
+      src.contentHash === hash && src.extractorVersion === EXTRACTOR_VERSION;
     if (unchanged) {
       stats.skippedUnchanged++;
-      if (!DRY_RUN) await srcDoc.ref.update({ lastFetchedAt: FieldValue.serverTimestamp() });
+      if (!DRY_RUN)
+        await srcDoc.ref.update({
+          lastFetchedAt: FieldValue.serverTimestamp(),
+        });
       continue;
     }
 
@@ -176,7 +191,9 @@ async function main() {
     let raw: ExtractedEvent[] = parseJsonLdEvents(html, sourceUrl);
     if (GEMINI_ENABLED && raw.length === 0) {
       if (stats.llmCalls >= MAX_LLM_CALLS) {
-        console.warn(`[budget] LLM cap (${MAX_LLM_CALLS}) reached — skipping Gemini for ${sourceUrl}`);
+        console.warn(
+          `[budget] LLM cap (${MAX_LLM_CALLS}) reached — skipping Gemini for ${sourceUrl}`,
+        );
       } else {
         stats.llmCalls++;
         try {
@@ -185,7 +202,9 @@ async function main() {
           const msg = (err as Error).message ?? "";
           if (msg.includes("429") || /quota|rate/i.test(msg)) {
             stats.quota429++;
-            console.error(`[QUOTA-429] Gemini quota hit on ${sourceUrl}: ${msg}`);
+            console.error(
+              `[QUOTA-429] Gemini quota hit on ${sourceUrl}: ${msg}`,
+            );
           } else {
             console.error(`[gemini-error] ${sourceUrl}: ${msg}`);
           }
@@ -232,25 +251,46 @@ async function main() {
     let lng = rep.location.lng ?? null;
     if ((lat == null || lng == null) && rep.location.address) {
       const geo = await geocode(rep.location.address);
-      if (geo) { lat = geo.lat; lng = geo.lng; }
+      if (geo) {
+        lat = geo.lat;
+        lng = geo.lng;
+      }
     }
-    if (lat == null || lng == null) { lat = club?.lat ?? null; lng = club?.lng ?? null; }
+    if (lat == null || lng == null) {
+      lat = club?.lat ?? null;
+      lng = club?.lng ?? null;
+    }
 
-    const status: PublishStatus = rep.confidence >= PUBLISH_THRESHOLD ? "published" : "pending";
+    const status: PublishStatus =
+      rep.confidence >= PUBLISH_THRESHOLD ? "published" : "pending";
     const docId = cluster.canonicalEventId;
     const ref = adminDb.collection("events").doc(docId);
 
     // Build this run's provenance, one entry per (sourceId, sourceUrl) pair.
     const seenAt = new Date().toISOString();
-    const sourcesByKey = new Map<string, { sourceId: string; sourceUrl: string; lastSeenAt: string; consecutiveMisses: number }>();
+    const sourcesByKey = new Map<
+      string,
+      {
+        sourceId: string;
+        sourceUrl: string;
+        lastSeenAt: string;
+        consecutiveMisses: number;
+      }
+    >();
     for (const m of cluster.members) {
       const sourceId = sourceIdByEvent.get(m) ?? "";
       const key = `${sourceId}|${m.sourceUrl}`;
-      sourcesByKey.set(key, { sourceId, sourceUrl: m.sourceUrl, lastSeenAt: seenAt, consecutiveMisses: 0 });
+      sourcesByKey.set(key, {
+        sourceId,
+        sourceUrl: m.sourceUrl,
+        lastSeenAt: seenAt,
+        consecutiveMisses: 0,
+      });
     }
 
     stats.eventsUpserted++;
-    if (status === "published") stats.eventsPublished++; else stats.eventsPending++;
+    if (status === "published") stats.eventsPublished++;
+    else stats.eventsPending++;
 
     if (DRY_RUN) continue;
 
@@ -278,7 +318,8 @@ async function main() {
           sourceId,
           sourceUrl,
           lastSeenAt: typeof s.lastSeenAt === "string" ? s.lastSeenAt : seenAt,
-          consecutiveMisses: typeof s.consecutiveMisses === "number" ? s.consecutiveMisses : 0,
+          consecutiveMisses:
+            typeof s.consecutiveMisses === "number" ? s.consecutiveMisses : 0,
         });
       }
     }
@@ -312,7 +353,9 @@ async function main() {
 
   console.log("[aggregate] summary:", JSON.stringify(stats, null, 2));
   if (stats.quota429 > 0) {
-    console.error(`[aggregate] WARNING: hit Gemini quota ${stats.quota429}x — some sources not extracted.`);
+    console.error(
+      `[aggregate] WARNING: hit Gemini quota ${stats.quota429}x — some sources not extracted.`,
+    );
   }
 }
 

@@ -48,7 +48,10 @@ describe("submissionInputSchema (open format)", () => {
   });
 
   it("rejects a message that is too short (<5 chars)", () => {
-    const res = submissionInputSchema.safeParse({ kind: "event", message: "no" });
+    const res = submissionInputSchema.safeParse({
+      kind: "event",
+      message: "no",
+    });
     expect(res.success).toBe(false);
   });
 
