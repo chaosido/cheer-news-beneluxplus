@@ -22,6 +22,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { slugify } from "../lib/utils";
+import { safeUrl } from "../lib/safeUrl";
 import { EXTRACTOR_VERSION, type EventType, type Level, type Division, type AgeGroup } from "../lib/types";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -99,14 +100,14 @@ async function main() {
           status: "active",
           locked: false,
           blurb: nz(c.blurb),
-          logoUrl: nz(c.logoUrl),
+          logoUrl: safeUrl(c.logoUrl),
           foundedYear: founded,
           lat: typeof c.lat === "number" ? c.lat : null,
           lng: typeof c.lng === "number" ? c.lng : null,
-          websiteUrl: nz(c.websiteUrl),
-          instagramUrl: nz(c.instagramUrl),
-          facebookUrl: nz(c.facebookUrl),
-          tiktokUrl: nz(c.tiktokUrl),
+          websiteUrl: safeUrl(c.websiteUrl),
+          instagramUrl: safeUrl(c.instagramUrl),
+          facebookUrl: safeUrl(c.facebookUrl),
+          tiktokUrl: safeUrl(c.tiktokUrl),
           teamsSummary,
           lastVerifiedAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
@@ -163,7 +164,7 @@ async function main() {
         startsAt: Timestamp.fromDate(start),
         endsAt: e.end && !isNaN(new Date(e.end).getTime()) ? Timestamp.fromDate(new Date(e.end)) : null,
         locationText: nz(e.locationText), lat: typeof c.lat === "number" ? c.lat : null, lng: typeof c.lng === "number" ? c.lng : null,
-        url: nz(e.url), ticketUrl: null, origin: "scrape", confidence: 0.8, extractorVersion: EXTRACTOR_VERSION,
+        url: safeUrl(e.url), ticketUrl: null, origin: "scrape", confidence: 0.8, extractorVersion: EXTRACTOR_VERSION,
         status: "pending", locked: false, sources: [], updatedAt: FieldValue.serverTimestamp(),
       }, { merge: true });
       eventsW++;

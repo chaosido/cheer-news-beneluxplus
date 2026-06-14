@@ -116,6 +116,18 @@ async function main() {
   for (const srcDoc of sourcesSnap.docs) {
     const src = srcDoc.data();
     const sourceUrl: string = src.url;
+    // SSRF guard: only ever fetch http(s) sources. A non-http URL in Firestore
+    // (e.g. file://, internal/metadata endpoints) must never be fetched.
+    try {
+      const parsed = new URL(sourceUrl);
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+        console.warn(`[skip] non-http source skipped: ${sourceUrl}`);
+        continue;
+      }
+    } catch {
+      console.warn(`[skip] invalid source URL: ${sourceUrl}`);
+      continue;
+    }
     let html: string;
     try {
       html = await fetchHtml(sourceUrl);
