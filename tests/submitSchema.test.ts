@@ -1,119 +1,97 @@
 import { describe, it, expect } from "vitest";
-import { submissionInputSchema } from "@/lib/submitSchema";
+import { submissionInputSchema, SUBMISSION_KINDS } from "@/lib/submitSchema";
 
 /**
  * The submission schema is the ONLY input-validation layer for the public
- * POST /api/submit endpoint. These tests pin down its real behavior — including
- * the edge cases of the `optionalUrl`, `contactEmail` and `date` field — so a
- * silent drift can't sneak garbage into Firestore.
+ * POST /api/submit endpoint. The form is now OPEN FORMAT: one `kind` tag, one
+ * required free-text `message`, plus optional `url` and `contactEmail`. These
+ * tests pin down its real behavior — including the `optionalUrl` / `contactEmail`
+ * edge cases — so a silent drift can't sneak garbage into Firestore.
  *
  * Pure Zod, no mocking, no server-only imports.
  */
 
-describe("submissionInputSchema", () => {
-  // ---- happy-path parse of all four kinds ----
+describe("submissionInputSchema (open format)", () => {
+  // ---- happy path: every kind accepts the same open shape ----
 
-  it("parses a valid event payload", () => {
+  it.each(SUBMISSION_KINDS)("parses a valid %s submission", (kind) => {
     const res = submissionInputSchema.safeParse({
-      kind: "event",
-      title: "Spring Showcase",
-      type: "showcase",
-      date: "2026-11-01",
-      time: "14:30",
-      location: "Sporthal",
-      clubName: "My Club",
-      url: "https://www.myclub.nl/event",
-      description: "A fun event.",
+      kind,
+      message: "Er ontbreekt een club in Amsterdam, zie de link.",
+      url: "https://www.myclub.nl",
       contactEmail: "info@myclub.nl",
     });
     expect(res.success).toBe(true);
-    if (res.success && res.data.kind === "event") {
-      expect(res.data.title).toBe("Spring Showcase");
-      expect(res.data.type).toBe("showcase");
-      expect(res.data.time).toBe("14:30");
+    if (res.success) {
+      expect(res.data.kind).toBe(kind);
+      expect(res.data.message).toContain("Amsterdam");
     }
   });
 
-  it("parses a valid gym payload", () => {
+  it("parses a minimal submission (only kind + message)", () => {
     const res = submissionInputSchema.safeParse({
-      kind: "gym",
-      clubName: "My Club",
-      schedule: "Vrijdag 19:00-21:00",
+      kind: "feedback",
+      message: "De kaart laadt traag op mobiel.",
     });
     expect(res.success).toBe(true);
+    if (res.success) {
+      expect(res.data.url).toBeUndefined();
+      expect(res.data.contactEmail).toBeUndefined();
+    }
   });
 
-  it("parses a valid club payload", () => {
-    const res = submissionInputSchema.safeParse({
-      kind: "club",
-      name: "My Club",
-      city: "Amsterdam",
-      website: "https://www.myclub.nl",
-    });
-    expect(res.success).toBe(true);
+  // ---- required message ----
+
+  it("rejects a submission with no message", () => {
+    const res = submissionInputSchema.safeParse({ kind: "event" });
+    expect(res.success).toBe(false);
   });
 
-  it("parses a valid correction payload", () => {
-    const res = submissionInputSchema.safeParse({
-      kind: "correction",
-      description: "The address for this club is wrong.",
-    });
-    expect(res.success).toBe(true);
+  it("rejects a message that is too short (<5 chars)", () => {
+    const res = submissionInputSchema.safeParse({ kind: "event", message: "no" });
+    expect(res.success).toBe(false);
   });
 
-  // ---- missing required fields per kind ----
-
-  it("rejects an event missing its title", () => {
+  it("trims the message before length checks", () => {
     const res = submissionInputSchema.safeParse({
       kind: "event",
-      type: "showcase",
-      date: "2026-11-01",
+      message: "   hi   ", // only 2 non-space chars
     });
     expect(res.success).toBe(false);
   });
 
-  it("rejects a gym missing its schedule", () => {
+  it("accepts a message at the 8000-char cap", () => {
     const res = submissionInputSchema.safeParse({
-      kind: "gym",
-      clubName: "My Club",
+      kind: "feedback",
+      message: "x".repeat(8000),
     });
-    expect(res.success).toBe(false);
+    expect(res.success).toBe(true);
   });
 
-  it("rejects a club missing its city", () => {
+  it("rejects a message over the 8000-char cap", () => {
     const res = submissionInputSchema.safeParse({
-      kind: "club",
-      name: "My Club",
+      kind: "feedback",
+      message: "x".repeat(8001),
     });
     expect(res.success).toBe(false);
   });
 
-  it("rejects a correction whose description is too short (<5 chars)", () => {
-    const res = submissionInputSchema.safeParse({
-      kind: "correction",
-      description: "no",
-    });
-    expect(res.success).toBe(false);
-  });
-
-  // ---- discriminated union: unknown kind ----
+  // ---- kind enum ----
 
   it("rejects an unknown kind", () => {
     const res = submissionInputSchema.safeParse({
       kind: "banana",
-      title: "x",
+      message: "anything goes here",
     });
     expect(res.success).toBe(false);
   });
 
-  it("rejects an event with an out-of-enum type", () => {
+  it("accepts the new 'feedback' kind", () => {
     const res = submissionInputSchema.safeParse({
-      kind: "event",
-      title: "X",
-      type: "party",
-      date: "2026-11-01",
+      kind: "feedback",
+      message: "Top site, ga zo door!",
     });
-    expect(res.success).toBe(false);
+    expect(res.success).toBe(true);
   });
 
   // ---- optionalUrl edge cases ----
@@ -121,35 +99,28 @@ describe("submissionInputSchema", () => {
   it("treats an empty-string url as undefined (optional)", () => {
     const res = submissionInputSchema.safeParse({
       kind: "club",
-      name: "My Club",
-      city: "Amsterdam",
-      website: "",
+      message: "Nieuwe club in Utrecht.",
+      url: "",
     });
     expect(res.success).toBe(true);
-    if (res.success && res.data.kind === "club") {
-      expect(res.data.website).toBeUndefined();
-    }
+    if (res.success) expect(res.data.url).toBeUndefined();
   });
 
   it("keeps a valid https url", () => {
     const res = submissionInputSchema.safeParse({
       kind: "club",
-      name: "My Club",
-      city: "Amsterdam",
-      website: "https://www.myclub.nl",
+      message: "Nieuwe club in Utrecht.",
+      url: "https://www.myclub.nl",
     });
     expect(res.success).toBe(true);
-    if (res.success && res.data.kind === "club") {
-      expect(res.data.website).toBe("https://www.myclub.nl");
-    }
+    if (res.success) expect(res.data.url).toBe("https://www.myclub.nl");
   });
 
-  it("rejects a non-URL string for an optional url field", () => {
+  it("rejects a non-URL string for the url field", () => {
     const res = submissionInputSchema.safeParse({
       kind: "club",
-      name: "My Club",
-      city: "Amsterdam",
-      website: "not a url at all",
+      message: "Nieuwe club in Utrecht.",
+      url: "not a url at all",
     });
     expect(res.success).toBe(false);
   });
@@ -160,46 +131,10 @@ describe("submissionInputSchema", () => {
     // force a deliberate review.
     const res = submissionInputSchema.safeParse({
       kind: "club",
-      name: "My Club",
-      city: "Amsterdam",
-      website: "http://foo",
+      message: "Nieuwe club in Utrecht.",
+      url: "http://foo",
     });
     expect(res.success).toBe(true);
-  });
-
-  // ---- date regex edge cases ----
-
-  it("accepts a syntactically valid YYYY-MM-DD date", () => {
-    const res = submissionInputSchema.safeParse({
-      kind: "event",
-      title: "X",
-      type: "other",
-      date: "2026-06-15",
-    });
-    expect(res.success).toBe(true);
-  });
-
-  it("documents that the date regex passes calendar-invalid dates like 2025-99-99", () => {
-    // The regex only checks the SHAPE \d{4}-\d{2}-\d{2}; it does not validate
-    // that month/day are in range. This is intentionally pinned so a regression
-    // (or a fix that adds real date parsing) is a conscious change.
-    const res = submissionInputSchema.safeParse({
-      kind: "event",
-      title: "X",
-      type: "other",
-      date: "2025-99-99",
-    });
-    expect(res.success).toBe(true);
-  });
-
-  it("rejects a date in the wrong shape", () => {
-    const res = submissionInputSchema.safeParse({
-      kind: "event",
-      title: "X",
-      type: "other",
-      date: "15-06-2026",
-    });
-    expect(res.success).toBe(false);
   });
 
   // ---- contactEmail edge cases ----
@@ -207,40 +142,18 @@ describe("submissionInputSchema", () => {
   it("strips an empty contactEmail to undefined", () => {
     const res = submissionInputSchema.safeParse({
       kind: "gym",
-      clubName: "My Club",
-      schedule: "Vrijdag 19:00",
+      message: "Open gym op vrijdag bij My Club.",
       contactEmail: "",
     });
     expect(res.success).toBe(true);
-    if (res.success && res.data.kind === "gym") {
-      expect(res.data.contactEmail).toBeUndefined();
-    }
+    if (res.success) expect(res.data.contactEmail).toBeUndefined();
   });
 
   it("rejects a non-empty malformed contactEmail (does NOT silently strip it)", () => {
     const res = submissionInputSchema.safeParse({
       kind: "gym",
-      clubName: "My Club",
-      schedule: "Vrijdag 19:00",
+      message: "Open gym op vrijdag bij My Club.",
       contactEmail: "definitely-not-an-email",
-    });
-    expect(res.success).toBe(false);
-  });
-
-  // ---- correction message length cap ----
-
-  it("accepts a correction description at the 4000-char cap", () => {
-    const res = submissionInputSchema.safeParse({
-      kind: "correction",
-      description: "x".repeat(4000),
-    });
-    expect(res.success).toBe(true);
-  });
-
-  it("rejects a correction description over the 4000-char cap", () => {
-    const res = submissionInputSchema.safeParse({
-      kind: "correction",
-      description: "x".repeat(4001),
     });
     expect(res.success).toBe(false);
   });

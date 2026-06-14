@@ -31,7 +31,12 @@ export type SourceTier = "federation" | "structured" | "club";
 export type SourceType = "events" | "gyms" | "general" | "federation";
 export type FetchStrategy = "http" | "playwright";
 export type ExtractionMethod = "json-ld" | "llm";
-export type SubmissionKind = "event" | "gym" | "club" | "correction";
+export type SubmissionKind =
+  | "event"
+  | "gym"
+  | "club"
+  | "correction"
+  | "feedback";
 
 /** Current extraction prompt/schema version. Bump to force re-extraction past the diff gate. */
 export const EXTRACTOR_VERSION = 1;

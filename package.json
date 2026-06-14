@@ -14,7 +14,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "aggregate": "tsx --env-file=.env.local scripts/aggregate.ts",
-    "seed": "tsx --env-file=.env.local scripts/seed.ts"
+    "seed": "tsx --env-file=.env.local scripts/seed.ts",
+    "digest": "tsx --env-file=.env.local scripts/notify-digest.ts",
+    "submissions": "tsx --env-file=.env.local scripts/list-submissions.ts"
   },
   "engines": {
     "node": ">=20"
