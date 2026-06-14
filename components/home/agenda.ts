@@ -93,20 +93,23 @@ export function timeLabel(item: CalendarItem): string {
  * Build date-grouped, condensed agenda rows from a flat (already filtered)
  * item list.
  *
- * Condensing: open-gym occurrences for the SAME club on the SAME day are merged
- * into one row (events are sparse; open gyms dominate, so this keeps one-off
- * events from being drowned out). One-off events are never merged. The merged
- * row keeps the earliest start and shows a count so detail isn't lost.
+ * Condensing: open-gym occurrences for the SAME club (or, for club-independent
+ * gyms, the SAME venue) on the SAME day are merged into one row (events are
+ * sparse; open gyms dominate, so this keeps one-off events from being drowned
+ * out). One-off events are never merged. The merged row keeps the earliest
+ * start and shows a count so detail isn't lost.
  *
  * Items are assumed sorted by `startsAt` ascending (page.tsx sorts them); we
  * sort defensively anyway so the component never depends on caller order.
  */
 export function buildAgenda(items: CalendarItem[], now: Date): AgendaGroup[] {
-  const sorted = [...items].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+  const sorted = [...items].sort((a, b) =>
+    a.startsAt.localeCompare(b.startsAt),
+  );
   const todayKey = dayKey(now);
 
   const groups = new Map<string, AgendaGroup>();
-  // Merge bucket for open gyms: `${dayKey}|${clubId}` → AgendaRow already pushed.
+  // Merge bucket for open gyms: `${dayKey}|${clubId|venueId}` → AgendaRow pushed.
   const gymMerge = new Map<string, AgendaRow>();
 
   for (const item of sorted) {
@@ -117,8 +120,10 @@ export function buildAgenda(items: CalendarItem[], now: Date): AgendaGroup[] {
       groups.set(dKey, group);
     }
 
-    if (item.isOpenGym && item.clubId) {
-      const mergeKey = `${dKey}|${item.clubId}`;
+    // Condense by club, or by venue for club-independent gyms.
+    const locator = item.clubId ?? item.venueId;
+    if (item.isOpenGym && locator) {
+      const mergeKey = `${dKey}|${locator}`;
       const existing = gymMerge.get(mergeKey);
       if (existing) {
         existing.count += 1;

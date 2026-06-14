@@ -1,0 +1,17 @@
+[
+  {
+    "id": "park-sesh-ucu-2026-06-15",
+    "title": "Park sesh",
+    "type": "open_gym",
+    "description": "Open park session — niet verbonden aan een club. Iedereen welkom.",
+    "startsAt": "2026-06-15T19:00:00+02:00",
+    "endsAt": "2026-06-15T21:00:00+02:00",
+    "allDay": false,
+    "locationText": "UCU campus, Utrecht",
+    "city": "Utrecht",
+    "region": "Utrecht",
+    "geocodeQuery": "University College Utrecht, Campusplein, Utrecht",
+    "url": null,
+    "ticketUrl": null
+  }
+]

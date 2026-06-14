@@ -47,6 +47,9 @@ import {
   MapPin,
   ArrowRight,
   Maximize,
+  Dumbbell,
+  Mail,
+  Phone,
 } from "lucide-react";
 // Pull in the `@types/leaflet.markercluster` global augmentation of the
 // "leaflet" module so `L.MarkerCluster` / `L.MarkerClusterGroup` resolve.
@@ -56,7 +59,14 @@ import "leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
-import type { MapClub } from "@/components/home/types";
+import { EVENT_TYPE_COLOR, EVENT_TYPE_LABEL } from "@/lib/eventColors";
+import type { EventType } from "@/lib/types";
+import type {
+  MapClub,
+  MapVenue,
+  MapEvent,
+  MapCoach,
+} from "@/components/home/types";
 import { safeUrl } from "@/lib/safeUrl";
 
 const NL_CENTER: [number, number] = [52.2, 5.3];
@@ -125,6 +135,24 @@ const MAP_THEME_CSS = `
   .leaflet-cluster-anim .leaflet-marker-icon,
   .leaflet-cluster-anim .leaflet-marker-shadow { transition: transform 0.25s ease-out, opacity 0.25s ease-in; }
 
+  /* ---- Venue (club-independent open gym) pin: a teal round badge so it
+     reads as a different category from the dark teardrop club pins. ---- */
+  .cheer-venue-pin { background: transparent; border: none; filter: drop-shadow(0 1px 2px rgb(23 22 27 / 0.3)); }
+  .cheer-event-pin { background: transparent; border: none; filter: drop-shadow(0 1px 2px rgb(23 22 27 / 0.3)); }
+  .cheer-coach-pin { background: transparent; border: none; filter: drop-shadow(0 1px 2px rgb(23 22 27 / 0.3)); }
+  .cheer-venue-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 9999px;
+    background: ${EVENT_TYPE_COLOR.open_gym};
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 4px rgb(23 22 27 / 0.3);
+  }
+
   /* ---- "Heel Nederland" reset control. ---- */
   .cheer-reset-control .cheer-reset-btn {
     display: inline-flex;
@@ -167,6 +195,59 @@ function pinIcon(state: "default" | "hover" | "selected"): L.DivIcon {
   return L.divIcon({
     html: svg,
     className: "cheer-pin",
+    iconSize: [w, h],
+    iconAnchor: [w / 2, h],
+    popupAnchor: [0, -h + 6],
+  });
+}
+
+/** Round teal open-gym badge for a venue pin (a Dumbbell glyph inside). */
+function venueIcon(): L.DivIcon {
+  const size = 28;
+  // lucide-react's Dumbbell path, inlined so it works in a Leaflet divIcon.
+  const glyph = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>`;
+  return L.divIcon({
+    html: `<div class="cheer-venue-badge" aria-label="Open gym locatie">${glyph}</div>`,
+    className: "cheer-venue-pin",
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2],
+  });
+}
+
+/** Diamond event pin, colored by event type (distinct from club/venue pins). */
+function eventIcon(type: EventType): L.DivIcon {
+  const fill = EVENT_TYPE_COLOR[type];
+  const size = 24;
+  const svg = `
+    <svg width="${size}" height="${size}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <rect x="5" y="5" width="14" height="14" rx="3" transform="rotate(45 12 12)" fill="${fill}" stroke="#ffffff" stroke-width="2"/>
+    </svg>`;
+  return L.divIcon({
+    html: svg,
+    className: "cheer-event-pin",
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2],
+  });
+}
+
+// Amber so a visiting coach reads as its own category (not club/venue/event).
+const COACH_COLOR = "#e8920c";
+
+/** Teardrop coach pin in amber with a person glyph. */
+function coachIcon(): L.DivIcon {
+  const w = 26;
+  const h = 34;
+  const glyph = `<svg x="6.5" y="5" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+  const svg = `
+    <svg width="${w}" height="${h}" viewBox="0 0 26 34" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 0C5.82 0 0 5.82 0 13c0 9.2 11.1 19.7 12.2 20.7a1.2 1.2 0 0 0 1.6 0C14.9 32.7 26 22.2 26 13 26 5.82 20.18 0 13 0Z" fill="${COACH_COLOR}"/>
+      ${glyph}
+    </svg>`;
+  return L.divIcon({
+    html: svg,
+    className: "cheer-coach-pin",
     iconSize: [w, h],
     iconAnchor: [w / 2, h],
     popupAnchor: [0, -h + 6],
@@ -274,10 +355,7 @@ function ResetViewControl({
   useEffect(() => {
     const control = new L.Control({ position: "topleft" });
     control.onAdd = () => {
-      const div = L.DomUtil.create(
-        "div",
-        "leaflet-bar cheer-reset-control",
-      );
+      const div = L.DomUtil.create("div", "leaflet-bar cheer-reset-control");
       // Don't let clicks/scroll on the control fall through to the map.
       L.DomEvent.disableClickPropagation(div);
       L.DomEvent.disableScrollPropagation(div);
@@ -326,6 +404,12 @@ function ResetView({ signal }: { signal: number }) {
 
 interface MapProps {
   clubs: MapClub[];
+  /** Club-independent open-gym venues, rendered as a distinct pin layer. */
+  venues?: MapVenue[];
+  /** Located events, rendered as diamond pins colored by type. */
+  events?: MapEvent[];
+  /** Visiting coaches, rendered as amber teardrop pins. */
+  coaches?: MapCoach[];
   hoveredClubId: string | null;
   selectedClubId: string | null;
   onHover: (id: string | null) => void;
@@ -336,6 +420,9 @@ interface MapProps {
 
 export default function Map({
   clubs,
+  venues = [],
+  events = [],
+  coaches = [],
   hoveredClubId,
   selectedClubId,
   onHover,
@@ -351,6 +438,16 @@ export default function Map({
     }),
     [],
   );
+  const venueMarkerIcon = useMemo(() => venueIcon(), []);
+  const coachMarkerIcon = useMemo(() => coachIcon(), []);
+  // One memoized diamond icon per event type (re-used across all event pins).
+  const eventIcons = useMemo(() => {
+    const types = Object.keys(EVENT_TYPE_COLOR) as EventType[];
+    return Object.fromEntries(types.map((t) => [t, eventIcon(t)])) as Record<
+      EventType,
+      L.DivIcon
+    >;
+  }, []);
 
   // Cluster group + per-club marker handles, so FocusHighlight can reveal a
   // buried pin (zoomToShowLayer) when a club is highlighted from the agenda.
@@ -420,8 +517,288 @@ export default function Map({
             );
           })}
         </MarkerClusterGroup>
+
+        {/* Venue open-gym pins live outside the cluster group: they are few,
+            and clustering them with clubs would muddle the "X clubs" badge. */}
+        {venues.map((venue) => (
+          <VenueMarker key={venue.id} venue={venue} icon={venueMarkerIcon} />
+        ))}
+
+        {/* Located event pins (diamonds, colored by type). */}
+        {events.map((event) => (
+          <EventMarker
+            key={event.id}
+            event={event}
+            icon={eventIcons[event.type]}
+          />
+        ))}
+
+        {/* Visiting coach pins (amber teardrop). */}
+        {coaches.map((coach) => (
+          <CoachMarker key={coach.id} coach={coach} icon={coachMarkerIcon} />
+        ))}
       </MapContainer>
     </>
+  );
+}
+
+/** Format a venue slot as "Maandag · 19:00 – 22:00". */
+function formatSlot(s: MapVenue["sessions"][number]): string {
+  return `${s.weekday} · ${s.startTime} – ${s.endTime}`;
+}
+
+function VenueMarker({ venue, icon }: { venue: MapVenue; icon: L.DivIcon }) {
+  return (
+    <Marker position={[venue.lat, venue.lng]} icon={icon}>
+      <Tooltip
+        direction="top"
+        offset={[0, -16]}
+        opacity={1}
+        className="cheer-tooltip"
+      >
+        {venue.name}
+        {venue.city && <span className="cheer-tooltip-city">{venue.city}</span>}
+      </Tooltip>
+
+      <Popup>
+        <div className="flex min-w-52 flex-col gap-1">
+          <span className="inline-flex items-center gap-1.5 font-display text-sm font-bold text-[var(--ink)]">
+            <Dumbbell
+              className="size-3.5 text-[var(--type-open_gym,#0e7c7b)]"
+              aria-hidden
+            />
+            {venue.name}
+          </span>
+          <span className="inline-flex items-center gap-1 text-xs text-[var(--muted)]">
+            <MapPin className="size-3" aria-hidden />
+            {venue.address ?? venue.city}
+          </span>
+
+          {venue.sessions.length > 0 && (
+            <div className="mt-1 flex flex-col gap-0.5 border-t border-[var(--border)] pt-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--muted)]">
+                Open gym
+              </span>
+              {venue.sessions.map((s) => (
+                <span
+                  key={`${s.weekdayIndex}-${s.startTime}`}
+                  className="text-xs text-[var(--ink)]"
+                >
+                  {formatSlot(s)}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {venue.websiteUrl && (
+            <a
+              href={venue.websiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center justify-center gap-1 rounded-md bg-[var(--accent)] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+            >
+              Naar de website
+              <ArrowRight className="size-3.5" aria-hidden />
+            </a>
+          )}
+        </div>
+      </Popup>
+    </Marker>
+  );
+}
+
+const EVENT_DATE_FMT = new Intl.DateTimeFormat("nl-NL", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+});
+const EVENT_TIME_FMT = new Intl.DateTimeFormat("nl-NL", {
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+/** "ma 15 jun · 19:00 – 21:00" (or just the date for all-day events). */
+function formatEventWhen(event: MapEvent): string {
+  const start = new Date(event.startsAt);
+  const date = EVENT_DATE_FMT.format(start).replace(/\.(?=\s|$)/g, "");
+  if (event.allDay) return date;
+  const startTime = EVENT_TIME_FMT.format(start);
+  if (!event.endsAt) return `${date} · ${startTime}`;
+  return `${date} · ${startTime} – ${EVENT_TIME_FMT.format(new Date(event.endsAt))}`;
+}
+
+function EventMarker({ event, icon }: { event: MapEvent; icon: L.DivIcon }) {
+  return (
+    <Marker position={[event.lat, event.lng]} icon={icon}>
+      <Tooltip
+        direction="top"
+        offset={[0, -14]}
+        opacity={1}
+        className="cheer-tooltip"
+      >
+        {event.title}
+        <span className="cheer-tooltip-city">
+          {EVENT_TYPE_LABEL[event.type]}
+        </span>
+      </Tooltip>
+
+      <Popup>
+        <div className="flex min-w-48 flex-col gap-1">
+          <span className="font-display text-sm font-bold text-[var(--ink)]">
+            {event.title}
+          </span>
+          <span
+            className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold text-white"
+            style={{ background: EVENT_TYPE_COLOR[event.type] }}
+          >
+            {EVENT_TYPE_LABEL[event.type]}
+          </span>
+          <span className="mt-0.5 text-xs text-[var(--ink)]">
+            {formatEventWhen(event)}
+          </span>
+          {event.locationText && (
+            <span className="inline-flex items-center gap-1 text-xs text-[var(--muted)]">
+              <MapPin className="size-3" aria-hidden />
+              {event.locationText}
+            </span>
+          )}
+          {event.url && (
+            <a
+              href={event.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center justify-center gap-1 rounded-md bg-[var(--accent)] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+            >
+              Meer info
+              <ArrowRight className="size-3.5" aria-hidden />
+            </a>
+          )}
+        </div>
+      </Popup>
+    </Marker>
+  );
+}
+
+const STAY_DATE_FMT = new Intl.DateTimeFormat("nl-NL", {
+  day: "numeric",
+  month: "short",
+});
+
+/** "15 jun – 20 jun", or "vanaf 15 jun" when open-ended. */
+function formatStay(coach: MapCoach): string {
+  const start = STAY_DATE_FMT.format(new Date(coach.startsAt)).replace(
+    /\.(?=\s|$)/g,
+    "",
+  );
+  if (!coach.endsAt) return `Vanaf ${start}`;
+  const end = STAY_DATE_FMT.format(new Date(coach.endsAt)).replace(
+    /\.(?=\s|$)/g,
+    "",
+  );
+  return `${start} – ${end}`;
+}
+
+function CoachMarker({ coach, icon }: { coach: MapCoach; icon: L.DivIcon }) {
+  // Icon-row contact links, mirroring ClubMarker's `socials` pattern.
+  const socials: { href: string; label: string; Icon: typeof Globe }[] = [];
+  if (coach.instagramUrl)
+    socials.push({
+      href: coach.instagramUrl,
+      label: "Instagram",
+      Icon: AtSign,
+    });
+  if (coach.tiktokUrl)
+    socials.push({ href: coach.tiktokUrl, label: "TikTok", Icon: Music2 });
+  if (coach.facebookUrl)
+    socials.push({ href: coach.facebookUrl, label: "Facebook", Icon: Share2 });
+  if (coach.websiteUrl)
+    socials.push({ href: coach.websiteUrl, label: "Website", Icon: Globe });
+  if (coach.contactEmail)
+    socials.push({
+      href: `mailto:${coach.contactEmail}`,
+      label: "E-mail",
+      Icon: Mail,
+    });
+  if (coach.phone)
+    socials.push({
+      href: `tel:${coach.phone.replace(/[^\d+]/g, "")}`,
+      label: "Telefoon",
+      Icon: Phone,
+    });
+
+  return (
+    <Marker position={[coach.lat, coach.lng]} icon={icon}>
+      <Tooltip
+        direction="top"
+        offset={[0, -30]}
+        opacity={1}
+        className="cheer-tooltip"
+      >
+        {coach.name}
+        <span className="cheer-tooltip-city">{coach.city}</span>
+      </Tooltip>
+
+      <Popup>
+        <div className="flex min-w-48 flex-col gap-1">
+          <span className="inline-flex items-center gap-1.5 font-display text-sm font-bold text-[var(--ink)]">
+            <UserGlyph />
+            {coach.name}
+          </span>
+          {coach.role && (
+            <span className="text-xs text-[var(--muted)]">{coach.role}</span>
+          )}
+          <span className="inline-flex items-center gap-1 text-xs text-[var(--muted)]">
+            <MapPin className="size-3" aria-hidden />
+            {coach.city}
+          </span>
+          <span className="mt-0.5 text-xs text-[var(--ink)]">
+            {formatStay(coach)}
+          </span>
+          {socials.length > 0 && (
+            <div className="mt-2 flex items-center gap-3 border-t border-[var(--border)] pt-2">
+              {socials.map(({ href, label, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${coach.name} via ${label}`}
+                  title={label}
+                  className="text-[var(--muted)] hover:text-[var(--ink)]"
+                >
+                  <Icon className="size-4" aria-hidden />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </Popup>
+    </Marker>
+  );
+}
+
+/** Small amber person glyph used in the coach popup header. */
+function UserGlyph() {
+  return (
+    <span
+      aria-hidden
+      className="inline-flex size-3.5 items-center justify-center"
+      style={{ color: COACH_COLOR }}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="size-3.5"
+      >
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+    </span>
   );
 }
 

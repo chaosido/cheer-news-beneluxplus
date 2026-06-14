@@ -12,7 +12,7 @@ export function EventsList({ events }: { events: EventClient[] }) {
       <EmptyState
         icon={CalendarDays}
         title="Nog geen evenementen bekend"
-        hint="Aankomende wedstrijden en clinics verschijnen hier zodra ze bekend zijn."
+        hint="Aankomende wedstrijden en workshops verschijnen hier zodra ze bekend zijn."
       />
     );
   }

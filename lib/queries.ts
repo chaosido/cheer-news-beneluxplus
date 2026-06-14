@@ -12,6 +12,7 @@ import type {
   OpenGymClient,
   SubmissionClient,
   Team,
+  VisitingCoachClient,
 } from "@/lib/types";
 
 export const COLLECTIONS = {
@@ -21,6 +22,7 @@ export const COLLECTIONS = {
   events: "events",
   openGyms: "open_gyms",
   submissions: "submissions",
+  visitingCoaches: "visiting_coaches",
 } as const;
 
 /**
@@ -50,7 +52,10 @@ function serialize(value: unknown): unknown {
  * fields unconditionally must defend against missing values at runtime.
  */
 function docToClient<T>(doc: FirebaseFirestore.QueryDocumentSnapshot): T {
-  return { id: doc.id, ...(serialize(doc.data()) as Record<string, unknown>) } as T;
+  return {
+    id: doc.id,
+    ...(serialize(doc.data()) as Record<string, unknown>),
+  } as T;
 }
 
 // ---- Clubs ----
@@ -60,11 +65,13 @@ export async function getClubs(): Promise<ClubClient[]> {
     .collection(COLLECTIONS.clubs)
     .where("status", "==", "active")
     .get();
-  return snap.docs
-    .map((d) => docToClient<ClubClient>(d))
-    // `name` is required by the type but `docToClient` does no runtime check;
-    // guard with `?? ""` so a malformed legacy doc can't throw here.
-    .sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "nl"));
+  return (
+    snap.docs
+      .map((d) => docToClient<ClubClient>(d))
+      // `name` is required by the type but `docToClient` does no runtime check;
+      // guard with `?? ""` so a malformed legacy doc can't throw here.
+      .sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "nl"))
+  );
 }
 
 export async function getClubBySlug(slug: string): Promise<ClubClient | null> {
@@ -118,6 +125,30 @@ export async function getPublishedOpenGyms(opts?: {
   if (opts?.clubId) q = q.where("clubId", "==", opts.clubId);
   const snap = await q.get();
   return snap.docs.map((d) => docToClient<OpenGymClient>(d));
+}
+
+// ---- Visiting coaches ----
+
+/**
+ * Published visiting coaches whose stay hasn't ended yet (current + upcoming).
+ * The expiry filter runs in memory — the set is tiny, so this avoids a composite
+ * index. Sorted by arrival (`startsAt`) ascending.
+ */
+export async function getPublishedVisitingCoaches(): Promise<
+  VisitingCoachClient[]
+> {
+  const snap = await adminDb
+    .collection(COLLECTIONS.visitingCoaches)
+    .where("status", "==", "published")
+    .get();
+  // Keep a coach until the end of their departure day (or forever if open-ended).
+  const cutoff = new Date();
+  cutoff.setHours(0, 0, 0, 0);
+  const cutoffIso = cutoff.toISOString();
+  return snap.docs
+    .map((d) => docToClient<VisitingCoachClient>(d))
+    .filter((c) => c.endsAt == null || c.endsAt >= cutoffIso)
+    .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
 }
 
 // ---- Submissions (admin) ----

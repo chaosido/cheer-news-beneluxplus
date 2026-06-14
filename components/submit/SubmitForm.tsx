@@ -44,9 +44,11 @@ import { TextField, TextAreaField } from "@/components/submit/Field";
 
 /** Soft, per-kind copy. Guides what to write WITHOUT constraining the form. */
 const KIND_HELP: Record<SubmissionKind, string> = {
-  event: "Een wedstrijd, clinic, tryout, showcase of andere activiteit.",
+  event: "Een wedstrijd, workshop, tryout, showcase of andere activiteit.",
   gym: "Een terugkerend open-gym moment bij een club.",
   club: "Een club, studententeam, schoolteam of selectieteam dat nog niet op de kaart staat.",
+  coach:
+    "Ben je een (gast)coach die ons land bezoekt? Vertel waar en wanneer je bent en hoe mensen je kunnen bereiken.",
   correction: "Er klopt iets niet of er ontbreekt iets.",
   feedback: "Een idee, opmerking of probleem met de site zelf.",
 };
@@ -56,6 +58,8 @@ const KIND_PLACEHOLDER: Record<SubmissionKind, string> = {
     "bv. Open NK Cheerleading op 31 mei 2026 in Sporthallen Zuid Amsterdam, georganiseerd door … — link of tickets erbij als je die hebt.",
   gym: "bv. Cheer Amsterdam heeft elke woensdag 19:00–21:00 open gym in sporthal …",
   club: "bv. Naam, plaats, en een website of Instagram. Alles wat je weet helpt.",
+  coach:
+    "bv. Coach Jamie (tumbling) is 12–20 juni in Utrecht, te boeken via @handle of jij@voorbeeld.nl.",
   correction:
     "bv. Het adres van club X klopt niet, of team Y traint niet meer op dinsdag.",
   feedback: "Vertel ons wat beter kan, of wat je opviel op de site.",
@@ -99,10 +103,14 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
   const [url, setUrl] = React.useState("");
   const [contactEmail, setContactEmail] = React.useState("");
   const [honeypot, setHoneypot] = React.useState("");
-  const [turnstileToken, setTurnstileToken] = React.useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = React.useState<string | null>(
+    null,
+  );
   const [fieldErrors, setFieldErrors] = React.useState<FieldErrors>({});
   const [globalError, setGlobalError] = React.useState<string | null>(null);
-  const [status, setStatus] = React.useState<"idle" | "submitting" | "success">("idle");
+  const [status, setStatus] = React.useState<"idle" | "submitting" | "success">(
+    "idle",
+  );
 
   function err(name: string): string | undefined {
     return fieldErrors[name]?.[0];
@@ -175,14 +183,19 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
       setGlobalError(data.error ?? "Er ging iets mis. Probeer het opnieuw.");
     } catch {
       setStatus("idle");
-      setGlobalError("Kon de inzending niet versturen. Controleer je verbinding.");
+      setGlobalError(
+        "Kon de inzending niet versturen. Controleer je verbinding.",
+      );
     }
   }
 
   if (!authReady) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 className="size-6 animate-spin text-[var(--muted)]" aria-hidden />
+        <Loader2
+          className="size-6 animate-spin text-[var(--muted)]"
+          aria-hidden
+        />
       </div>
     );
   }
@@ -215,7 +228,10 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
   if (status === "success") {
     return (
       <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--secondary-soft)] p-6 text-center">
-        <CheckCircle2 className="mx-auto size-10 text-[var(--secondary)]" aria-hidden />
+        <CheckCircle2
+          className="mx-auto size-10 text-[var(--secondary)]"
+          aria-hidden
+        />
         <h2 className="mt-3 font-display text-xl font-semibold">
           Bedankt! We bekijken je inzending.
         </h2>
@@ -235,7 +251,8 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
       {/* Signed-in banner */}
       <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--muted)]">
         <span>
-          Ingelogd als <span className="font-medium text-[var(--ink)]">{user.email}</span>
+          Ingelogd als{" "}
+          <span className="font-medium text-[var(--ink)]">{user.email}</span>
         </span>
         <button
           type="button"
@@ -309,7 +326,10 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
       />
 
       {/* Honeypot: visually hidden, off-screen, not focusable, not announced. */}
-      <div aria-hidden className="absolute left-[-9999px] top-[-9999px] h-0 w-0 overflow-hidden">
+      <div
+        aria-hidden
+        className="absolute left-[-9999px] top-[-9999px] h-0 w-0 overflow-hidden"
+      >
         <label htmlFor="website_url2">Laat dit veld leeg</label>
         <input
           id="website_url2"

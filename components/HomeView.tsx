@@ -28,13 +28,23 @@ import { RESET_HOME_EVENT } from "@/components/HomeNavLink";
 import { EmptyState } from "@/components/home/EmptyState";
 import { cn } from "@/lib/utils";
 import { dayKey } from "@/lib/dateFormat";
-import type { CalendarItem, MapClub, HomeFilters } from "@/components/home/types";
+import type {
+  CalendarItem,
+  MapClub,
+  MapVenue,
+  MapEvent,
+  MapCoach,
+  HomeFilters,
+} from "@/components/home/types";
 
 const Map = dynamic(() => import("@/components/Map"), {
   ssr: false,
   loading: () => (
     <div className="flex h-full items-center justify-center bg-[var(--surface-2)]">
-      <Loader2 className="size-5 animate-spin text-[var(--muted)]" aria-hidden />
+      <Loader2
+        className="size-5 animate-spin text-[var(--muted)]"
+        aria-hidden
+      />
     </div>
   ),
 });
@@ -49,9 +59,15 @@ const EMPTY_FILTERS: HomeFilters = {
 
 export function HomeView({
   clubs,
+  venues,
+  events,
+  coaches,
   items,
 }: {
   clubs: MapClub[];
+  venues: MapVenue[];
+  events: MapEvent[];
+  coaches: MapCoach[];
   items: CalendarItem[];
 }) {
   const [filters, setFilters] = useState<HomeFilters>(EMPTY_FILTERS);
@@ -85,9 +101,11 @@ export function HomeView({
   const provinces = useMemo(() => {
     const set = new Set<string>();
     for (const c of clubs) if (c.region) set.add(c.region);
+    for (const v of venues) if (v.region) set.add(v.region);
+    for (const co of coaches) if (co.region) set.add(co.region);
     for (const it of items) if (it.province) set.add(it.province);
     return [...set].sort((a, b) => a.localeCompare(b, "nl"));
-  }, [clubs, items]);
+  }, [clubs, venues, coaches, items]);
 
   // Apply filters to the agenda items (small dataset → recompute each render).
   const filteredItems = useMemo(() => {
@@ -103,12 +121,36 @@ export function HomeView({
   }, [items, filters]);
 
   // Filter map pins to the province filter (event-type/date filters don't apply
-  // to clubs themselves, but the province filter does so the two panels stay
-  // coherent).
+  // to clubs/venues themselves, but the province filter does so the two panels
+  // stay coherent).
   const filteredClubs = useMemo(() => {
     if (!filters.province) return clubs;
     return clubs.filter((c) => c.region === filters.province);
   }, [clubs, filters.province]);
+
+  const filteredVenues = useMemo(() => {
+    if (!filters.province) return venues;
+    return venues.filter((v) => v.region === filters.province);
+  }, [venues, filters.province]);
+
+  // Coaches don't carry a province (we only geocode their city), so a coach
+  // with no region stays visible under any province filter rather than vanishing.
+  const filteredCoaches = useMemo(() => {
+    if (!filters.province) return coaches;
+    return coaches.filter(
+      (c) => c.region == null || c.region === filters.province,
+    );
+  }, [coaches, filters.province]);
+
+  // Event pins mirror the agenda exactly: keep only events whose CalendarItem
+  // survived the (type/date/province/openGymsOnly) filters above. Both share
+  // the `event:{id}` id, so a Set membership check needs no duplicated logic.
+  const filteredEvents = useMemo(() => {
+    const visible = new Set(
+      filteredItems.filter((it) => !it.isOpenGym).map((it) => it.id),
+    );
+    return events.filter((e) => visible.has(e.id));
+  }, [events, filteredItems]);
 
   // Toggle selection off when clicking the already-selected club.
   function handleSelect(id: string | null) {
@@ -116,24 +158,31 @@ export function HomeView({
   }
 
   const hasClubs = clubs.length > 0;
+  const hasVenues = venues.length > 0;
+  const hasMapEvents = events.length > 0;
+  const hasCoaches = coaches.length > 0;
   const hasItems = items.length > 0;
 
-  const mapPanel = hasClubs ? (
-    <Map
-      clubs={filteredClubs}
-      hoveredClubId={hoveredClubId}
-      selectedClubId={selectedClubId}
-      onHover={setHoveredClubId}
-      onSelect={handleSelect}
-      resetSignal={resetSignal}
-    />
-  ) : (
-    <EmptyState
-      icon={MapIcon}
-      title="Nog geen clubs op de kaart"
-      hint="Zodra clubs met een locatie zijn toegevoegd, verschijnen ze hier als pins."
-    />
-  );
+  const mapPanel =
+    hasClubs || hasVenues || hasMapEvents || hasCoaches ? (
+      <Map
+        clubs={filteredClubs}
+        venues={filteredVenues}
+        events={filteredEvents}
+        coaches={filteredCoaches}
+        hoveredClubId={hoveredClubId}
+        selectedClubId={selectedClubId}
+        onHover={setHoveredClubId}
+        onSelect={handleSelect}
+        resetSignal={resetSignal}
+      />
+    ) : (
+      <EmptyState
+        icon={MapIcon}
+        title="Nog geen clubs op de kaart"
+        hint="Zodra clubs met een locatie zijn toegevoegd, verschijnen ze hier als pins."
+      />
+    );
 
   const calendarPanel = hasItems ? (
     <div className="flex h-full flex-col">
@@ -158,7 +207,7 @@ export function HomeView({
     <EmptyState
       icon={CalendarDays}
       title="Nog geen evenementen"
-      hint="Wedstrijden, open gyms en clinics verschijnen hier zodra ze bekend zijn."
+      hint="Wedstrijden, open gyms en workshops verschijnen hier zodra ze bekend zijn."
     />
   );
 

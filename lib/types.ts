@@ -14,7 +14,16 @@
 
 export type ClubType = "club" | "student" | "school" | "select_team";
 export type PrimaryChannel = "website" | "facebook" | "instagram" | "none";
-export type Level = "1" | "2" | "3" | "4" | "5" | "6" | "elite" | "prep" | "recreational";
+export type Level =
+  | "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "elite"
+  | "prep"
+  | "recreational";
 export type Division = "all_girl" | "coed" | "all_boy";
 export type AgeGroup = "mini" | "youth" | "junior" | "senior" | "open";
 export type EventType =
@@ -35,6 +44,7 @@ export type SubmissionKind =
   | "event"
   | "gym"
   | "club"
+  | "coach"
   | "correction"
   | "feedback";
 
@@ -130,6 +140,11 @@ export interface EventBase {
   type: EventType;
   allDay: boolean;
   locationText: string | null;
+  // Self-describing location for club-independent events (e.g. a one-off park
+  // session). Optional so existing club-owned events stay valid; when clubId is
+  // null these feed the province filter + agenda line in place of the club.
+  city?: string | null;
+  region?: string | null; // province, mirrors ClubBase.region
   lat: number | null;
   lng: number | null;
   url: string | null;
@@ -155,8 +170,20 @@ export interface EventClient extends EventBase {
 export type SessionType = "training" | "open_gym";
 
 export interface OpenGymBase {
-  clubId: string;
+  // Owning club, or `null` for a venue-hosted open gym with no parent club
+  // (e.g. a turn hall's public drop-in). When null, the venue fields below
+  // self-describe the location instead of deriving it from a club.
+  clubId: string | null;
   dedupKey: string;
+  // Self-describing venue, used when `clubId` is null. A stable `venueId`
+  // groups the several weekly docs of one hall (e.g. Mon + Thu) into a single
+  // map pin. All optional so existing club-owned docs stay valid.
+  venueId?: string | null;
+  venueName?: string | null;
+  city?: string | null;
+  region?: string | null; // province, mirrors ClubBase.region
+  address?: string | null;
+  websiteUrl?: string | null;
   // Distinguishes a team's training slot from a public open-gym/drop-in.
   // Optional for back-compat; defaults treated as "open_gym".
   sessionType?: SessionType;
@@ -187,13 +214,49 @@ export interface OpenGymClient extends OpenGymBase {
 /** A concrete dated occurrence of an open gym, expanded from its RRULE for display. */
 export interface OpenGymOccurrence {
   openGymId: string;
-  clubId: string;
+  clubId: string | null;
   startsAt: string; // ISO with offset
   endsAt: string; // ISO with offset
   locationText: string | null;
   lat: number | null;
   lng: number | null;
   notes: string | null;
+}
+
+// ---- Visiting coaches ----
+
+/**
+ * A guest/touring coach temporarily in the country at one city for a date range,
+ * who signed themselves up so people can reach out. Not tied to a club; rendered
+ * as its own map pin and on the /coaches page (never in the agenda). Like the
+ * event types, the instant fields (`startsAt`/`endsAt`) live on the Client layer
+ * as ISO strings; the Firestore doc stores Timestamps.
+ */
+export interface VisitingCoachBase {
+  name: string;
+  role: string | null; // free text, e.g. "Tumbling specialist"
+  bio: string | null;
+  city: string;
+  region: string | null; // province, mirrors ClubBase.region
+  lat: number | null;
+  lng: number | null;
+  // Contact — at least one is required at submit time; all nullable on the doc.
+  instagramUrl: string | null;
+  tiktokUrl: string | null;
+  facebookUrl: string | null;
+  websiteUrl: string | null;
+  contactEmail: string | null;
+  phone: string | null; // WhatsApp / phone, free text
+  origin: Origin;
+  status: PublishStatus;
+  locked: boolean;
+}
+
+export interface VisitingCoachClient extends VisitingCoachBase {
+  id: string;
+  startsAt: string; // ISO — arrival day
+  endsAt: string | null; // ISO — departure day, or null if open-ended
+  updatedAt: string;
 }
 
 // ---- Sources ----

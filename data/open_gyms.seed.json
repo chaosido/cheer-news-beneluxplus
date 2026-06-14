@@ -1,0 +1,65 @@
+[
+  {
+    "venueId": "gymxl-vathorst-amersfoort",
+    "venueName": "GymXL — Turnhal Vathorst",
+    "city": "Amersfoort",
+    "region": "Utrecht",
+    "address": "Schiermonnikooghof 21, 3826 DK Amersfoort",
+    "websiteUrl": "https://www.gymxl.nl/",
+    "lat": null,
+    "lng": null,
+    "tz": "Europe/Amsterdam",
+    "notes": "Open gym — turnhal met volledige uitrusting (tumbling, trampoline, freerunning).",
+    "sessions": [
+      { "weekday": "monday", "startTime": "19:00", "endTime": "22:00" },
+      { "weekday": "thursday", "startTime": "19:00", "endTime": "22:00" }
+    ]
+  },
+  {
+    "venueId": "turnz-ookmeer-amsterdam",
+    "venueName": "Turnz Amsterdam — Sportcentrum Ookmeer",
+    "city": "Amsterdam",
+    "region": "Noord-Holland",
+    "address": "Dokter Meurerlaan 7, 1067 SM Amsterdam",
+    "websiteUrl": "https://www.turnz.nl/open-gym-sessions",
+    "lat": null,
+    "lng": null,
+    "tz": "Europe/Amsterdam",
+    "notes": "Open gym voor zelfstandige trainers vanaf 14 jaar (zondag vanaf 10 jaar).",
+    "sessions": [
+      { "weekday": "tuesday", "startTime": "20:30", "endTime": "22:30" },
+      { "weekday": "thursday", "startTime": "20:30", "endTime": "22:30" },
+      { "weekday": "sunday", "startTime": "18:00", "endTime": "21:00" }
+    ]
+  },
+  {
+    "venueId": "gymnastiekhal-best",
+    "venueName": "Gymnastiekhal Best",
+    "city": "Best",
+    "region": "Noord-Brabant",
+    "address": "Prinses Beatrixlaan 27, Best",
+    "websiteUrl": "https://www.gvbest.nl/",
+    "lat": null,
+    "lng": null,
+    "tz": "Europe/Amsterdam",
+    "notes": "Open gym op woensdag.",
+    "sessions": [
+      { "weekday": "wednesday", "startTime": "20:30", "endTime": "22:30" }
+    ]
+  },
+  {
+    "venueId": "flik-flak-den-bosch",
+    "venueName": "Flik-Flak",
+    "city": "'s-Hertogenbosch",
+    "region": "Noord-Brabant",
+    "address": "Marathonloop 7, 5235 AA 's-Hertogenbosch",
+    "websiteUrl": "https://www.flik-flak.nl/",
+    "lat": null,
+    "lng": null,
+    "tz": "Europe/Amsterdam",
+    "notes": "Open gym op donderdag.",
+    "sessions": [
+      { "weekday": "thursday", "startTime": "19:00", "endTime": "21:30" }
+    ]
+  }
+]

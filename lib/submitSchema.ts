@@ -48,6 +48,7 @@ export const SUBMISSION_KINDS = [
   "event",
   "gym",
   "club",
+  "coach",
   "correction",
   "feedback",
 ] as const;
@@ -57,7 +58,7 @@ export const SUBMISSION_KINDS = [
  *
  * `message` is the only required field. Everything a tipster knows goes in
  * there as free text; the review step (human + Claude Code) extracts the
- * structured event/gym/club from it.
+ * structured event/gym/club/coach from it.
  */
 export const submissionInputSchema = z.object({
   kind: z.enum(SUBMISSION_KINDS),
@@ -86,6 +87,7 @@ export const SUBMISSION_KIND_LABEL: Record<SubmissionKind, string> = {
   event: "Evenement",
   gym: "Open gym",
   club: "Club",
+  coach: "Gastcoach (op bezoek)",
   correction: "Correctie",
   feedback: "Feedback",
 };

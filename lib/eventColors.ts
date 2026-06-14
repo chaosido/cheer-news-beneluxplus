@@ -15,7 +15,7 @@ export const EVENT_TYPE_COLOR: Record<EventType, string> = {
 export const EVENT_TYPE_LABEL: Record<EventType, string> = {
   competition: "Wedstrijd",
   open_gym: "Open gym",
-  clinic: "Clinic",
+  clinic: "Workshop",
   tryout: "Tryout",
   showcase: "Showcase",
   training: "Training",

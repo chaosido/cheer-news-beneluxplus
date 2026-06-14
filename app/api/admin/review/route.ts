@@ -12,7 +12,11 @@ import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { bearerToken, verifyAdmin, type AdminUser } from "@/lib/auth";
-import { COLLECTIONS, getPendingEvents, getSubmissionsByStatus } from "@/lib/queries";
+import {
+  COLLECTIONS,
+  getPendingEvents,
+  getSubmissionsByStatus,
+} from "@/lib/queries";
 import { slugify } from "@/lib/utils";
 import type { SubmissionClient } from "@/lib/types";
 
@@ -25,7 +29,10 @@ async function requireAdmin(req: Request): Promise<AdminUser | null> {
 export async function GET(req: Request) {
   const admin = await requireAdmin(req);
   if (!admin) {
-    return NextResponse.json({ ok: false, error: "Geen toegang" }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, error: "Geen toegang" },
+      { status: 401 },
+    );
   }
 
   try {
@@ -52,14 +59,20 @@ interface ReviewBody {
 export async function POST(req: Request) {
   const admin = await requireAdmin(req);
   if (!admin) {
-    return NextResponse.json({ ok: false, error: "Geen toegang" }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, error: "Geen toegang" },
+      { status: 401 },
+    );
   }
 
   let body: ReviewBody;
   try {
     body = (await req.json()) as ReviewBody;
   } catch {
-    return NextResponse.json({ ok: false, error: "Ongeldige aanvraag" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Ongeldige aanvraag" },
+      { status: 400 },
+    );
   }
 
   const { kind, id, action } = body;
@@ -68,7 +81,10 @@ export async function POST(req: Request) {
     !id ||
     (action !== "approve" && action !== "reject")
   ) {
-    return NextResponse.json({ ok: false, error: "Ongeldige parameters" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Ongeldige parameters" },
+      { status: 400 },
+    );
   }
 
   try {
@@ -78,7 +94,10 @@ export async function POST(req: Request) {
     return await reviewSubmission(id, action, admin.email);
   } catch (err) {
     console.error("[api/admin/review] action failed:", err);
-    return NextResponse.json({ ok: false, error: "Actie mislukt." }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: "Actie mislukt." },
+      { status: 500 },
+    );
   }
 }
 
@@ -87,7 +106,10 @@ async function reviewEvent(id: string, action: "approve" | "reject") {
   const ref = adminDb.collection(COLLECTIONS.events).doc(id);
   const snap = await ref.get();
   if (!snap.exists) {
-    return NextResponse.json({ ok: false, error: "Niet gevonden" }, { status: 404 });
+    return NextResponse.json(
+      { ok: false, error: "Niet gevonden" },
+      { status: 404 },
+    );
   }
   await ref.update({
     status: action === "approve" ? "published" : "rejected",
@@ -105,7 +127,10 @@ async function reviewSubmission(
   const ref = adminDb.collection(COLLECTIONS.submissions).doc(id);
   const snap = await ref.get();
   if (!snap.exists) {
-    return NextResponse.json({ ok: false, error: "Niet gevonden" }, { status: 404 });
+    return NextResponse.json(
+      { ok: false, error: "Niet gevonden" },
+      { status: 404 },
+    );
   }
 
   if (action === "reject") {
@@ -179,7 +204,9 @@ async function createEntityFromSubmission(
     return ref.id;
   }
 
-  // TODO(events/gyms): auto-create with tz-aware start/end + dedup key + clubId
-  // resolution. For now the submission is published without a linked entity.
+  // TODO(events/gyms/coach): not auto-created. Submissions are free-text; a
+  // maintainer turns them into structured docs at review time (visiting coaches
+  // via `npm run seed:visiting-coaches`). For now the submission is published
+  // without a linked entity.
   return null;
 }
