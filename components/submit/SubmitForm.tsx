@@ -28,10 +28,18 @@ import {
 import { CheckCircle2, Loader2, LogIn, Send } from "lucide-react";
 import { clientAuth } from "@/lib/firebase";
 import { Button } from "@/components/ui/Button";
-import { SUBMISSION_KIND_LABEL, type SubmissionInput } from "@/lib/submitSchema";
+import { SUBMISSION_KIND_LABEL, eventPayloadSchema, submissionInputSchema } from "@/lib/submitSchema";
 import { EVENT_TYPE_LABEL } from "@/lib/eventColors";
 import type { SubmissionKind } from "@/lib/types";
 import { TextField, TextAreaField, SelectField } from "@/components/submit/Field";
+
+/**
+ * The schema's *input* (pre-transform) shape — what `submissionInputSchema`
+ * accepts before parsing. Typing `buildPayload` against this (rather than the
+ * post-transform `SubmissionInput`) lets the flat string bag flow through
+ * without casts while still catching drift if the schema's fields change.
+ */
+type SubmissionInputShape = Parameters<typeof submissionInputSchema.parse>[0];
 
 const KINDS: SubmissionKind[] = ["event", "gym", "club", "correction"];
 
@@ -110,14 +118,23 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
     setGlobalError(null);
   }
 
-  /** Build the typed payload for the selected kind from the flat bag. */
-  function buildPayload(): SubmissionInput {
+  /**
+   * Build the typed payload for the selected kind from the flat bag.
+   *
+   * Typed against the schema's *input* (pre-transform) shape so plain strings
+   * from the flat bag are accepted without casts; the server re-validates with
+   * `submissionInputSchema` and applies the transforms. The only field needing
+   * narrowing is the event `type` enum: we coerce the raw string through the
+   * schema (`.catch` defaults invalid input to "competition") so tsc keeps the
+   * field in sync with `EventType` and no `as unknown` cast is needed.
+   */
+  function buildPayload(): SubmissionInputShape {
     switch (kind) {
       case "event":
         return {
           kind,
           title: v("title"),
-          type: v("type") || "competition",
+          type: eventPayloadSchema.shape.type.catch("competition").parse(v("type")),
           date: v("date"),
           time: v("time"),
           location: v("location"),
@@ -125,7 +142,7 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
           url: v("url"),
           description: v("description"),
           contactEmail: v("contactEmail"),
-        } as unknown as SubmissionInput;
+        };
       case "gym":
         return {
           kind,
@@ -136,7 +153,7 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
           url: v("url"),
           notes: v("notes"),
           contactEmail: v("contactEmail"),
-        } as unknown as SubmissionInput;
+        };
       case "club":
         return {
           kind,
@@ -148,13 +165,13 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
           tiktok: v("tiktok"),
           blurb: v("blurb"),
           contactEmail: v("contactEmail"),
-        } as unknown as SubmissionInput;
+        };
       case "correction":
         return {
           kind,
           description: v("description"),
           url: v("url"),
-        } as unknown as SubmissionInput;
+        };
     }
   }
 

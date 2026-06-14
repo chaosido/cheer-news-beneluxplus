@@ -52,6 +52,7 @@ import "leaflet/dist/leaflet.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import type { MapClub } from "@/components/home/types";
+import { safeUrl } from "@/lib/safeUrl";
 
 const NL_CENTER: [number, number] = [52.2, 5.3];
 const NL_ZOOM = 7;
@@ -430,15 +431,20 @@ function ClubMarker({
     };
   }, [club.id, markerRefs]);
 
+  // Re-validate each href against the http(s) allowlist (defense-in-depth).
+  const websiteUrl = safeUrl(club.websiteUrl);
+  const instagramUrl = safeUrl(club.instagramUrl);
+  const facebookUrl = safeUrl(club.facebookUrl);
+  const tiktokUrl = safeUrl(club.tiktokUrl);
   const socials: { href: string; label: string; Icon: typeof Globe }[] = [];
-  if (club.websiteUrl)
-    socials.push({ href: club.websiteUrl, label: "Website", Icon: Globe });
-  if (club.instagramUrl)
-    socials.push({ href: club.instagramUrl, label: "Instagram", Icon: AtSign });
-  if (club.facebookUrl)
-    socials.push({ href: club.facebookUrl, label: "Facebook", Icon: Share2 });
-  if (club.tiktokUrl)
-    socials.push({ href: club.tiktokUrl, label: "TikTok", Icon: Music2 });
+  if (websiteUrl)
+    socials.push({ href: websiteUrl, label: "Website", Icon: Globe });
+  if (instagramUrl)
+    socials.push({ href: instagramUrl, label: "Instagram", Icon: AtSign });
+  if (facebookUrl)
+    socials.push({ href: facebookUrl, label: "Facebook", Icon: Share2 });
+  if (tiktokUrl)
+    socials.push({ href: tiktokUrl, label: "TikTok", Icon: Music2 });
 
   return (
     <Marker

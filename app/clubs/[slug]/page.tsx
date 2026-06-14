@@ -39,6 +39,7 @@ import type {
   OpenGymClient,
   Team,
 } from "@/lib/types";
+import { safeUrl } from "@/lib/safeUrl";
 import { TeamBadges } from "@/components/TeamBadges";
 import { EventsList } from "@/components/clubs/EventsList";
 import { OpenGymsList } from "@/components/clubs/OpenGymsList";
@@ -134,31 +135,38 @@ export default async function ClubProfilePage({
   const contactEmail = club.contactEmail ?? club.email ?? null;
 
   // Instagram leads — it is the channel cheer clubs actually live on — and gets
-  // the accent treatment so it reads as the primary call to action.
+  // the accent treatment so it reads as the primary call to action. Each href is
+  // re-validated against the http(s) allowlist (defense-in-depth on Firestore data).
+  const instagramUrl = safeUrl(club.instagramUrl);
+  const websiteUrl = safeUrl(club.websiteUrl);
+  const facebookUrl = safeUrl(club.facebookUrl);
+  const tiktokUrl = safeUrl(club.tiktokUrl);
+  const youtubeUrl = safeUrl(club.youtubeUrl);
+  const logoUrl = safeUrl(club.logoUrl);
   const socials = [
-    club.instagramUrl && {
-      href: club.instagramUrl,
+    instagramUrl && {
+      href: instagramUrl,
       label: "Instagram",
       icon: AtSign,
       primary: true,
     },
-    club.websiteUrl && {
-      href: club.websiteUrl,
+    websiteUrl && {
+      href: websiteUrl,
       label: "Website",
       icon: Globe,
     },
-    club.facebookUrl && {
-      href: club.facebookUrl,
+    facebookUrl && {
+      href: facebookUrl,
       label: "Facebook",
       icon: Share2,
     },
-    club.tiktokUrl && {
-      href: club.tiktokUrl,
+    tiktokUrl && {
+      href: tiktokUrl,
       label: "TikTok",
       icon: Music2,
     },
-    club.youtubeUrl && {
-      href: club.youtubeUrl,
+    youtubeUrl && {
+      href: youtubeUrl,
       label: "YouTube",
       icon: Play,
     },
@@ -186,10 +194,10 @@ export default async function ClubProfilePage({
 
       {/* Header */}
       <header className="flex flex-col gap-5 sm:flex-row sm:items-start">
-        {club.logoUrl ? (
+        {logoUrl ? (
           <span className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]">
             <Image
-              src={club.logoUrl}
+              src={logoUrl}
               alt=""
               width={80}
               height={80}

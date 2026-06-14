@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseJsonLdEvents } from "@/lib/extract";
+import { parseJsonLdEvents, htmlToText } from "@/lib/extract";
 
 const SOURCE = "https://www.myclub.nl/events";
 
@@ -98,5 +98,79 @@ describe("parseJsonLdEvents", () => {
     const events = parseJsonLdEvents(html, SOURCE);
     expect(events).toHaveLength(1);
     expect(events[0].title).toBe("Good One");
+  });
+
+  it("infers allDay=true for a date-only startDate (no time component)", () => {
+    const html = `
+      <script type="application/ld+json">
+      {
+        "@type": "Event",
+        "name": "Open Day",
+        "startDate": "${FUTURE}",
+        "location": "Hall"
+      }
+      </script>`;
+    const events = parseJsonLdEvents(html, SOURCE);
+    expect(events).toHaveLength(1);
+    expect(events[0].allDay).toBe(true);
+    expect(events[0].start).toBe(FUTURE);
+  });
+
+  it("infers allDay=false when the startDate carries a time component", () => {
+    const html = `
+      <script type="application/ld+json">
+      {
+        "@type": "Event",
+        "name": "Timed Event",
+        "startDate": "${FUTURE}T10:00:00+02:00",
+        "location": "Hall"
+      }
+      </script>`;
+    const events = parseJsonLdEvents(html, SOURCE);
+    expect(events).toHaveLength(1);
+    expect(events[0].allDay).toBe(false);
+  });
+
+  it("ranks competition above training when both keywords are present", () => {
+    // inferType is private; exercise its priority ordering through the public
+    // JSON-LD path. "competition" must win over "training".
+    const html = `
+      <script type="application/ld+json">
+      {
+        "@type": "Event",
+        "name": "Regional Competition Training Day",
+        "startDate": "${FUTURE}T10:00:00+02:00",
+        "location": "Hall"
+      }
+      </script>`;
+    const events = parseJsonLdEvents(html, SOURCE);
+    expect(events).toHaveLength(1);
+    expect(events[0].type).toBe("competition");
+  });
+});
+
+describe("htmlToText", () => {
+  it("strips <script> content (injection-relevant guarantee)", () => {
+    const html = `
+      <html><head><title>T</title></head>
+      <body>
+        <p>Real content here.</p>
+        <script>alert(1); var secret = "leak";</script>
+      </body></html>`;
+    const text = htmlToText(html);
+    expect(text).toContain("Real content here.");
+    expect(text).not.toContain("alert(1)");
+    expect(text).not.toContain("secret");
+  });
+
+  it("strips <style> content and returns non-empty body text", () => {
+    const html = `
+      <html><head><style>.x { color: red; }</style></head>
+      <body><h1>Welcome</h1><p>Hello world.</p></body></html>`;
+    const text = htmlToText(html);
+    expect(text).toContain("Welcome");
+    expect(text).toContain("Hello world.");
+    expect(text).not.toContain("color: red");
+    expect(text.length).toBeGreaterThan(0);
   });
 });

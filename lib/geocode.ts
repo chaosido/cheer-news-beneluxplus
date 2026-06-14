@@ -55,9 +55,12 @@ async function fetchNominatim(query: string): Promise<GeoResult | null> {
     if (!res.ok) return null;
     const data: unknown = await res.json();
     if (!Array.isArray(data) || data.length === 0) return null;
-    const first = data[0] as { lat?: string; lon?: string };
-    const lat = Number.parseFloat(first.lat ?? "");
-    const lng = Number.parseFloat(first.lon ?? "");
+    const first: unknown = data[0];
+    if (!first || typeof first !== "object") return null;
+    const record = first as Record<string, unknown>;
+    if (typeof record.lat !== "string" || typeof record.lon !== "string") return null;
+    const lat = Number.parseFloat(record.lat);
+    const lng = Number.parseFloat(record.lon);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
     return { lat, lng };
   } catch {

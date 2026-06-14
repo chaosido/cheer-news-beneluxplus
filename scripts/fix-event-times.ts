@@ -67,6 +67,20 @@ async function main() {
 
   const snap = await adminDb.collection("events").get();
 
+  // Firestore batches cap at 500 writes; chunk to stay well under the limit so a
+  // crash mid-run can only ever lose an un-committed tail, never a partial doc.
+  const BATCH_LIMIT = 400;
+  const batches: FirebaseFirestore.WriteBatch[] = [adminDb.batch()];
+  let opCount = 0;
+  function nextOp(): FirebaseFirestore.WriteBatch {
+    if (opCount >= BATCH_LIMIT) {
+      batches.push(adminDb.batch());
+      opCount = 0;
+    }
+    opCount += 1;
+    return batches[batches.length - 1];
+  }
+
   let setAllDayTrue = 0;
   let setTimed = 0;
   let lockedSkipped = 0;
@@ -86,7 +100,7 @@ async function main() {
     // ---- Pass 2 (takes precedence): known federation corrections ----
     const fix = FEDERATION_FIXES.find((f) => lowerTitle.includes(f.match));
     if (fix) {
-      await doc.ref.update({
+      nextOp().update(doc.ref, {
         startsAt: Timestamp.fromDate(new Date(fix.startIso)),
         endsAt: Timestamp.fromDate(new Date(fix.endIso)),
         locationText: fix.locationText,
@@ -118,10 +132,12 @@ async function main() {
       }
     }
 
-    await doc.ref.update({ allDay });
+    nextOp().update(doc.ref, { allDay });
     if (allDay) setAllDayTrue++;
     else setTimed++;
   }
+
+  for (const b of batches) await b.commit();
 
   console.log("\n[fix-event-times] done:");
   console.log(`  total events scanned: ${snap.size}`);
