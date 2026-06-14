@@ -5,6 +5,7 @@ import { AdminNavLink } from "@/components/AdminNavLink";
 const NAV = [
   { href: "/", label: "Kaart & agenda" },
   { href: "/clubs", label: "Clubs" },
+  { href: "/over", label: "Over" },
 ];
 
 export function SiteHeader() {
