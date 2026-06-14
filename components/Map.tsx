@@ -48,6 +48,11 @@ import {
   ArrowRight,
   Maximize,
 } from "lucide-react";
+// Pull in the `@types/leaflet.markercluster` global augmentation of the
+// "leaflet" module so `L.MarkerCluster` / `L.MarkerClusterGroup` resolve.
+// `leaflet.markercluster` is already loaded at runtime (transitively via
+// react-leaflet-cluster), so this side-effect import changes no behavior.
+import "leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
