@@ -12,6 +12,8 @@ interface FieldShellProps {
   required?: boolean;
   error?: string;
   hint?: string;
+  /** id for the error/hint <p>, so the control can aria-describedby it. */
+  messageId?: string;
   children: React.ReactNode;
 }
 
@@ -22,6 +24,7 @@ export function FieldShell({
   required,
   error,
   hint,
+  messageId,
   children,
 }: FieldShellProps) {
   return (
@@ -32,9 +35,13 @@ export function FieldShell({
       </label>
       {children}
       {error ? (
-        <p className="text-xs text-[var(--accent)]">{error}</p>
+        <p id={messageId} className="text-xs text-[var(--accent)]">
+          {error}
+        </p>
       ) : hint ? (
-        <p className="text-xs text-[var(--muted)]">{hint}</p>
+        <p id={messageId} className="text-xs text-[var(--muted)]">
+          {hint}
+        </p>
       ) : null}
     </div>
   );
@@ -63,8 +70,16 @@ export function TextField({
   type = "text",
   placeholder,
 }: TextFieldProps) {
+  const messageId = React.useId();
   return (
-    <FieldShell label={label} htmlFor={name} required={required} error={error} hint={hint}>
+    <FieldShell
+      label={label}
+      htmlFor={name}
+      required={required}
+      error={error}
+      hint={hint}
+      messageId={messageId}
+    >
       <input
         id={name}
         name={name}
@@ -73,6 +88,7 @@ export function TextField({
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={error ? true : undefined}
+        aria-describedby={error || hint ? messageId : undefined}
         className={cn(inputClass, error && "border-[var(--accent)]")}
       />
     </FieldShell>
@@ -92,8 +108,16 @@ export function TextAreaField({
   placeholder,
   rows = 4,
 }: TextAreaFieldProps) {
+  const messageId = React.useId();
   return (
-    <FieldShell label={label} htmlFor={name} required={required} error={error} hint={hint}>
+    <FieldShell
+      label={label}
+      htmlFor={name}
+      required={required}
+      error={error}
+      hint={hint}
+      messageId={messageId}
+    >
       <textarea
         id={name}
         name={name}
@@ -102,6 +126,7 @@ export function TextAreaField({
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={error ? true : undefined}
+        aria-describedby={error || hint ? messageId : undefined}
         className={cn(
           inputClass,
           "h-auto resize-y py-2 leading-relaxed",
@@ -133,14 +158,23 @@ export function SelectField({
   error,
   hint,
 }: SelectFieldProps) {
+  const messageId = React.useId();
   return (
-    <FieldShell label={label} htmlFor={name} required={required} error={error} hint={hint}>
+    <FieldShell
+      label={label}
+      htmlFor={name}
+      required={required}
+      error={error}
+      hint={hint}
+      messageId={messageId}
+    >
       <select
         id={name}
         name={name}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={error ? true : undefined}
+        aria-describedby={error || hint ? messageId : undefined}
         className={cn(inputClass, error && "border-[var(--accent)]")}
       >
         {options.map((o) => (

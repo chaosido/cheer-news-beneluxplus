@@ -70,6 +70,88 @@ describe("expandOpenGym", () => {
     expect(days).not.toContain("2025-04-04"); // excluded
   });
 
+  it("honors validUntil: no occurrences past the end date", () => {
+    // Weekly Friday gym ending 2025-04-04. The window extends to 2025-04-25,
+    // but occurrences on/after 2025-04-11 must be suppressed.
+    const gym = makeGym({ validUntil: "2025-04-04T23:59:59+02:00" });
+    const start = new Date("2025-03-21T00:00:00Z");
+    const end = new Date("2025-04-25T00:00:00Z");
+
+    const occ = expandOpenGym(gym, start, end);
+    const days = occ.map((o) => o.startsAt.slice(0, 10));
+
+    expect(days).toContain("2025-03-28");
+    expect(days).toContain("2025-04-04");
+    expect(days).not.toContain("2025-04-11"); // past validUntil
+    expect(days).not.toContain("2025-04-18");
+  });
+
+  it("midnight-crossing gym: endsAt falls on the next calendar day", () => {
+    // 23:00–01:00 weekly Wednesday. endsAt should land on the Thursday.
+    const gym = makeGym({
+      rrule: "RRULE:FREQ=WEEKLY;BYDAY=WE",
+      startTime: "23:00",
+      endTime: "01:00",
+    });
+    const start = new Date("2025-06-01T00:00:00Z");
+    const end = new Date("2025-06-15T00:00:00Z");
+
+    const occ = expandOpenGym(gym, start, end);
+    const wed = occ.find((o) => o.startsAt.startsWith("2025-06-04"))!;
+    expect(wed).toBeDefined();
+    expect(wed.startsAt).toBe("2025-06-04T23:00:00+02:00"); // Wednesday
+    expect(wed.endsAt).toBe("2025-06-05T01:00:00+02:00"); // Thursday
+  });
+
+  it("zero-duration gym (equal start/end times) stays on the same day", () => {
+    const gym = makeGym({
+      rrule: "RRULE:FREQ=WEEKLY;BYDAY=WE",
+      startTime: "09:00",
+      endTime: "09:00",
+    });
+    const start = new Date("2025-06-01T00:00:00Z");
+    const end = new Date("2025-06-15T00:00:00Z");
+
+    const occ = expandOpenGym(gym, start, end);
+    const wed = occ.find((o) => o.startsAt.startsWith("2025-06-04"))!;
+    expect(wed).toBeDefined();
+    expect(wed.startsAt).toBe("2025-06-04T09:00:00+02:00");
+    expect(wed.endsAt).toBe("2025-06-04T09:00:00+02:00"); // same day, not +1
+  });
+
+  it("renders a 19:00 gym correctly through the October DST fall-back", () => {
+    // NL DST 2025: clocks go back on Sun 26 Oct 2025.
+    // Fri 24 Oct is CEST (+02:00); Fri 31 Oct is CET (+01:00).
+    const gym = makeGym();
+    const start = new Date("2025-10-20T00:00:00Z");
+    const end = new Date("2025-11-05T00:00:00Z");
+
+    const occ = expandOpenGym(gym, start, end);
+    const before = occ.find((o) => o.startsAt.startsWith("2025-10-24"))!;
+    const after = occ.find((o) => o.startsAt.startsWith("2025-10-31"))!;
+    expect(before.startsAt).toBe("2025-10-24T19:00:00+02:00"); // CEST
+    expect(after.startsAt).toBe("2025-10-31T19:00:00+01:00"); // CET
+  });
+
+  it("bi-weekly rrule skips alternate weeks", () => {
+    const gym = makeGym({
+      rrule: "RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=FR",
+      validFrom: "2025-06-06T00:00:00+02:00",
+    });
+    const start = new Date("2025-06-01T00:00:00Z");
+    const end = new Date("2025-07-05T00:00:00Z");
+
+    const occ = expandOpenGym(gym, start, end);
+    const days = occ.map((o) => o.startsAt.slice(0, 10));
+
+    // Anchored on Fri 6 Jun: 6 Jun, 20 Jun, 4 Jul; 13 Jun and 27 Jun skipped.
+    expect(days).toContain("2025-06-06");
+    expect(days).toContain("2025-06-20");
+    expect(days).toContain("2025-07-04");
+    expect(days).not.toContain("2025-06-13");
+    expect(days).not.toContain("2025-06-27");
+  });
+
   it("emits a single occurrence for a one-off gym (no rrule, uses validFrom)", () => {
     const gym = makeGym({
       rrule: null,

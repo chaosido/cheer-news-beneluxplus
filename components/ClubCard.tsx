@@ -1,7 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { TeamBadges } from "@/components/TeamBadges";
+import { safeUrl } from "@/lib/safeUrl";
 import type { ClubClient } from "@/lib/types";
 
 /** Up-to-two-letter initials from a club name, for the logo fallback. */
@@ -56,16 +58,19 @@ function ClubLogo({
   name: string;
   logoUrl: string | null;
 }) {
-  if (logoUrl) {
+  // Re-validate against the http(s) allowlist before using as <img src>.
+  const safeLogoUrl = safeUrl(logoUrl);
+  if (safeLogoUrl) {
     return (
       <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-[calc(var(--radius)-0.25rem)] border border-[var(--border)] bg-[var(--surface-2)]">
         {/* Logos vary in aspect; contain so they never distort or crop badly. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={logoUrl}
+        <Image
+          src={safeLogoUrl}
           alt=""
-          className="size-full object-contain"
+          width={48}
+          height={48}
           loading="lazy"
+          className="size-full object-contain"
         />
       </span>
     );

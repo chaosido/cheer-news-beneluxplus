@@ -59,6 +59,13 @@ env:
       - BUILD
       - RUNTIME
   # Server-only secrets (create with: firebase apphosting:secrets:set <name>).
+  # IP pseudonymization salt — REQUIRED in production (the submit endpoint
+  # throws without it). Create with a random 32-byte value:
+  #   openssl rand -hex 32 | firebase apphosting:secrets:set ip-hash-salt --data-file=-
+  - variable: IP_HASH_SALT
+    secret: ip-hash-salt
+    availability:
+      - RUNTIME
   # Turnstile is optional — the submission form degrades gracefully without it.
   # Add TURNSTILE_SECRET_KEY / NEXT_PUBLIC_TURNSTILE_SITE_KEY here once configured.
   # Disabled — Gemini not in use. Re-add to enable LLM extraction.

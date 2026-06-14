@@ -15,6 +15,12 @@ import type { ExtractedEvent } from "@/lib/types";
 
 const TZ = "Europe/Amsterdam";
 const TITLE_SIM_THRESHOLD = 0.6;
+/**
+ * Stricter title threshold used when BOTH events lack any location signal
+ * (no geo, no venue text). With location unavailable as a discriminator we
+ * lean harder on the title to avoid merging unrelated same-day events.
+ */
+const TITLE_SIM_THRESHOLD_NO_LOCATION = 0.75;
 const PROXIMITY_METERS = 500;
 
 // ---- normalization ----
@@ -102,6 +108,11 @@ function sameLocation(a: ExtractedEvent, b: ExtractedEvent): boolean {
   const an = normalizeText(a.location.name) || normalizeText(a.location.address);
   const bn = normalizeText(b.location.name) || normalizeText(b.location.address);
   if (an && bn && an === bn) return true;
+  // Fallback: when neither event carries geo OR location text, location is
+  // entirely unknown on both sides. Many scraped events omit a venue, so we
+  // must not let a missing location block an otherwise-clear title match —
+  // let title similarity alone decide (with a stricter threshold downstream).
+  if (!hasGeo(a) && !hasGeo(b) && !an && !bn) return true;
   return false;
 }
 
@@ -112,7 +123,13 @@ function sameLocation(a: ExtractedEvent, b: ExtractedEvent): boolean {
 export function isSameEvent(a: ExtractedEvent, b: ExtractedEvent): boolean {
   if (eventDayKey(a) !== eventDayKey(b)) return false;
   if (!sameLocation(a, b)) return false;
-  return titleSimilarity(a.title, b.title) >= TITLE_SIM_THRESHOLD;
+  const an = normalizeText(a.location.name) || normalizeText(a.location.address);
+  const bn = normalizeText(b.location.name) || normalizeText(b.location.address);
+  const locationless = !hasGeo(a) && !hasGeo(b) && !an && !bn;
+  const threshold = locationless
+    ? TITLE_SIM_THRESHOLD_NO_LOCATION
+    : TITLE_SIM_THRESHOLD;
+  return titleSimilarity(a.title, b.title) >= threshold;
 }
 
 /**
@@ -124,21 +141,61 @@ export function eventMatchKey(e: ExtractedEvent): string {
   return `${eventDayKey(e)}|${loc}`;
 }
 
-/** Stable canonical id for a cluster, hashed from its representative. */
-function canonicalId(rep: ExtractedEvent): string {
-  const loc =
-    normalizeText(rep.location.name) ||
-    normalizeText(rep.location.address) ||
-    "";
-  const basis = `${eventDayKey(rep)}|${loc}|${normalizeText(rep.title)}`;
+/**
+ * Stable canonical id for a cluster.
+ *
+ * Derived ONLY from semantically stable signals so the id does not drift
+ * across scrape runs (which would orphan the previous Firestore doc):
+ *  - the local calendar day (shared by all members by construction),
+ *  - the cluster's normalized location text (deterministic across members),
+ *  - the SORTED token set of the title (so capitalisation, punctuation, and
+ *    minor word-order/subtitle changes do not change the hash).
+ *
+ * Notably it does NOT depend on which member is the representative, nor on
+ * confidence or extractionMethod — values that vary with scraper output
+ * quality between runs.
+ */
+function canonicalId(members: ExtractedEvent[]): string {
+  const dayKey = eventDayKey(members[0]);
+
+  // Deterministic location text: smallest non-empty normalized venue across
+  // the cluster (stable regardless of input order or which source won).
+  let loc = "";
+  for (const m of members) {
+    const n = normalizeText(m.location.name) || normalizeText(m.location.address);
+    if (n && (loc === "" || n < loc)) loc = n;
+  }
+
+  // Deterministic title basis: the cluster's shortest (fewest-token) title,
+  // sorted-token-normalized. Preferring the shortest title makes the id robust
+  // to later runs that append a subtitle/category to the same event; ties break
+  // lexicographically for determinism.
+  let titleBasis = "";
+  let titleTokenCount = Infinity;
+  for (const m of members) {
+    const sorted = [...tokenSet(m.title)].sort();
+    if (sorted.length === 0) continue;
+    const tokens = sorted.join(" ");
+    if (
+      sorted.length < titleTokenCount ||
+      (sorted.length === titleTokenCount && tokens < titleBasis)
+    ) {
+      titleBasis = tokens;
+      titleTokenCount = sorted.length;
+    }
+  }
+
+  const basis = `${dayKey}|${loc}|${titleBasis}`;
   return createHash("sha256").update(basis).digest("hex").slice(0, 24);
 }
 
 /**
  * Pick a cluster representative deterministically: highest confidence, then
  * longest title (more descriptive), then lexicographically smallest title.
+ * Used by the upsert step to choose which member's field values to persist.
+ * (The canonical ID does NOT depend on this — see `canonicalId`.)
  */
-function pickRepresentative(members: ExtractedEvent[]): ExtractedEvent {
+export function pickRepresentative(members: ExtractedEvent[]): ExtractedEvent {
   return [...members].sort((a, b) => {
     if (b.confidence !== a.confidence) return b.confidence - a.confidence;
     const la = a.title?.length ?? 0;
@@ -172,7 +229,6 @@ export function dedupeEvents(
   }
 
   return clusters.map((members) => {
-    const rep = pickRepresentative(members);
-    return { canonicalEventId: canonicalId(rep), members };
+    return { canonicalEventId: canonicalId(members), members };
   });
 }
