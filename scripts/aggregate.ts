@@ -82,7 +82,7 @@ async function main() {
   const { FieldValue, Timestamp } = await import("firebase-admin/firestore");
   const { parseJsonLdEvents, extractWithGemini, htmlToText } = await import("../lib/extract");
   const { validateExtractedEvent } = await import("../lib/validate");
-  const { dedupeEvents } = await import("../lib/dedup");
+  const { dedupeEvents, pickRepresentative } = await import("../lib/dedup");
   const { geocode } = await import("../lib/geocode");
 
   const stats: RunStats = {
@@ -103,19 +103,49 @@ async function main() {
   }
 
   // Build slug -> club lookup for clubId resolution + city coords.
+  // `doc.data()` is untyped (`DocumentData` => `any` per field), so narrow each
+  // field with an explicit runtime guard before trusting it.
   const clubsSnap = await adminDb.collection("clubs").get();
   const clubBySlug = new Map<string, { id: string; lat: number | null; lng: number | null; city: string }>();
   for (const d of clubsSnap.docs) {
     const c = d.data();
-    clubBySlug.set(c.slug, { id: d.id, lat: c.lat ?? null, lng: c.lng ?? null, city: c.city ?? "" });
+    const slug = typeof c.slug === "string" ? c.slug : "";
+    if (!slug) continue;
+    clubBySlug.set(slug, {
+      id: d.id,
+      lat: typeof c.lat === "number" ? c.lat : null,
+      lng: typeof c.lng === "number" ? c.lng : null,
+      city: typeof c.city === "string" ? c.city : "",
+    });
   }
 
   const sourcesSnap = await adminDb.collection("sources").get();
   stats.sources = sourcesSnap.size;
 
+  // Cross-source dedup: accumulate EVERY source's validated events into one
+  // batch, then cluster ONCE after the loop. The same competition listed by a
+  // federation page and a club page lands in separate loop iterations, so
+  // deduping per-source (the old behaviour) never merged them. We map each
+  // validated event back to its originating source id (object identity) so the
+  // upsert can build the per-cluster `sources[]` provenance array.
+  const allValid: ExtractedEvent[] = [];
+  const sourceIdByEvent = new Map<ExtractedEvent, string>();
+
   for (const srcDoc of sourcesSnap.docs) {
     const src = srcDoc.data();
     const sourceUrl: string = src.url;
+    // SSRF guard: only ever fetch http(s) sources. A non-http URL in Firestore
+    // (e.g. file://, internal/metadata endpoints) must never be fetched.
+    try {
+      const parsed = new URL(sourceUrl);
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+        console.warn(`[skip] non-http source skipped: ${sourceUrl}`);
+        continue;
+      }
+    } catch {
+      console.warn(`[skip] invalid source URL: ${sourceUrl}`);
+      continue;
+    }
     let html: string;
     try {
       html = await fetchHtml(sourceUrl);
@@ -170,77 +200,114 @@ async function main() {
       if (r.ok) valid.push(r.value);
     }
 
-    // ---- Dedupe within this source ----
-    const clusters = dedupeEvents(valid);
-
-    // ---- Geocode + upsert ----
-    for (const cluster of clusters) {
-      const rep = cluster.members.reduce((a, b) => (b.confidence > a.confidence ? b : a));
-      const club = rep.clubSlug ? clubBySlug.get(rep.clubSlug) : undefined;
-
-      let lat = rep.location.lat ?? null;
-      let lng = rep.location.lng ?? null;
-      if ((lat == null || lng == null) && rep.location.address) {
-        const geo = await geocode(rep.location.address);
-        if (geo) { lat = geo.lat; lng = geo.lng; }
-      }
-      if (lat == null || lng == null) { lat = club?.lat ?? null; lng = club?.lng ?? null; }
-
-      const status: PublishStatus = rep.confidence >= PUBLISH_THRESHOLD ? "published" : "pending";
-      const docId = cluster.canonicalEventId;
-      const ref = adminDb.collection("events").doc(docId);
-
-      stats.eventsUpserted++;
-      if (status === "published") stats.eventsPublished++; else stats.eventsPending++;
-
-      if (DRY_RUN) continue;
-
-      const existing = await ref.get();
-      if (existing.exists && existing.data()?.locked === true) {
-        stats.lockedSkipped++;
-        continue;
-      }
-
-      await ref.set(
-        {
-          canonicalEventId: docId,
-          clubId: club?.id ?? null,
-          title: rep.title,
-          description: rep.description,
-          type: rep.type,
-          allDay: rep.allDay ?? false,
-          startsAt: Timestamp.fromDate(new Date(rep.start)),
-          endsAt: rep.end ? Timestamp.fromDate(new Date(rep.end)) : null,
-          locationText: rep.location.name ?? rep.location.address ?? null,
-          lat,
-          lng,
-          url: rep.url,
-          ticketUrl: rep.ticketUrl,
-          origin: "scrape",
-          confidence: rep.confidence,
-          extractorVersion: EXTRACTOR_VERSION,
-          status,
-          locked: existing.exists ? (existing.data()?.locked ?? false) : false,
-          sources: cluster.members.map((m) => ({
-            sourceId: srcDoc.id,
-            sourceUrl: m.sourceUrl,
-            lastSeenAt: new Date().toISOString(),
-            consecutiveMisses: 0,
-          })),
-          updatedAt: FieldValue.serverTimestamp(),
-        },
-        { merge: true },
-      );
+    // Accumulate for the single cross-source dedup pass below; remember which
+    // source each event came from for provenance.
+    for (const e of valid) {
+      allValid.push(e);
+      sourceIdByEvent.set(e, srcDoc.id);
     }
 
+    // The diff gate above already established this source's content changed
+    // (and JSON-LD parsing is deterministic), so persisting the new hash here
+    // is safe — a re-run with identical HTML will correctly skip the source.
     if (!DRY_RUN) {
       await srcDoc.ref.update({
         contentHash: hash,
         extractorVersion: EXTRACTOR_VERSION,
         lastFetchedAt: FieldValue.serverTimestamp(),
-        lastStatus: `ok: ${clusters.length} events`,
+        lastStatus: `ok: ${valid.length} events`,
       });
     }
+  }
+
+  // ---- Cross-source dedupe (ONE pass over the combined batch) ----
+  const clusters = dedupeEvents(allValid);
+
+  // ---- Geocode + upsert ----
+  for (const cluster of clusters) {
+    const rep = pickRepresentative(cluster.members);
+    const club = rep.clubSlug ? clubBySlug.get(rep.clubSlug) : undefined;
+
+    let lat = rep.location.lat ?? null;
+    let lng = rep.location.lng ?? null;
+    if ((lat == null || lng == null) && rep.location.address) {
+      const geo = await geocode(rep.location.address);
+      if (geo) { lat = geo.lat; lng = geo.lng; }
+    }
+    if (lat == null || lng == null) { lat = club?.lat ?? null; lng = club?.lng ?? null; }
+
+    const status: PublishStatus = rep.confidence >= PUBLISH_THRESHOLD ? "published" : "pending";
+    const docId = cluster.canonicalEventId;
+    const ref = adminDb.collection("events").doc(docId);
+
+    // Build this run's provenance, one entry per (sourceId, sourceUrl) pair.
+    const seenAt = new Date().toISOString();
+    const sourcesByKey = new Map<string, { sourceId: string; sourceUrl: string; lastSeenAt: string; consecutiveMisses: number }>();
+    for (const m of cluster.members) {
+      const sourceId = sourceIdByEvent.get(m) ?? "";
+      const key = `${sourceId}|${m.sourceUrl}`;
+      sourcesByKey.set(key, { sourceId, sourceUrl: m.sourceUrl, lastSeenAt: seenAt, consecutiveMisses: 0 });
+    }
+
+    stats.eventsUpserted++;
+    if (status === "published") stats.eventsPublished++; else stats.eventsPending++;
+
+    if (DRY_RUN) continue;
+
+    const existing = await ref.get();
+    if (existing.exists && existing.data()?.locked === true) {
+      stats.lockedSkipped++;
+      continue;
+    }
+
+    // Preserve provenance from prior runs/sources: `merge: true` REPLACES the
+    // `sources` array wholesale, so we merge client-side keyed by source. Any
+    // existing entry not seen this run is retained as-is.
+    const existingSources = (existing.data()?.sources ?? []) as {
+      sourceId?: unknown;
+      sourceUrl?: unknown;
+      lastSeenAt?: unknown;
+      consecutiveMisses?: unknown;
+    }[];
+    for (const s of existingSources) {
+      const sourceId = typeof s.sourceId === "string" ? s.sourceId : "";
+      const sourceUrl = typeof s.sourceUrl === "string" ? s.sourceUrl : "";
+      const key = `${sourceId}|${sourceUrl}`;
+      if (!sourcesByKey.has(key)) {
+        sourcesByKey.set(key, {
+          sourceId,
+          sourceUrl,
+          lastSeenAt: typeof s.lastSeenAt === "string" ? s.lastSeenAt : seenAt,
+          consecutiveMisses: typeof s.consecutiveMisses === "number" ? s.consecutiveMisses : 0,
+        });
+      }
+    }
+
+    await ref.set(
+      {
+        canonicalEventId: docId,
+        clubId: club?.id ?? null,
+        title: rep.title,
+        description: rep.description,
+        type: rep.type,
+        allDay: rep.allDay ?? false,
+        startsAt: Timestamp.fromDate(new Date(rep.start)),
+        endsAt: rep.end ? Timestamp.fromDate(new Date(rep.end)) : null,
+        locationText: rep.location.name ?? rep.location.address ?? null,
+        lat,
+        lng,
+        url: rep.url,
+        ticketUrl: rep.ticketUrl,
+        origin: "scrape",
+        confidence: rep.confidence,
+        extractorVersion: EXTRACTOR_VERSION,
+        status,
+        locked: existing.exists ? (existing.data()?.locked ?? false) : false,
+        sources: [...sourcesByKey.values()],
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
   }
 
   console.log("[aggregate] summary:", JSON.stringify(stats, null, 2));

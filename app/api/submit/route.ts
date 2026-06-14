@@ -8,7 +8,7 @@
  *   3. Turnstile: if TURNSTILE_SECRET_KEY is set, verify the token with
  *      Cloudflare siteverify; if unset (dev), skip verification entirely.
  *   4. Validate the payload with `submissionInputSchema` (zod).
- *   5. Per-IP rate limit (in-memory; resets per server instance — fine for MVP).
+ *   5. Per-UID rate limit (in-memory; resets per server instance — fine for MVP).
  *   6. Compute a SALTED sha256 ipHash (never store the raw IP).
  *   7. Write to `submissions` with status:'pending' and a server timestamp.
  */
@@ -52,9 +52,24 @@ function clientIp(req: Request): string {
   return req.headers.get("x-real-ip")?.trim() || "unknown";
 }
 
+/**
+ * Resolve the IP hashing salt. No hardcoded fallback: a committed default salt
+ * is publicly known and makes the stored hashes trivially reversible (the
+ * reachable NL/Benelux IPv4 space is small enough to precompute). In production
+ * we fail loudly if it is unset; in dev/test we allow a clearly-marked,
+ * non-secret placeholder so the form still works locally.
+ */
+function ipHashSalt(): string {
+  const salt = process.env.IP_HASH_SALT;
+  if (salt) return salt;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("IP_HASH_SALT must be set in production");
+  }
+  return "dev-only-insecure-salt";
+}
+
 function hashIp(ip: string): string {
-  const salt = process.env.IP_HASH_SALT || "cheer-news-beneluxplus-default-salt";
-  return createHash("sha256").update(`${ip}:${salt}`).digest("hex");
+  return createHash("sha256").update(`${ip}:${ipHashSalt()}`).digest("hex");
 }
 
 async function verifyTurnstile(token: string | undefined, ip: string): Promise<boolean> {
@@ -105,8 +120,10 @@ export async function POST(req: Request) {
 
   const ip = clientIp(req);
 
-  // 5. Rate limit (before doing expensive work / writes).
-  if (rateLimited(ip)) {
+  // 5. Rate limit (before doing expensive work / writes). Key on the verified
+  //     Firebase UID, not the client IP: x-forwarded-for is client-controlled
+  //     and trivially spoofed per-request, so an IP key offers no real limit.
+  if (rateLimited(user.uid)) {
     return NextResponse.json(
       { ok: false, error: "Te veel inzendingen. Probeer het later opnieuw." },
       { status: 429 },

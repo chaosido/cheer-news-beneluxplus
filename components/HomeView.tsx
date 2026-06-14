@@ -26,6 +26,7 @@ import { Calendar } from "@/components/Calendar";
 import { Filters } from "@/components/Filters";
 import { EmptyState } from "@/components/home/EmptyState";
 import { cn } from "@/lib/utils";
+import { dayKey } from "@/lib/dateFormat";
 import type { CalendarItem, MapClub, HomeFilters } from "@/components/home/types";
 
 const Map = dynamic(() => import("@/components/Map"), {
@@ -44,11 +45,6 @@ const EMPTY_FILTERS: HomeFilters = {
   to: null,
   openGymsOnly: false,
 };
-
-/** ISO instant → yyyy-MM-dd (local day, for date-range comparison). */
-function dayKey(iso: string): string {
-  return iso.slice(0, 10);
-}
 
 export function HomeView({
   clubs,
