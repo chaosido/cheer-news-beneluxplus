@@ -12,6 +12,7 @@
  */
 import { RRule, Weekday } from "rrule";
 import { fromZonedTime, formatInTimeZone } from "date-fns-tz";
+import { dayKey as zonedDayKey } from "@/lib/dateFormat";
 import type { OpenGymClient, OpenGymOccurrence } from "@/lib/types";
 
 /** rrule weekday helpers indexed Mon..Sun (ISO-ish) for convenience. */
@@ -60,9 +61,9 @@ function parseHHmm(s: string): { h: number; m: number } {
   };
 }
 
-/** YYYY-MM-DD of a Date as seen in the given IANA zone. */
+/** YYYY-MM-DD of a Date as seen in the given IANA zone (shared day-key helper). */
 function zonedDateKey(d: Date, tz: string): string {
-  return formatInTimeZone(d, tz, "yyyy-MM-dd");
+  return zonedDayKey(d, tz);
 }
 
 /**

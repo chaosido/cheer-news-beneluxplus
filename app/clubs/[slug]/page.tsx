@@ -11,6 +11,7 @@
  */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import {
   AtSign,
@@ -187,10 +188,12 @@ export default async function ClubProfilePage({
       <header className="flex flex-col gap-5 sm:flex-row sm:items-start">
         {club.logoUrl ? (
           <span className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={club.logoUrl}
               alt=""
+              width={80}
+              height={80}
+              priority
               className="size-full object-contain"
             />
           </span>

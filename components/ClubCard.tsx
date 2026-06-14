@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { Card } from "@/components/ui/Card";
@@ -60,12 +61,13 @@ function ClubLogo({
     return (
       <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-[calc(var(--radius)-0.25rem)] border border-[var(--border)] bg-[var(--surface-2)]">
         {/* Logos vary in aspect; contain so they never distort or crop badly. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={logoUrl}
           alt=""
-          className="size-full object-contain"
+          width={48}
+          height={48}
           loading="lazy"
+          className="size-full object-contain"
         />
       </span>
     );
