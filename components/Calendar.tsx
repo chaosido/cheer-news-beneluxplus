@@ -147,6 +147,9 @@ function AgendaRowItem({
 }) {
   const { item } = row;
   const color = EVENT_TYPE_COLOR[item.type];
+  // Highlight is keyed by club: focusing a club (via a pin or any of its agenda
+  // rows) highlights EVERY row that belongs to it — so all of a club's open-gym
+  // occurrences light up together, not just the hovered/clicked one.
   const dimmed = focusId != null && item.clubId !== focusId;
   const focused = focusId != null && item.clubId === focusId;
 
@@ -176,10 +179,15 @@ function AgendaRowItem({
       aria-label={interactive ? `${displayTitle(item)} — meer info` : undefined}
       className={cn(
         "flex items-start gap-3 px-4 py-2.5 transition-colors",
-        interactive && "cursor-pointer hover:bg-[var(--surface-2)]",
+        interactive && "cursor-pointer",
+        // Only show the neutral hover background when NOT focused; otherwise the
+        // gray hover would override the red highlight on whichever row the cursor
+        // is on (so the selected/hovered row would drop out of the club's red set).
+        interactive && !focused && "hover:bg-[var(--surface-2)]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent)]",
         dimmed && "opacity-40",
-        focused && "bg-[var(--accent-soft)]",
+        focused &&
+          "bg-[var(--accent-soft)] ring-2 ring-inset ring-[var(--accent)]",
       )}
     >
       {/* Type color marker */}

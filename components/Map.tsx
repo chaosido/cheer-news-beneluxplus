@@ -300,12 +300,32 @@ function ResetViewControl({
   );
 }
 
+/**
+ * Resets the map to the full-country overview whenever `signal` changes (bumped
+ * by HomeView when the user clicks the "Kaart & agenda" nav while already on
+ * "/"). Skips the initial mount so the map doesn't snap on first render.
+ */
+function ResetView({ signal }: { signal: number }) {
+  const map = useMap();
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    map.setView(NL_CENTER, NL_ZOOM, { animate: true });
+  }, [signal, map]);
+  return null;
+}
+
 interface MapProps {
   clubs: MapClub[];
   hoveredClubId: string | null;
   selectedClubId: string | null;
   onHover: (id: string | null) => void;
   onSelect: (id: string | null) => void;
+  /** Bumped by HomeView to trigger a reset to the whole-NL view. */
+  resetSignal?: number;
 }
 
 export default function Map({
@@ -314,6 +334,7 @@ export default function Map({
   selectedClubId,
   onHover,
   onSelect,
+  resetSignal = 0,
 }: MapProps) {
   // Memoize the three icon variants (cheap, but avoids re-creating per render).
   const icons = useMemo(
@@ -357,6 +378,7 @@ export default function Map({
           markerRefs={markerRefs}
         />
         <ResetViewControl onSelect={onSelect} />
+        <ResetView signal={resetSignal} />
 
         <MarkerClusterGroup
           ref={clusterRef}

@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { AdminNavLink } from "@/components/AdminNavLink";
+import { HomeNavLink } from "@/components/HomeNavLink";
+
+const NAV_LINK_CLASS =
+  "rounded-full px-3 py-1.5 font-medium text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]";
 
 const NAV = [
   { href: "/", label: "Kaart & agenda" },
@@ -16,15 +20,20 @@ export function SiteHeader() {
           Cheer<span className="text-[var(--accent)]">NL</span>
         </Link>
         <nav className="flex items-center gap-1 text-sm">
-          {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-full px-3 py-1.5 font-medium text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {NAV.map((item) =>
+            item.href === "/" ? (
+              <HomeNavLink
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                className={NAV_LINK_CLASS}
+              />
+            ) : (
+              <Link key={item.href} href={item.href} className={NAV_LINK_CLASS}>
+                {item.label}
+              </Link>
+            ),
+          )}
           <AdminNavLink />
         </nav>
         <div className="ml-auto">

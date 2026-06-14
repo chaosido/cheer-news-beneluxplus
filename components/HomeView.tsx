@@ -19,11 +19,12 @@
  * The map is dynamically imported with `{ ssr: false }` because Leaflet needs
  * `window`.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { Map as MapIcon, CalendarDays, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/Calendar";
 import { Filters } from "@/components/Filters";
+import { RESET_HOME_EVENT } from "@/components/HomeNavLink";
 import { EmptyState } from "@/components/home/EmptyState";
 import { cn } from "@/lib/utils";
 import type { CalendarItem, MapClub, HomeFilters } from "@/components/home/types";
@@ -61,6 +62,21 @@ export function HomeView({
   const [hoveredClubId, setHoveredClubId] = useState<string | null>(null);
   const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
   const [tab, setTab] = useState<"map" | "calendar">("map");
+  // Bumped to tell <Map> to recenter on the whole country.
+  const [resetSignal, setResetSignal] = useState(0);
+
+  // Clicking the header "Kaart & agenda" link while already on "/" dispatches
+  // RESET_HOME_EVENT: clear selection/hover/province focus and recenter the map.
+  useEffect(() => {
+    function onReset() {
+      setSelectedClubId(null);
+      setHoveredClubId(null);
+      setFilters((f) => ({ ...f, province: null }));
+      setResetSignal((n) => n + 1);
+    }
+    window.addEventListener(RESET_HOME_EVENT, onReset);
+    return () => window.removeEventListener(RESET_HOME_EVENT, onReset);
+  }, []);
 
   // clubId → name, for the agenda's club line (passed to <Calendar>).
   const clubNames = useMemo(() => {
@@ -113,6 +129,7 @@ export function HomeView({
       selectedClubId={selectedClubId}
       onHover={setHoveredClubId}
       onSelect={handleSelect}
+      resetSignal={resetSignal}
     />
   ) : (
     <EmptyState
