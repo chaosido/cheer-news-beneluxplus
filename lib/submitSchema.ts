@@ -1,25 +1,28 @@
 /**
- * Zod schemas for public submissions (shared server + client).
+ * Zod schema for public submissions (shared server + client).
  *
- * One schema per `SubmissionKind` payload, combined into a discriminated union
- * keyed on `kind`. The server (`/api/submit`) validates the parsed JSON body
- * against `submissionInputSchema`; the client form uses the same schemas /
- * inferred types so the contract can't drift.
+ * DELIBERATELY OPEN FORMAT. Earlier this file had one tightly-constrained
+ * schema per `SubmissionKind` (title/date/time/location/...). That was dropped:
+ * the people filling this in are tipsters, not data-entry clerks, and every
+ * item is reviewed by hand and turned into structured data with the help of
+ * Claude Code before anything is published. So the form only needs to capture
+ * intent, not a typed record.
+ *
+ * The contract is therefore:
+ *   - `kind`     — a soft category, only used to triage the review queue.
+ *   - `message`  — one free-text field; the whole point of the submission.
+ *   - `url`      — optional supporting link.
+ *   - `contactEmail` — optional, only so we can ask follow-up questions.
+ *
+ * The server (`/api/submit`) validates the parsed body against
+ * `submissionInputSchema`; the client form imports the same schema / types so
+ * the contract can't drift.
  *
  * Kept dependency-light: only `zod` (v4). No imports from server-only modules
  * so this is safe to import from a Client Component.
  */
 import { z } from "zod";
 import type { SubmissionKind } from "@/lib/types";
-
-// ---- Reusable field primitives ----
-
-const trimmedString = z.string().trim();
-const requiredString = (label: string, max = 200) =>
-  trimmedString.min(1, `${label} is verplicht`).max(max, `${label} is te lang`);
-
-const optionalString = (max = 2000) =>
-  trimmedString.max(max, "Te lang").optional().or(z.literal("")).transform((v) => v || undefined);
 
 /** Optional URL: accepts empty string (→ undefined) or a valid http(s) URL. */
 const optionalUrl = z
@@ -31,20 +34,7 @@ const optionalUrl = z
   .or(z.literal(""))
   .transform((v) => v || undefined);
 
-/** The submission kinds, mirrored from `SubmissionKind` for the UI. */
-export const SUBMISSION_KINDS = ["event", "gym", "club", "correction"] as const;
-
-const EVENT_TYPES = [
-  "competition",
-  "open_gym",
-  "clinic",
-  "tryout",
-  "showcase",
-  "training",
-  "other",
-] as const;
-
-/** Contact email is optional everywhere but validated when present. */
+/** Contact email is optional but validated when present. */
 const contactEmail = z
   .string()
   .trim()
@@ -53,81 +43,36 @@ const contactEmail = z
   .or(z.literal(""))
   .transform((v) => v || undefined);
 
-// ---- Per-kind payload schemas ----
+/** The submission kinds, mirrored from `SubmissionKind` for the UI. */
+export const SUBMISSION_KINDS = [
+  "event",
+  "gym",
+  "club",
+  "correction",
+  "feedback",
+] as const;
 
-export const eventPayloadSchema = z.object({
-  kind: z.literal("event"),
-  title: requiredString("Titel"),
-  type: z.enum(EVENT_TYPES),
-  /** Local date, "YYYY-MM-DD" (from <input type="date">). */
-  date: z
+/**
+ * The single open-format submission schema.
+ *
+ * `message` is the only required field. Everything a tipster knows goes in
+ * there as free text; the review step (human + Claude Code) extracts the
+ * structured event/gym/club from it.
+ */
+export const submissionInputSchema = z.object({
+  kind: z.enum(SUBMISSION_KINDS),
+  message: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Kies een geldige datum"),
-  /** Local time, "HH:mm" (optional; from <input type="time">). */
-  time: z
-    .string()
-    .regex(/^\d{2}:\d{2}$/, "Kies een geldige tijd")
-    .optional()
-    .or(z.literal(""))
-    .transform((v) => v || undefined),
-  location: optionalString(300),
-  clubName: optionalString(200),
+    .trim()
+    .min(5, "Vertel ons iets meer (minstens 5 tekens)")
+    .max(8000, "Dat is wel heel lang — kort het iets in"),
   url: optionalUrl,
-  description: optionalString(2000),
   contactEmail,
 });
 
-export const gymPayloadSchema = z.object({
-  kind: z.literal("gym"),
-  clubName: requiredString("Naam van de club"),
-  /** Recurring open-gym time description, free text (NL-first form). */
-  schedule: requiredString("Dag en tijd", 300),
-  location: optionalString(300),
-  city: optionalString(120),
-  url: optionalUrl,
-  notes: optionalString(2000),
-  contactEmail,
-});
-
-export const clubPayloadSchema = z.object({
-  kind: z.literal("club"),
-  name: requiredString("Naam"),
-  city: requiredString("Plaats", 120),
-  website: optionalUrl,
-  instagram: optionalUrl,
-  facebook: optionalUrl,
-  tiktok: optionalUrl,
-  blurb: optionalString(1000),
-  contactEmail,
-});
-
-export const correctionPayloadSchema = z.object({
-  kind: z.literal("correction"),
-  /** Free-text description of what's wrong or missing (required). */
-  description: trimmedString
-    .min(5, "Geef een korte omschrijving (minstens 5 tekens)")
-    .max(4000, "Omschrijving is te lang"),
-  /** Optional link to the page/club/item the correction is about. */
-  url: optionalUrl,
-});
-
-/** Discriminated union over `kind` — what `/api/submit` validates. */
-export const submissionInputSchema = z.discriminatedUnion("kind", [
-  eventPayloadSchema,
-  gymPayloadSchema,
-  clubPayloadSchema,
-  correctionPayloadSchema,
-]);
-
-// ---- Inferred TS types ----
-
-export type EventPayload = z.infer<typeof eventPayloadSchema>;
-export type GymPayload = z.infer<typeof gymPayloadSchema>;
-export type ClubPayload = z.infer<typeof clubPayloadSchema>;
-export type CorrectionPayload = z.infer<typeof correctionPayloadSchema>;
 export type SubmissionInput = z.infer<typeof submissionInputSchema>;
 
-// Compile-time guard: the union's `kind` values must equal `SubmissionKind`.
+// Compile-time guard: the schema's `kind` values must equal `SubmissionKind`.
 type _AssertKinds = SubmissionInput["kind"] extends SubmissionKind
   ? SubmissionKind extends SubmissionInput["kind"]
     ? true
@@ -136,10 +81,11 @@ type _AssertKinds = SubmissionInput["kind"] extends SubmissionKind
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _assertKinds: _AssertKinds = true;
 
-/** Dutch labels per kind for the form picker. */
+/** Dutch labels per kind for the form picker + review queue. */
 export const SUBMISSION_KIND_LABEL: Record<SubmissionKind, string> = {
   event: "Evenement",
   gym: "Open gym",
   club: "Club",
-  correction: "Er klopt iets niet / iets ontbreekt",
+  correction: "Correctie",
+  feedback: "Feedback",
 };

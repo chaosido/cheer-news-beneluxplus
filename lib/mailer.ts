@@ -1,14 +1,20 @@
 /**
  * Maintainer notification email (SERVER ONLY).
  *
- * Sends a "new submission" email to every address in ADMIN_EMAILS via Gmail
- * SMTP. Configured through env:
+ * Sends ONE daily digest of new submissions to every address in ADMIN_EMAILS
+ * via Gmail SMTP — not one email per submission. The digest is assembled and
+ * triggered by scripts/notify-digest.ts (run on an evening cron); this module
+ * only knows how to render + send it.
+ *
+ * Configured through env:
  *   - GMAIL_USER           — the Gmail address to send from / authenticate as
  *   - GMAIL_APP_PASSWORD   — a Gmail app password (requires 2FA on the account)
  *
- * Contract: if either env var is unset, `sendSubmissionNotification` is a no-op
- * that logs a warning — so dev / un-configured environments keep working. It
- * NEVER throws; callers can `await` it without risking the request.
+ * Contract: if Gmail env or ADMIN_EMAILS is missing, `sendSubmissionDigest`
+ * returns `false` (sent nothing) instead of throwing, so an un-configured
+ * environment is a no-op. It never throws. The boolean return tells the caller
+ * whether the mail actually went out, so it only marks rows "notified" on a
+ * real send (a transient failure is retried in the next day's digest).
  */
 import "server-only";
 import nodemailer from "nodemailer";
@@ -16,12 +22,24 @@ import { adminEmails } from "@/lib/auth";
 import { SUBMISSION_KIND_LABEL } from "@/lib/submitSchema";
 import type { SubmissionKind } from "@/lib/types";
 
-export interface SubmissionNotification {
+export interface DigestSubmission {
+  id: string;
   kind: SubmissionKind;
   payload: Record<string, unknown>;
   submittedByEmail: string | null;
-  id?: string;
+  /** ISO timestamp, or null if unavailable. */
+  createdAt: string | null;
 }
+
+/**
+ * Public site base URL, so the digest can link to a clickable review queue
+ * instead of a bare "/admin" path. Overridable via env; defaults to the same
+ * canonical URL the app uses for metadata (app/layout.tsx).
+ */
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL || "https://cheer-news-beneluxplus.web.app"
+).replace(/\/$/, "");
+const ADMIN_URL = `${SITE_URL}/admin`;
 
 /** Lazily build the transport; null when env is incomplete. */
 function buildTransport() {
@@ -34,7 +52,7 @@ function buildTransport() {
   });
 }
 
-/** Render the payload's key fields as "Label: value" lines (skips empties). */
+/** Render a payload's non-empty fields as "key: value" lines. */
 function payloadLines(payload: Record<string, unknown>): string[] {
   return Object.entries(payload)
     .filter(([, val]) => val !== undefined && val !== null && String(val).trim() !== "")
@@ -49,53 +67,94 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+function formatWhen(iso: string | null): string {
+  if (!iso) return "onbekend";
+  try {
+    return new Date(iso).toLocaleString("nl-NL", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "Europe/Amsterdam",
+    });
+  } catch {
+    return iso;
+  }
+}
+
 /**
- * Email each maintainer about a new submission. No-op (with warning) when Gmail
- * env is unset; swallows all errors so it can never fail the caller.
+ * Email the maintainers a single digest of the given submissions.
+ *
+ * Returns `true` only if a mail was actually dispatched. Returns `false`
+ * (without throwing) when there is nothing to send, the Gmail env is unset,
+ * there are no recipients, or sending failed.
  */
-export async function sendSubmissionNotification(
-  submission: SubmissionNotification,
-): Promise<void> {
+export async function sendSubmissionDigest(
+  submissions: DigestSubmission[],
+): Promise<boolean> {
+  if (submissions.length === 0) return false;
+
   const transport = buildTransport();
   if (!transport) {
     console.warn(
-      "[mailer] GMAIL_USER / GMAIL_APP_PASSWORD not set — skipping submission notification.",
+      "[mailer] GMAIL_USER / GMAIL_APP_PASSWORD not set — skipping submission digest.",
     );
-    return;
+    return false;
   }
 
   const recipients = adminEmails();
   if (recipients.length === 0) {
     console.warn("[mailer] ADMIN_EMAILS is empty — no one to notify.");
-    return;
+    return false;
   }
 
-  const kindLabel = SUBMISSION_KIND_LABEL[submission.kind] ?? submission.kind;
-  const subject = `Nieuwe inzending: ${kindLabel} — Cheer News`;
-  const submitter = submission.submittedByEmail ?? "onbekend";
-  const lines = payloadLines(submission.payload);
+  const n = submissions.length;
+  const subject = `${n} nieuwe inzending${n === 1 ? "" : "en"} — Cheer News`;
 
+  // --- plain text ---
+  const textBlocks = submissions.map((s, i) => {
+    const kindLabel = SUBMISSION_KIND_LABEL[s.kind] ?? s.kind;
+    const lines = payloadLines(s.payload);
+    return [
+      `${i + 1}. [${kindLabel}] — ${formatWhen(s.createdAt)}`,
+      `   Ingezonden door: ${s.submittedByEmail ?? "onbekend"}`,
+      ...(lines.length ? lines.map((l) => `   ${l}`) : ["   (geen velden)"]),
+    ].join("\n");
+  });
   const text = [
-    `Nieuwe inzending (${kindLabel}) op Cheer News BeneluxPlus.`,
+    `${n} nieuwe inzending${n === 1 ? "" : "en"} op Cheer News BeneluxPlus wacht${
+      n === 1 ? "" : "en"
+    } op review.`,
     ``,
-    `Type: ${kindLabel}`,
-    `Ingezonden door: ${submitter}`,
+    ...textBlocks,
     ``,
-    `Gegevens:`,
-    ...(lines.length ? lines.map((l) => `  ${l}`) : ["  (geen velden)"]),
-    ``,
-    `Bekijk in de review queue: /admin`,
-  ].join("\n");
+    `Bekijk + verwerk in de review queue: ${ADMIN_URL}`,
+    `Of lees ze met Claude Code: npm run submissions`,
+  ].join("\n\n");
 
+  // --- html ---
+  const htmlBlocks = submissions.map((s, i) => {
+    const kindLabel = SUBMISSION_KIND_LABEL[s.kind] ?? s.kind;
+    const lines = payloadLines(s.payload);
+    return [
+      `<li style="margin-bottom:1rem">`,
+      `<strong>${i + 1}. ${escapeHtml(kindLabel)}</strong> `,
+      `<span style="color:#666">— ${escapeHtml(formatWhen(s.createdAt))}, door ${escapeHtml(
+        s.submittedByEmail ?? "onbekend",
+      )}</span>`,
+      lines.length
+        ? `<ul>${lines.map((l) => `<li>${escapeHtml(l)}</li>`).join("")}</ul>`
+        : `<p>(geen velden)</p>`,
+      `</li>`,
+    ].join("");
+  });
   const html = [
-    `<p>Nieuwe inzending (<strong>${escapeHtml(kindLabel)}</strong>) op Cheer News BeneluxPlus.</p>`,
-    `<p><strong>Type:</strong> ${escapeHtml(kindLabel)}<br/>`,
-    `<strong>Ingezonden door:</strong> ${escapeHtml(submitter)}</p>`,
-    `<p><strong>Gegevens:</strong></p>`,
-    lines.length
-      ? `<ul>${lines.map((l) => `<li>${escapeHtml(l)}</li>`).join("")}</ul>`
-      : `<p>(geen velden)</p>`,
-    `<p>Bekijk in de review queue: <code>/admin</code></p>`,
+    `<p>${n} nieuwe inzending${n === 1 ? "" : "en"} op Cheer News BeneluxPlus wacht${
+      n === 1 ? "" : "en"
+    } op review.</p>`,
+    `<ol>${htmlBlocks.join("")}</ol>`,
+    `<p>Bekijk + verwerk in de review queue: <a href="${ADMIN_URL}">${escapeHtml(
+      ADMIN_URL,
+    )}</a><br/>`,
+    `Of lees ze met Claude Code: <code>npm run submissions</code></p>`,
   ].join("\n");
 
   try {
@@ -106,7 +165,9 @@ export async function sendSubmissionNotification(
       text,
       html,
     });
+    return true;
   } catch (err) {
-    console.error("[mailer] failed to send submission notification:", err);
+    console.error("[mailer] failed to send submission digest:", err);
+    return false;
   }
 }

@@ -1,0 +1,44 @@
+name: Daily submission digest
+
+on:
+  schedule:
+    # 18:00 UTC daily ≈ 20:00 Europe/Amsterdam (CEST) / 19:00 (CET) — "evening".
+    # GitHub cron is UTC-only, so the local hour shifts by one across DST; that
+    # is fine for an evening digest. Skips silently on days with no new items.
+    - cron: "0 18 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (list only, send + mark nothing)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: notify-digest
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+
+      - name: Send submission digest
+        run: npx tsx scripts/notify-digest.ts ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }}
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GCP_PROJECT_ID: cheer-news-beneluxplus
+          ADMIN_EMAILS: ${{ secrets.ADMIN_EMAILS }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}

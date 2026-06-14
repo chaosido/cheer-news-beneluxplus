@@ -19,7 +19,6 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import { COLLECTIONS } from "@/lib/queries";
 import { submissionInputSchema } from "@/lib/submitSchema";
 import { bearerToken, verifyUser } from "@/lib/auth";
-import { sendSubmissionNotification } from "@/lib/mailer";
 
 export const runtime = "nodejs";
 
@@ -154,6 +153,11 @@ export async function POST(req: Request) {
   const { kind, ...payload } = parsed.data;
 
   // 7. Persist as a pending submission.
+  //
+  // Maintainers are NOT emailed here. Instead `digestNotifiedAt: null` marks
+  // this row as "not yet reported"; a once-daily evening job
+  // (scripts/notify-digest.ts) collects all un-notified rows into ONE digest
+  // email and stamps them, so a busy day is one mail, not one-per-submission.
   try {
     const ref = await adminDb.collection(COLLECTIONS.submissions).add({
       kind,
@@ -164,20 +168,9 @@ export async function POST(req: Request) {
       ipHash: hashIp(ip),
       submittedByEmail: user.email,
       submittedByUid: user.uid,
+      digestNotifiedAt: null,
       createdAt: FieldValue.serverTimestamp(),
     });
-
-    // Notify maintainers. Never let a mail failure fail the request.
-    try {
-      await sendSubmissionNotification({
-        kind,
-        payload,
-        submittedByEmail: user.email,
-        id: ref.id,
-      });
-    } catch (mailErr) {
-      console.error("[api/submit] notification failed:", mailErr);
-    }
 
     return NextResponse.json({ ok: true, id: ref.id });
   } catch (err) {
