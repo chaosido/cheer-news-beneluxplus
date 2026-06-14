@@ -31,6 +31,16 @@ export interface DigestSubmission {
   createdAt: string | null;
 }
 
+/**
+ * Public site base URL, so the digest can link to a clickable review queue
+ * instead of a bare "/admin" path. Overridable via env; defaults to the same
+ * canonical URL the app uses for metadata (app/layout.tsx).
+ */
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL || "https://cheer-news-beneluxplus.web.app"
+).replace(/\/$/, "");
+const ADMIN_URL = `${SITE_URL}/admin`;
+
 /** Lazily build the transport; null when env is incomplete. */
 function buildTransport() {
   const user = process.env.GMAIL_USER;
@@ -116,7 +126,7 @@ export async function sendSubmissionDigest(
     ``,
     ...textBlocks,
     ``,
-    `Bekijk + verwerk in de review queue: /admin`,
+    `Bekijk + verwerk in de review queue: ${ADMIN_URL}`,
     `Of lees ze met Claude Code: npm run submissions`,
   ].join("\n\n");
 
@@ -141,7 +151,9 @@ export async function sendSubmissionDigest(
       n === 1 ? "" : "en"
     } op review.</p>`,
     `<ol>${htmlBlocks.join("")}</ol>`,
-    `<p>Bekijk + verwerk in de review queue: <code>/admin</code><br/>`,
+    `<p>Bekijk + verwerk in de review queue: <a href="${ADMIN_URL}">${escapeHtml(
+      ADMIN_URL,
+    )}</a><br/>`,
     `Of lees ze met Claude Code: <code>npm run submissions</code></p>`,
   ].join("\n");
 
