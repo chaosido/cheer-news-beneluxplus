@@ -21,20 +21,39 @@ if (!process.execArgv.includes(RS)) {
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { z } from "zod";
 import { slugify } from "../lib/utils";
 import { EXTRACTOR_VERSION, type EventType, type Level, type Division, type AgeGroup } from "../lib/types";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const data = JSON.parse(readFileSync(resolve(here, "../data/clubs.enriched.json"), "utf8")) as EnrichedClub[];
 
-interface EnrichedClub {
-  name: string; city: string; verified: boolean; verifyConfidence: number; verifyNote: string;
-  websiteUrl?: string; instagramUrl?: string; facebookUrl?: string; tiktokUrl?: string; logoUrl?: string;
-  blurb?: string; foundedYear?: string; lat?: number; lng?: number;
-  teams?: { level: string; division: string; ageGroup: string }[];
-  events?: { title: string; type: string; start: string; end?: string; locationText?: string; url?: string; description?: string }[];
-  openGyms?: { weekday: string; startTime: string; endTime: string; notes?: string }[];
-}
+/** Runtime shape of data/clubs.enriched.json (output of the verify-enrich-clubs workflow). */
+const enrichedClubSchema = z.object({
+  name: z.string(),
+  city: z.string(),
+  verified: z.boolean(),
+  verifyConfidence: z.number(),
+  verifyNote: z.string(),
+  websiteUrl: z.string().optional(),
+  instagramUrl: z.string().optional(),
+  facebookUrl: z.string().optional(),
+  tiktokUrl: z.string().optional(),
+  logoUrl: z.string().optional(),
+  blurb: z.string().optional(),
+  foundedYear: z.string().optional(),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+  teams: z.array(z.object({ level: z.string(), division: z.string(), ageGroup: z.string() })).optional(),
+  events: z.array(z.object({
+    title: z.string(), type: z.string(), start: z.string(), end: z.string().optional(),
+    locationText: z.string().optional(), url: z.string().optional(), description: z.string().optional(),
+  })).optional(),
+  openGyms: z.array(z.object({
+    weekday: z.string(), startTime: z.string(), endTime: z.string(), notes: z.string().optional(),
+  })).optional(),
+});
+
+type EnrichedClub = z.infer<typeof enrichedClubSchema>;
 
 const BYDAY: Record<string, string> = {
   monday: "MO", tuesday: "TU", wednesday: "WE", thursday: "TH", friday: "FR", saturday: "SA", sunday: "SU",
@@ -54,7 +73,24 @@ async function isAllDay(start: Date, hasEnd: boolean): Promise<boolean> {
   return formatInTimeZone(start, TZ, "HH:mm") === "00:00";
 }
 
+/** Read + validate data/clubs.enriched.json. Surfaces malformed files cleanly. */
+function loadEnrichedClubs(): EnrichedClub[] {
+  const path = resolve(here, "../data/clubs.enriched.json");
+  let raw: unknown;
+  try {
+    raw = JSON.parse(readFileSync(path, "utf8"));
+  } catch (e) {
+    throw new Error(`could not read/parse ${path}: ${(e as Error).message}`);
+  }
+  const parsed = z.array(enrichedClubSchema).safeParse(raw);
+  if (!parsed.success) {
+    throw new Error(`${path} failed validation:\n${z.prettifyError(parsed.error)}`);
+  }
+  return parsed.data;
+}
+
 async function main() {
+  const data = loadEnrichedClubs();
   const { adminDb } = await import("../lib/firebaseAdmin");
   const { FieldValue, Timestamp } = await import("firebase-admin/firestore");
 
@@ -116,17 +152,21 @@ async function main() {
       updated++;
     }
 
-    // Teams subcollection (rewrite).
+    // Teams subcollection (rewrite). Delete-then-write in a single atomic batch so
+    // a crash mid-rewrite never leaves the club with teamsSummary but no team docs.
+    // Team counts per club are tiny, so a single batch stays well under the 500-op cap.
     const old = await clubRef.collection("teams").get();
-    await Promise.all(old.docs.map((d) => d.ref.delete()));
+    const teamsBatch = adminDb.batch();
+    for (const d of old.docs) teamsBatch.delete(d.ref);
     for (let i = 0; i < teams.length; i++) {
       const t = teams[i];
-      await clubRef.collection("teams").doc(`${t.level}-${t.division}-${t.ageGroup}-${i}`).set({
+      teamsBatch.set(clubRef.collection("teams").doc(`${t.level}-${t.division}-${t.ageGroup}-${i}`), {
         name: `${t.division} ${t.ageGroup} L${t.level}`,
         level: t.level, division: t.division, ageGroup: t.ageGroup, status: "active",
       });
       teamsW++;
     }
+    await teamsBatch.commit();
 
     // Open gyms -> published recurring docs.
     const gyms = c.openGyms ?? [];
