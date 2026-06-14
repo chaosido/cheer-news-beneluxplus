@@ -118,4 +118,62 @@ describe("validateExtractedEvent", () => {
     const res = validateExtractedEvent({ nope: true }, SOURCE);
     expect(res.ok).toBe(false);
   });
+
+  it("drops end-before-start silently, still ok:true with end:null", () => {
+    const start = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const endBeforeStart = new Date(start.getTime() - 60 * 60 * 1000); // 1h earlier
+    const res = validateExtractedEvent(
+      baseRaw({
+        start: start.toISOString(),
+        end: endBeforeStart.toISOString(),
+      }),
+      SOURCE
+    );
+    expect(res.ok).toBe(true);
+    if (res.ok) expect(res.value.end).toBeNull();
+  });
+
+  it("drops an out-of-window end but keeps the event (end:null)", () => {
+    const start = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const res = validateExtractedEvent(
+      baseRaw({
+        start: start.toISOString(),
+        end: "2099-01-01T10:00:00+01:00", // far future, dropped
+      }),
+      SOURCE
+    );
+    expect(res.ok).toBe(true);
+    if (res.ok) expect(res.value.end).toBeNull();
+  });
+
+  it("accepts an all-day event with a date-only start", () => {
+    // Use a date well inside the now-1y..now+2y window regardless of run time.
+    const startDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    const endDate = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    const res = validateExtractedEvent(
+      baseRaw({ start: startDate, end: endDate, allDay: true }),
+      SOURCE
+    );
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(res.value.allDay).toBe(true);
+      expect(res.value.start).toBe(startDate);
+      expect(res.value.end).toBe(endDate);
+    }
+  });
+
+  it("accepts a multi-day event with end several days after start", () => {
+    const start = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const end = new Date(start.getTime() + 3 * 24 * 60 * 60 * 1000); // +3 days
+    const res = validateExtractedEvent(
+      baseRaw({ start: start.toISOString(), end: end.toISOString() }),
+      SOURCE
+    );
+    expect(res.ok).toBe(true);
+    if (res.ok) expect(res.value.end).toBe(end.toISOString());
+  });
 });

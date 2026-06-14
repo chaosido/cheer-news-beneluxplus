@@ -28,19 +28,26 @@ export interface AgendaGroup {
   rows: AgendaRow[];
 }
 
-/** ISO instant → yyyy-MM-dd in local time. */
+const TZ = "Europe/Amsterdam";
+
+/** yyyy-MM-dd key formatter, fixed to Amsterdam time (en-CA yields ISO order). */
+const DAYKEY_FMT = new Intl.DateTimeFormat("en-CA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "numeric",
+  timeZone: TZ,
+});
+
+/** ISO instant → yyyy-MM-dd of the Amsterdam calendar day it falls on. */
 export function dayKey(iso: string): string {
-  const d = new Date(iso);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return DAYKEY_FMT.format(new Date(iso));
 }
 
 const TIME_FMT = new Intl.DateTimeFormat("nl-NL", {
   hour: "2-digit",
   minute: "2-digit",
   hour12: false,
+  timeZone: TZ,
 });
 
 /** Short weekday + day + month, e.g. "ma 16 jun". */
@@ -48,12 +55,14 @@ const HEADER_FMT = new Intl.DateTimeFormat("nl-NL", {
   weekday: "short",
   day: "numeric",
   month: "short",
+  timeZone: TZ,
 });
 
 /** Day + month, e.g. "16 jun" (used for multi-day ranges). */
 const DAYMONTH_FMT = new Intl.DateTimeFormat("nl-NL", {
   day: "numeric",
   month: "short",
+  timeZone: TZ,
 });
 
 function stripDot(s: string): string {
@@ -64,12 +73,14 @@ function stripDot(s: string): string {
 /** Header label for a day key relative to `today` (also a yyyy-MM-dd key). */
 export function headerLabel(dKey: string, todayKey: string): string {
   if (dKey === todayKey) return "Vandaag";
-  // Tomorrow.
-  const today = new Date(`${todayKey}T00:00:00`);
+  // Tomorrow. Anchor the keys at UTC noon so neither the +1 day arithmetic nor
+  // the Amsterdam reformat below can cross a calendar-day boundary regardless of
+  // the runtime's own timezone.
+  const today = new Date(`${todayKey}T12:00:00Z`);
   const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
   if (dKey === dayKey(tomorrow.toISOString())) return "Morgen";
-  const d = new Date(`${dKey}T00:00:00`);
+  const d = new Date(`${dKey}T12:00:00Z`);
   return stripDot(HEADER_FMT.format(d));
 }
 

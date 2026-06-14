@@ -53,6 +53,10 @@ export async function verifyUser(
   if (!idToken) return null;
   try {
     const decoded = await adminAuth.verifyIdToken(idToken);
+    // Defense-in-depth: reject tokens whose email the provider did not confirm.
+    // The form only exposes Google OAuth today (always email_verified:true), but
+    // this keeps the gate robust if other sign-in methods are enabled later.
+    if (!decoded.email_verified) return null;
     return { uid: decoded.uid, email: decoded.email ?? null };
   } catch {
     return null;

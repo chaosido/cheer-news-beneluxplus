@@ -156,32 +156,10 @@ function AgendaRowItem({
 
   const interactive = Boolean(item.url || item.clubId);
 
-  return (
-    <li
-      onMouseEnter={() => onHover(item.clubId)}
-      onMouseLeave={() => onHover(null)}
-      onClick={interactive ? () => onActivate(item) : undefined}
-      onKeyDown={
-        interactive
-          ? (e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                onActivate(item);
-              }
-            }
-          : undefined
-      }
-      tabIndex={interactive ? 0 : undefined}
-      role={interactive ? "button" : undefined}
-      aria-label={interactive ? `${displayTitle(item)} — meer info` : undefined}
-      className={cn(
-        "flex items-start gap-3 px-4 py-2.5 transition-colors",
-        interactive && "cursor-pointer hover:bg-[var(--surface-2)]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent)]",
-        dimmed && "opacity-40",
-        focused && "bg-[var(--accent-soft)]",
-      )}
-    >
+  // Inner content is identical whether the row is interactive or not; only the
+  // wrapping element differs (a native <button> vs a plain <div>).
+  const content = (
+    <>
       {/* Type color marker */}
       <span
         aria-hidden
@@ -208,25 +186,18 @@ function AgendaRowItem({
           )}
         </div>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[var(--muted)]">
-          <span
-            className="font-medium"
-            style={{ color }}
-          >
+          <span className="font-medium" style={{ color }}>
             {EVENT_TYPE_LABEL[item.type]}
           </span>
           {clubName && (
             <>
-              <span aria-hidden className="text-[var(--border)]">
-                ·
-              </span>
+              <Dot />
               <span className="truncate text-[var(--ink)]">{clubName}</span>
             </>
           )}
           {item.locationText && (
             <>
-              <span aria-hidden className="text-[var(--border)]">
-                ·
-              </span>
+              <Dot />
               <span className="inline-flex min-w-0 items-center gap-0.5">
                 <MapPin className="size-3 shrink-0" aria-hidden />
                 <span className="truncate">{item.locationText}</span>
@@ -235,7 +206,41 @@ function AgendaRowItem({
           )}
         </div>
       </div>
+    </>
+  );
+
+  const innerClass = cn(
+    "flex w-full items-start gap-3 px-4 py-2.5 text-left transition-colors",
+    interactive && "cursor-pointer hover:bg-[var(--surface-2)]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent)]",
+    dimmed && "opacity-40",
+    focused && "bg-[var(--accent-soft)]",
+  );
+
+  return (
+    <li onMouseEnter={() => onHover(item.clubId)} onMouseLeave={() => onHover(null)}>
+      {interactive ? (
+        <button
+          type="button"
+          onClick={() => onActivate(item)}
+          aria-label={`${displayTitle(item)} — meer info`}
+          className={innerClass}
+        >
+          {content}
+        </button>
+      ) : (
+        <div className={innerClass}>{content}</div>
+      )}
     </li>
+  );
+}
+
+/** Middot separator between metadata pieces. Hidden from assistive tech. */
+function Dot() {
+  return (
+    <span aria-hidden className="text-[var(--border)]">
+      ·
+    </span>
   );
 }
 

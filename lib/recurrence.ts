@@ -92,7 +92,9 @@ function localWallClockToIso(
  * - `exdates` (ISO dates) remove matching occurrences, compared on the LOCAL
  *   calendar day in `tz`.
  * - Each occurrence's startsAt/endsAt are ISO strings with the correct offset.
- * - endTime <= startTime is treated as crossing midnight (+1 local day).
+ * - endTime < startTime is treated as crossing midnight (+1 local day);
+ *   equal times are zero-duration (same day).
+ * - `validUntil`, if set, caps the effective end of the window.
  */
 export function expandOpenGym(
   gym: OpenGymClient,
@@ -100,10 +102,20 @@ export function expandOpenGym(
   rangeEnd: Date
 ): OpenGymOccurrence[] {
   const tz = gym.tz || "Europe/Amsterdam";
+  // `validUntil` marks the last date a recurring gym runs. The stored RRULE has
+  // no UNTIL clause, so cap the query window here to avoid emitting occurrences
+  // past the gym's end date.
+  if (gym.validUntil) {
+    const until = new Date(gym.validUntil);
+    if (until < rangeEnd) rangeEnd = until;
+  }
   const start = parseHHmm(gym.startTime);
   const end = parseHHmm(gym.endTime);
+  // Strict `<`: equal start/end times are zero-duration (same day), not a
+  // 24-hour midnight crossing. `crossesMidnight` is true only when the end
+  // wall-clock is numerically before the start.
   const crossesMidnight =
-    end.h * 60 + end.m <= start.h * 60 + start.m;
+    end.h * 60 + end.m < start.h * 60 + start.m;
 
   // Local calendar days on which the gym occurs (as YYYY-MM-DD in tz).
   const dayKeys: string[] = [];
