@@ -78,35 +78,22 @@ export default async function Home() {
       };
     });
 
-    // Located events → map pins (colored by type). The pin id matches the
-    // CalendarItem id so HomeView can keep pins in sync with the filtered
-    // agenda. Events without coordinates simply list in the agenda only.
-    //
-    // Workshops (the `clinic` type, labelled "Workshop" — e.g. a cheercamp) are
-    // one-off learning sessions rather than places worth pinning, so they stay
-    // in the agenda but get no map pin.
+    // Located events → map pins (colored by type). The map shows only
+    // *independent* events — those NOT hosted by a club. A club-hosted event
+    // (e.g. a club's yearly showcase) is already represented by the club's pin,
+    // so it gets no separate icon; it still appears in the agenda. Likewise
+    // workshops (the `clinic` type, "Workshop" — e.g. a cheercamp) are learning
+    // sessions, not places, so they stay agenda-only. The pin id matches the
+    // CalendarItem id so HomeView can keep pins in sync with the filtered agenda.
     const MAP_EXCLUDED_EVENT_TYPES = new Set(["clinic"]);
-    const SAME_COORD_EPS = 1e-6;
     mapEvents = events
+      .filter((e) => e.clubId == null)
       .filter((e) => !MAP_EXCLUDED_EVENT_TYPES.has(e.type))
       .filter(
         (e): e is typeof e & { lat: number; lng: number } =>
           e.lat != null && e.lng != null,
       )
-      .filter((e) => {
-        // Drop an event sitting exactly on its club's pin — the club teardrop
-        // already marks that spot, so a diamond on top is redundant. Club-less
-        // events and off-site club events (e.g. a competition at a sports hall)
-        // keep their own pin.
-        const club = e.clubId ? clubsById.get(e.clubId) : undefined;
-        if (!club || club.lat == null || club.lng == null) return true;
-        return (
-          Math.abs(club.lat - e.lat) > SAME_COORD_EPS ||
-          Math.abs(club.lng - e.lng) > SAME_COORD_EPS
-        );
-      })
       .map((e) => {
-        const club = e.clubId ? clubsById.get(e.clubId) : undefined;
         return {
           id: `event:${e.id}`,
           title: e.title,
@@ -114,9 +101,9 @@ export default async function Home() {
           startsAt: e.startsAt,
           endsAt: e.endsAt,
           allDay: e.allDay ?? false,
-          locationText: e.locationText ?? club?.city ?? e.city ?? null,
-          region: club?.region ?? e.region ?? null,
-          url: e.url ?? (club ? clubProfileUrl(club.slug) : null),
+          locationText: e.locationText ?? e.city ?? null,
+          region: e.region ?? null,
+          url: e.url ?? null,
           lat: e.lat,
           lng: e.lng,
         };

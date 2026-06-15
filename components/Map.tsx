@@ -208,21 +208,27 @@ const EVENT_GLYPH: Record<EventType, string> = {
   other: `<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>`,
 };
 
-/** Rounded-square event pin, colored by type, with a per-type glyph inside. */
+/**
+ * Teardrop event pin, colored by type, with a per-type glyph. The pointed pin
+ * shape distinguishes a located *event* from the round open-gym *hall* (venue)
+ * badge, so an open-gym-type event never looks like an open-gym venue.
+ */
 function eventIcon(type: EventType): L.DivIcon {
   const fill = EVENT_TYPE_COLOR[type];
-  const size = 26;
+  const w = 26;
+  const h = 34;
+  const glyph = `<svg x="6.5" y="5" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${EVENT_GLYPH[type]}</svg>`;
   const svg = `
-    <svg width="${size}" height="${size}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <rect x="1.5" y="1.5" width="21" height="21" rx="6" fill="${fill}" stroke="#ffffff" stroke-width="2"/>
-      <svg x="5" y="5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${EVENT_GLYPH[type]}</svg>
+    <svg width="${w}" height="${h}" viewBox="0 0 26 34" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 0C5.82 0 0 5.82 0 13c0 9.2 11.1 19.7 12.2 20.7a1.2 1.2 0 0 0 1.6 0C14.9 32.7 26 22.2 26 13 26 5.82 20.18 0 13 0Z" fill="${fill}"/>
+      ${glyph}
     </svg>`;
   return L.divIcon({
     html: svg,
     className: "cheer-event-pin",
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
-    popupAnchor: [0, -size / 2],
+    iconSize: [w, h],
+    iconAnchor: [w / 2, h],
+    popupAnchor: [0, -h + 6],
   });
 }
 
