@@ -10,6 +10,7 @@ const NAV = [
   { href: "/", label: "Kaart & agenda" },
   { href: "/clubs", label: "Clubs" },
   { href: "/coaches", label: "Coaches" },
+  { href: "/over", label: "Over" },
 ];
 
 export function SiteHeader() {

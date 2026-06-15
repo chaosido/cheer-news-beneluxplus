@@ -9,6 +9,9 @@ export function SiteFooter() {
           Nederland.
         </p>
         <nav className="flex gap-4">
+          <Link href="/over" className="hover:text-[var(--ink)]">
+            Over
+          </Link>
           <Link href="/submit" className="hover:text-[var(--ink)]">
             Bijdragen
           </Link>
