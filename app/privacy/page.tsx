@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "Privacyverklaring van Cheer News BeneluxPlus: welke gegevens we tonen en hoe we ermee omgaan.",
+    "Privacyverklaring van Cheer News: welke gegevens we tonen en hoe we ermee omgaan.",
 };
 
 export default function PrivacyPage() {
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
         <section className="flex flex-col gap-2">
           <h2 className="font-display text-lg font-bold">Wat dit is</h2>
           <p className="text-[var(--muted)]">
-            Cheer News BeneluxPlus is een open overzicht van cheerleading in
+            Cheer News is een open overzicht van cheerleading in
             Nederland: clubs, wedstrijden, open gyms en trainingstijden. We
             verzamelen en tonen publiek beschikbare informatie over clubs en
             evenementen.

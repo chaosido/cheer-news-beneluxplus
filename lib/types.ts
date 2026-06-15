@@ -1,5 +1,5 @@
 /**
- * Shared domain types for Cheer News BeneluxPlus.
+ * Shared domain types for Cheer News.
  *
  * Two layers:
  *  - Firestore document shapes use Firestore `Timestamp` for instants.

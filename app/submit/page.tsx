@@ -7,9 +7,9 @@
 import { SubmitForm } from "@/components/submit/SubmitForm";
 
 export const metadata = {
-  title: "Inzenden — Cheer News BeneluxPlus",
+  title: "Inzenden · Cheer News",
   description:
-    "Mis je een evenement, open gym of club? Stuur het in — wij controleren elke inzending voordat die online komt.",
+    "Mis je een evenement, open gym of club? Stuur het in. Wij controleren elke inzending voordat die online komt.",
 };
 
 export default function SubmitPage() {

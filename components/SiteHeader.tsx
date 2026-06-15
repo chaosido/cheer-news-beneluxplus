@@ -10,6 +10,7 @@ const NAV = [
   { href: "/", label: "Kaart & agenda" },
   { href: "/clubs", label: "Clubs" },
   { href: "/coaches", label: "Coaches" },
+  { href: "/over", label: "Over" },
 ];
 
 export function SiteHeader() {
@@ -24,7 +25,7 @@ export function SiteHeader() {
             className="inline-block size-3 rounded-sm bg-[var(--accent)]"
             aria-hidden
           />
-          Cheer<span className="text-[var(--accent)]">NL</span>
+          Cheer<span className="text-[var(--accent)]">News</span>
         </Link>
         <nav className="flex items-center gap-1 text-sm">
           {NAV.map((item) =>
