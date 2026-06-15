@@ -16,6 +16,7 @@ import {
   UserCog,
   BookOpen,
   Layers,
+  UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -55,6 +56,12 @@ const ROADMAP = [
     icon: Layers,
     title: "Betere teamindeling",
     body: "Een duidelijker classificatie van teams op niveau, divisie en leeftijdsgroep, zodat je clubs en wedstrijden preciezer kunt filteren en vergelijken.",
+    when: "Later",
+  },
+  {
+    icon: UserPlus,
+    title: "“Ik wil meedoen”-knop",
+    body: "Een knop die nieuwe sporters naar de juiste club verwijst op basis van locatie en niveau, en helpt om meteen een proefles in te plannen.",
     when: "Later",
   },
 ];
