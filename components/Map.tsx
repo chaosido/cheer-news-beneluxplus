@@ -9,12 +9,13 @@
  * building markers from inline SVG `divIcon`s, which also lets us tint the
  * selected/hovered pin with the spirit accent.
  *
- * OVERLAPPING PINS — clustering + click-to-spiderfy:
+ * OVERLAPPING PINS — clustering + click-to-zoom:
  *   All pins (clubs, venues, events, coaches) live in one `<MarkerClusterGroup>`.
  *   Nearby pins collapse into an accent count badge (the "pink circle"), and the
- *   clusters break apart automatically as you zoom in. Clicking a cluster
- *   spiderfies it IN PLACE (zoomToBoundsOnClick is off) — the members fan out on
- *   a ring at the current zoom so each is clickable, without the camera zooming.
+ *   clusters break apart automatically as you zoom in. Clicking a cluster zooms
+ *   to its bounds so the members become individual, reliably-clickable pins;
+ *   only genuinely coincident pins spiderfy (at max zoom). We avoid in-place
+ *   spiderfy because the transient spider collapses on any hover-driven rerender.
  *
  * Hover/select sync: hovering a pin calls `onHover`, clicking selects via
  * `onSelect`; the externally-controlled `hoveredClubId`/`selectedClubId` props
@@ -532,19 +533,11 @@ export default function Map({
     new globalThis.Map(),
   );
 
-  // Callback ref: store the cluster group AND bind clusterclick → spiderfy the
-  // moment the group exists (a plain effect could run before the ref is set).
-  // Clicking a cluster fans it out IN PLACE; `zoomToBoundsOnClick={false}` only
-  // disables the zoom, it doesn't auto-spiderfy below max zoom.
+  // Just store the cluster group ref (FocusHighlight uses it to reveal a buried
+  // pin). Cluster CLICKS use the library's default zoom-to-bounds — see the
+  // MarkerClusterGroup props below for why we no longer spiderfy in place.
   const setClusterGroup = useCallback((group: L.MarkerClusterGroup | null) => {
     clusterRef.current = group;
-    const g = group as (L.MarkerClusterGroup & { _cheerBound?: boolean }) | null;
-    if (g && !g._cheerBound) {
-      g._cheerBound = true;
-      g.on("clusterclick", (e: { layer: L.MarkerCluster }) =>
-        e.layer.spiderfy(),
-      );
-    }
   }, []);
 
   // The single event/coach pin to show: the hovered row wins (live preview),
@@ -603,13 +596,16 @@ export default function Map({
         <ResetViewControl onSelect={onSelect} />
         <ResetView signal={resetSignal} />
 
-        {/* All pins (clubs, venues, events, coaches) in one cluster group.
-            Nearby pins merge into the accent count badge; clicking it spiderfies
-            in place (zoomToBoundsOnClick off) — no zoom; clusters break apart as
-            you zoom in. */}
+        {/* Pins merge into the accent count badge. Clicking a cluster ZOOMS in
+            to its bounds (the library default) so the members become individual,
+            reliably-clickable pins. We dropped the old in-place spiderfy: it fans
+            out at the current zoom but the transient spider collapses the moment
+            any hover re-renders the marker tree (a react-leaflet-cluster
+            rebuild), so reaching a leg felt broken. Genuinely coincident pins
+            (same coordinate, can't be split by zoom) still spiderfy at max zoom
+            via `spiderfyOnMaxZoom`. */}
         <MarkerClusterGroup
           ref={setClusterGroup}
-          zoomToBoundsOnClick={false}
           spiderfyOnMaxZoom
           showCoverageOnHover={false}
           spiderfyDistanceMultiplier={1.6}
