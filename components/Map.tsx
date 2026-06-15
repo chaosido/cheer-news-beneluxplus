@@ -9,22 +9,20 @@
  * building markers from inline SVG `divIcon`s, which also lets us tint the
  * selected/hovered pin with the spirit accent.
  *
- * STACKED PINS — clustering + spiderfy:
- *   Many clubs are geocoded to their city centre, so several share *identical*
- *   coordinates and their pins would stack exactly on top of one another. We
- *   wrap every marker in a `<MarkerClusterGroup>` (leaflet.markercluster):
- *     - Nearby pins collapse into a themed count badge.
- *     - Clicking a cluster zooms toward its members.
- *     - Members at the *same* coordinate cannot be separated by zoom, so the
- *       group spiderfies them (fans them out on a ring) on click — every pin
- *       then becomes individually hoverable/clickable with its own tooltip and
- *       popup.
+ * CO-LOCATED PINS — permanent micro-spread (no clustering):
+ *   Clubs are pinned at their real gym address, so most sit at distinct points.
+ *   A few still share an *identical* coordinate (e.g. two teams at one gym, or
+ *   an address that only geocodes to street level). Rather than collapse those
+ *   into a count-badge cluster, we fan the members of each shared coordinate out
+ *   on a small fixed ring (`spreadPositions`). Every pin is therefore always
+ *   individually visible, hoverable and clickable at any zoom — no blob, no
+ *   click-to-expand. Pins that are merely *near* each other simply overlap at
+ *   low zoom and separate as you zoom in.
  *
  * Hover/select sync: hovering a pin calls `onHover`, clicking selects via
  * `onSelect`; the externally-controlled `hoveredClubId`/`selectedClubId` props
- * restyle the matching marker. When a club is highlighted from elsewhere (e.g.
- * the agenda) we ask the cluster group to reveal it (`zoomToShowLayer`, which
- * zooms/spiderfies as needed) so a buried pin surfaces and shows its highlight.
+ * restyle the matching marker. Selecting a club (here or from the agenda) flies
+ * the camera to that pin's spread position; hover never moves the camera.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -37,7 +35,6 @@ import {
   Tooltip,
   useMap,
 } from "react-leaflet";
-import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import {
   Globe,
@@ -51,14 +48,7 @@ import {
   Mail,
   Phone,
 } from "lucide-react";
-// Pull in the `@types/leaflet.markercluster` global augmentation of the
-// "leaflet" module so `L.MarkerCluster` / `L.MarkerClusterGroup` resolve.
-// `leaflet.markercluster` is already loaded at runtime (transitively via
-// react-leaflet-cluster), so this side-effect import changes no behavior.
-import "leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
-import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
-import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import { EVENT_TYPE_COLOR, EVENT_TYPE_LABEL } from "@/lib/eventColors";
 import type { EventType } from "@/lib/types";
 import type {
@@ -71,8 +61,12 @@ import { safeUrl } from "@/lib/safeUrl";
 
 const NL_CENTER: [number, number] = [52.2, 5.3];
 const NL_ZOOM = 7;
-// City-level cap so focusing a pin surfaces it without flying all the way in.
-const FOCUS_MAX_ZOOM = 11;
+// Street-level zoom used when a club is selected, so co-located pins that were
+// fanned out on the micro-spread ring become clearly separated.
+const FOCUS_REVEAL_ZOOM = 14;
+// Ring radius (in degrees of latitude, ~0.0011° ≈ 120 m) for fanning out pins
+// that share an identical coordinate.
+const SPREAD_RADIUS_DEG = 0.0011;
 
 /**
  * Theme Leaflet's tooltip/popup/cluster chrome with our design tokens. Injected
@@ -109,31 +103,6 @@ const MAP_THEME_CSS = `
   }
   /* Neutralize Leaflet's directional tooltip arrow (we omit it for clarity). */
   .cheer-tooltip.leaflet-tooltip::before { display: none; }
-
-  /* ---- Cluster badge: themed count bubble (replaces the default blue). ---- */
-  .cheer-cluster {
-    background: transparent;
-    border: none;
-  }
-  .cheer-cluster-badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    border-radius: 9999px;
-    background: var(--accent);
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 13px;
-    line-height: 1;
-    border: 2px solid #ffffff;
-    box-shadow: 0 1px 4px rgb(23 22 27 / 0.35);
-  }
-  /* A faint accent halo so dense clusters read as "more". */
-  .cheer-cluster-badge--lg { font-size: 14px; }
-  .leaflet-cluster-anim .leaflet-marker-icon,
-  .leaflet-cluster-anim .leaflet-marker-shadow { transition: transform 0.25s ease-out, opacity 0.25s ease-in; }
 
   /* ---- Venue (club-independent open gym) pin: a teal round badge so it
      reads as a different category from the dark teardrop club pins. ---- */
@@ -187,10 +156,12 @@ function pinIcon(state: "default" | "hover" | "selected"): L.DivIcon {
   const scale = state === "default" ? 1 : 1.18;
   const w = Math.round(26 * scale);
   const h = Math.round(34 * scale);
+  // An "all-star" star glyph reads as the club/team's home base.
+  const star = `<svg x="6" y="5.5" width="14" height="14" viewBox="0 0 24 24" fill="#ffffff" xmlns="http://www.w3.org/2000/svg"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.12 2.12 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.12 2.12 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.12 2.12 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.12 2.12 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.12 2.12 0 0 0 1.597-1.16z"/></svg>`;
   const svg = `
     <svg width="${w}" height="${h}" viewBox="0 0 26 34" xmlns="http://www.w3.org/2000/svg">
       <path d="M13 0C5.82 0 0 5.82 0 13c0 9.2 11.1 19.7 12.2 20.7a1.2 1.2 0 0 0 1.6 0C14.9 32.7 26 22.2 26 13 26 5.82 20.18 0 13 0Z" fill="${fill}"/>
-      <circle cx="13" cy="13" r="5" fill="#ffffff"/>
+      ${star}
     </svg>`;
   return L.divIcon({
     html: svg,
@@ -215,13 +186,33 @@ function venueIcon(): L.DivIcon {
   });
 }
 
-/** Diamond event pin, colored by event type (distinct from club/venue pins). */
+// Per-type lucide glyph (inner paths, drawn white-stroked) so each event pin
+// carries a symbol that matches its kind.
+const EVENT_GLYPH: Record<EventType, string> = {
+  // Trophy
+  competition: `<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>`,
+  // Dumbbell
+  open_gym: `<path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/>`,
+  // GraduationCap (Workshop)
+  clinic: `<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>`,
+  // ClipboardCheck
+  tryout: `<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>`,
+  // Sparkles
+  showcase: `<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0z"/>`,
+  // Activity
+  training: `<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>`,
+  // Calendar
+  other: `<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>`,
+};
+
+/** Rounded-square event pin, colored by type, with a per-type glyph inside. */
 function eventIcon(type: EventType): L.DivIcon {
   const fill = EVENT_TYPE_COLOR[type];
-  const size = 24;
+  const size = 26;
   const svg = `
     <svg width="${size}" height="${size}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <rect x="5" y="5" width="14" height="14" rx="3" transform="rotate(45 12 12)" fill="${fill}" stroke="#ffffff" stroke-width="2"/>
+      <rect x="1.5" y="1.5" width="21" height="21" rx="6" fill="${fill}" stroke="#ffffff" stroke-width="2"/>
+      <svg x="5" y="5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${EVENT_GLYPH[type]}</svg>
     </svg>`;
   return L.divIcon({
     html: svg,
@@ -255,80 +246,68 @@ function coachIcon(): L.DivIcon {
 }
 
 /**
- * Themed cluster icon: an accent count bubble that grows slightly with the
- * number of children, so a "37" cluster reads heavier than a "3".
+ * Fan out clubs that share an identical coordinate onto a small fixed ring so
+ * each pin stays individually visible/clickable — our no-cluster replacement
+ * for stacked pins. Clubs at a unique coordinate keep their exact position.
+ * Returns clubId → display `[lat, lng]`. Stable across renders (sorted by id)
+ * so pins don't jump.
  */
-function clusterIcon(cluster: L.MarkerCluster): L.DivIcon {
-  const count = cluster.getChildCount();
-  // Size scales gently with count (clamped) for legibility at any density.
-  const size = count < 10 ? 34 : count < 100 ? 40 : 48;
-  const lg = count >= 100 ? " cheer-cluster-badge--lg" : "";
-  return L.divIcon({
-    html: `<div class="cheer-cluster-badge${lg}" aria-label="${count} clubs">${count}</div>`,
-    className: "cheer-cluster",
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
-  });
+function spreadPositions(clubs: MapClub[]): globalThis.Map<string, [number, number]> {
+  const byCoord = new globalThis.Map<string, MapClub[]>();
+  for (const c of clubs) {
+    const key = `${c.lat.toFixed(4)},${c.lng.toFixed(4)}`;
+    const list = byCoord.get(key);
+    if (list) list.push(c);
+    else byCoord.set(key, [c]);
+  }
+  const out = new globalThis.Map<string, [number, number]>();
+  for (const group of byCoord.values()) {
+    if (group.length === 1) {
+      out.set(group[0].id, [group[0].lat, group[0].lng]);
+      continue;
+    }
+    const sorted = [...group].sort((a, b) => a.id.localeCompare(b.id));
+    sorted.forEach((c, i) => {
+      const angle = (2 * Math.PI * i) / sorted.length;
+      const lat = c.lat + SPREAD_RADIUS_DEG * Math.sin(angle);
+      // Scale the lng offset by 1/cos(lat) so the ring reads circular, not oval.
+      const lng =
+        c.lng +
+        (SPREAD_RADIUS_DEG * Math.cos(angle)) /
+          Math.cos((c.lat * Math.PI) / 180);
+      out.set(c.id, [lat, lng]);
+    });
+  }
+  return out;
 }
 
 /**
- * Brings a *selected* club's pin into view (clicking a pin or an agenda row).
+ * Flies the camera to a *selected* club's pin (clicking a pin or an agenda row).
  * `focusId` is driven by selection only — NOT hover — so the camera moves only
  * on an explicit click. Hovering an agenda event just restyles the matching pin
  * (see the marker `state`); it never moves the map. That split is what fixes the
  * old "zoom on hover" annoyance while keeping click-to-zoom.
  *
- * Two cases on selection:
- *  - Pin already shown (standalone or a spiderfied leg): center on it with a
- *    pure `panTo` — we deliberately do NOT change zoom, so a spiderfied ring
- *    doesn't collapse back into a cluster.
- *  - Pin buried in an un-expanded cluster: `zoomToShowLayer` (markercluster)
- *    zooms in until it's no longer clustered, spiderfying when same-coordinate
- *    markers can't be split by zoom. It can fly in too deep, so we clamp to a
- *    city-level zoom in its callback before nudging to the pin.
+ * We fly to the pin's *spread* position (the same one rendered) and zoom in to at
+ * least street level, so two clubs fanned out on the same micro-spread ring end
+ * up clearly separated. If you're already zoomed in further, we keep that zoom.
  */
 function FocusHighlight({
-  clubs,
+  positions,
   focusId,
-  clusterRef,
-  markerRefs,
 }: {
-  clubs: MapClub[];
+  positions: globalThis.Map<string, [number, number]>;
   focusId: string | null;
-  clusterRef: React.RefObject<L.MarkerClusterGroup | null>;
-  markerRefs: React.RefObject<globalThis.Map<string, L.Marker>>;
 }) {
   const map = useMap();
   useEffect(() => {
     if (!focusId) return;
-    const club = clubs.find((c) => c.id === focusId);
-    if (!club) return;
-
-    const group = clusterRef.current;
-    const marker = markerRefs.current.get(focusId);
-
-    if (group && marker && group.hasLayer(marker)) {
-      // Already visible (standalone pin or a spiderfied leg)? Center on it, but
-      // pan only — never touch zoom — so a spiderfied ring stays fanned out.
-      if (group.getVisibleParent(marker) === marker) {
-        map.panTo([club.lat, club.lng], { animate: true });
-        return;
-      }
-
-      // Otherwise the pin is buried in an un-expanded cluster: zoom/spiderfy
-      // until it surfaces, clamp the zoom, then nudge to it.
-      group.zoomToShowLayer(marker, () => {
-        if (map.getZoom() > FOCUS_MAX_ZOOM) {
-          map.setZoom(FOCUS_MAX_ZOOM);
-        }
-        map.panTo([club.lat, club.lng], { animate: true });
-      });
-      return;
-    }
-
-    // Marker not on the cluster group yet (still mounting): pan toward it.
-    map.panTo([club.lat, club.lng], { animate: true });
-  }, [focusId, clubs, map, clusterRef, markerRefs]);
+    const pos = positions.get(focusId);
+    if (!pos) return;
+    map.flyTo(pos, Math.max(map.getZoom(), FOCUS_REVEAL_ZOOM), {
+      animate: true,
+    });
+  }, [focusId, positions, map]);
   return null;
 }
 
@@ -449,17 +428,14 @@ export default function Map({
     >;
   }, []);
 
-  // Cluster group + per-club marker handles, so FocusHighlight can reveal a
-  // buried pin (zoomToShowLayer) when a club is highlighted from the agenda.
-  const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
-  const markerRefs = useRef<globalThis.Map<string, L.Marker>>(
-    new globalThis.Map(),
-  );
+  // Display positions: clubs at a shared coordinate are fanned out on a small
+  // ring (replaces clustering). Memoized so positions are stable across renders.
+  const positions = useMemo(() => spreadPositions(clubs), [clubs]);
 
   // Camera reveal/pan is driven by an explicit *selection* only. Hover must
   // never move the map — it only restyles the matching pin (see the marker
-  // `state` below). This is what keeps hovering an agenda event from zooming
-  // into a buried/clustered pin; you get the highlight without the camera jump.
+  // `state` below). This is what keeps hovering an agenda event from moving the
+  // camera; you get the highlight without the camera jump.
   const focusId = selectedClubId;
 
   return (
@@ -477,52 +453,33 @@ export default function Map({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <FocusHighlight
-          clubs={clubs}
-          focusId={focusId}
-          clusterRef={clusterRef}
-          markerRefs={markerRefs}
-        />
+        <FocusHighlight positions={positions} focusId={focusId} />
         <ResetViewControl onSelect={onSelect} />
         <ResetView signal={resetSignal} />
 
-        <MarkerClusterGroup
-          ref={clusterRef}
-          // Same-coordinate pins fan out on click so each is clickable.
-          spiderfyOnMaxZoom
-          // Touch-friendly: spiderfy still works on tap; the legs stay clickable.
-          showCoverageOnHover={false}
-          // Keep the spiderfy ring roomy enough to tap individual pins on mobile.
-          spiderfyDistanceMultiplier={1.6}
-          // Group pins within ~50px; tighter than the default 80 so distinct
-          // cities don't over-merge while true city-center stacks still group.
-          maxClusterRadius={50}
-          chunkedLoading
-          iconCreateFunction={clusterIcon}
-        >
-          {clubs.map((club) => {
-            const state =
-              club.id === selectedClubId
-                ? "selected"
-                : club.id === hoveredClubId
-                  ? "hover"
-                  : "default";
-            return (
-              <ClubMarker
-                key={club.id}
-                club={club}
-                icon={icons[state]}
-                isSelected={club.id === selectedClubId}
-                onHover={onHover}
-                onSelect={onSelect}
-                markerRefs={markerRefs}
-              />
-            );
-          })}
-        </MarkerClusterGroup>
+        {/* Club pins — plain markers (no clustering). Co-located clubs are
+            fanned out via `positions` so each stays individually clickable. */}
+        {clubs.map((club) => {
+          const state =
+            club.id === selectedClubId
+              ? "selected"
+              : club.id === hoveredClubId
+                ? "hover"
+                : "default";
+          return (
+            <ClubMarker
+              key={club.id}
+              club={club}
+              position={positions.get(club.id) ?? [club.lat, club.lng]}
+              icon={icons[state]}
+              isSelected={club.id === selectedClubId}
+              onHover={onHover}
+              onSelect={onSelect}
+            />
+          );
+        })}
 
-        {/* Venue open-gym pins live outside the cluster group: they are few,
-            and clustering them with clubs would muddle the "X clubs" badge. */}
+        {/* Venue open-gym pins. */}
         {venues.map((venue) => (
           <VenueMarker key={venue.id} venue={venue} icon={venueMarkerIcon} />
         ))}
@@ -807,18 +764,18 @@ function UserGlyph() {
 
 function ClubMarker({
   club,
+  position,
   icon,
   isSelected,
   onHover,
   onSelect,
-  markerRefs,
 }: {
   club: MapClub;
+  position: [number, number];
   icon: L.DivIcon;
   isSelected: boolean;
   onHover: (id: string | null) => void;
   onSelect: (id: string | null) => void;
-  markerRefs: React.RefObject<globalThis.Map<string, L.Marker>>;
 }) {
   const markerRef = useRef<L.Marker>(null);
 
@@ -827,16 +784,6 @@ function ClubMarker({
   useEffect(() => {
     markerRef.current?.setIcon(icon);
   }, [icon]);
-
-  // Register the marker handle so FocusHighlight can reveal it from outside.
-  useEffect(() => {
-    const refs = markerRefs.current;
-    const marker = markerRef.current;
-    if (marker) refs.set(club.id, marker);
-    return () => {
-      refs.delete(club.id);
-    };
-  }, [club.id, markerRefs]);
 
   // Re-validate each href against the http(s) allowlist (defense-in-depth).
   const websiteUrl = safeUrl(club.websiteUrl);
@@ -856,7 +803,7 @@ function ClubMarker({
   return (
     <Marker
       ref={markerRef}
-      position={[club.lat, club.lng]}
+      position={position}
       icon={icon}
       eventHandlers={{
         mouseover: () => onHover(club.id),
