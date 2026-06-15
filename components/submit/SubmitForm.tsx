@@ -34,68 +34,10 @@ import {
 import { CheckCircle2, Loader2, LogIn, Send } from "lucide-react";
 import { clientAuth } from "@/lib/firebase";
 import { Button } from "@/components/ui/Button";
-import {
-  SUBMISSION_KINDS,
-  SUBMISSION_KIND_LABEL,
-  type SubmissionInput,
-} from "@/lib/submitSchema";
+import { SUBMISSION_KINDS, type SubmissionInput } from "@/lib/submitSchema";
 import type { SubmissionKind } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/context";
 import { TextField, TextAreaField } from "@/components/submit/Field";
-
-/** Soft, per-kind copy. Guides what to write WITHOUT constraining the form. */
-const KIND_HELP: Record<SubmissionKind, string> = {
-  event: "Een wedstrijd, workshop, tryout, showcase of andere activiteit.",
-  gym: "Een terugkerend open-gym moment bij een club.",
-  club: "Een club, studententeam, schoolteam of selectieteam dat nog niet op de kaart staat.",
-  coach:
-    "Ben je een (gast)coach die ons land bezoekt? Vertel waar en wanneer je bent en hoe mensen je kunnen bereiken.",
-  correction: "Er klopt iets niet of er ontbreekt iets.",
-  feedback: "Een idee, opmerking of probleem met de site zelf.",
-};
-
-const KIND_PLACEHOLDER: Record<SubmissionKind, string> = {
-  event:
-    "bv. Open NK Cheerleading op 31 mei 2026 in Sporthallen Zuid Amsterdam, georganiseerd door … — link of tickets erbij als je die hebt.",
-  gym: "bv. Cheer Amsterdam heeft elke woensdag 19:00–21:00 open gym in sporthal …",
-  club: "bv. Naam, plaats, en een website of Instagram. Alles wat je weet helpt.",
-  coach:
-    "bv. Coach Jamie (tumbling) is 12–20 juni in Utrecht, te boeken via @handle of jij@voorbeeld.nl.",
-  correction:
-    "bv. Het adres van club X klopt niet, of team Y traint niet meer op dinsdag.",
-  feedback: "Vertel ons wat beter kan, of wat je opviel op de site.",
-};
-
-/**
- * Per-kind copy for the optional supporting-link field. The field itself is the
- * same for every kind (see the open-format rationale); only the label/hint
- * adapt — for a correction we explicitly invite the relevant page/link.
- */
-const KIND_URL: Record<SubmissionKind, { label: string; hint: string }> = {
-  event: {
-    label: "Link (optioneel)",
-    hint: "Een website, ticketpagina of Instagram die helpt.",
-  },
-  gym: {
-    label: "Link (optioneel)",
-    hint: "Een website of Instagram van de club.",
-  },
-  club: {
-    label: "Link (optioneel)",
-    hint: "Website of Instagram van de club.",
-  },
-  coach: {
-    label: "Link (optioneel)",
-    hint: "Je website, Instagram of boekingspagina.",
-  },
-  correction: {
-    label: "Relevante link (optioneel)",
-    hint: "Plak de pagina of link die hoort bij wat ontbreekt of niet klopt. Meer dan één? Zet de rest ook in je bericht.",
-  },
-  feedback: {
-    label: "Link (optioneel)",
-    hint: "Een pagina of screenshot-link die helpt.",
-  },
-};
 
 type FieldErrors = Record<string, string[] | undefined>;
 
@@ -104,6 +46,7 @@ interface SubmitFormProps {
 }
 
 export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
+  const { t } = useI18n();
   const [user, setUser] = React.useState<User | null>(null);
   const [authReady, setAuthReady] = React.useState(false);
   const [signInBusy, setSignInBusy] = React.useState(false);
@@ -124,7 +67,7 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
       await signInWithPopup(clientAuth, new GoogleAuthProvider());
     } catch (err) {
       console.error("[submit] Google sign-in failed:", err);
-      setSignInError("Inloggen met Google is mislukt. Probeer het opnieuw.");
+      setSignInError(t.submit.signInError);
     } finally {
       setSignInBusy(false);
     }
@@ -183,7 +126,7 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
     try {
       if (!user) {
         setStatus("idle");
-        setGlobalError("Log in met Google om iets te melden of aan te vullen.");
+        setGlobalError(t.submit.notSignedInError);
         return;
       }
       const idToken = await user.getIdToken();
@@ -212,12 +155,10 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
 
       setStatus("idle");
       if (data.fieldErrors) setFieldErrors(data.fieldErrors);
-      setGlobalError(data.error ?? "Er ging iets mis. Probeer het opnieuw.");
+      setGlobalError(data.error ?? t.submit.genericError);
     } catch {
       setStatus("idle");
-      setGlobalError(
-        "Kon de inzending niet versturen. Controleer je verbinding.",
-      );
+      setGlobalError(t.submit.networkError);
     }
   }
 
@@ -235,11 +176,7 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
   if (!user) {
     return (
       <div className="flex flex-col items-start gap-4 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-6">
-        <p className="text-sm text-[var(--muted)]">
-          Om spam tegen te gaan vragen we je om in te loggen voordat je iets
-          inzendt. Je gegevens worden alleen gebruikt om je inzending te
-          verifiëren.
-        </p>
+        <p className="text-sm text-[var(--muted)]">{t.submit.signInIntro}</p>
         {signInError && (
           <p className="rounded-[var(--radius)] border border-[var(--accent)] bg-[var(--accent-soft)] px-3 py-2 text-sm text-[var(--ink)]">
             {signInError}
@@ -251,7 +188,7 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
           ) : (
             <LogIn className="size-4" aria-hidden />
           )}
-          Inloggen met Google om iets te melden of aan te vullen
+          {t.submit.signInButton}
         </Button>
       </div>
     );
@@ -265,14 +202,13 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
           aria-hidden
         />
         <h2 className="mt-3 font-display text-xl font-semibold">
-          Bedankt! We bekijken je inzending.
+          {t.submit.successTitle}
         </h2>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          Zodra een redacteur je inzending heeft bekeken, verschijnt die op de
-          site.
+          {t.submit.successBody}
         </p>
         <Button variant="secondary" className="mt-5" onClick={resetForm}>
-          Nog iets inzenden
+          {t.submit.successAgain}
         </Button>
       </div>
     );
@@ -283,7 +219,7 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
       {/* Signed-in banner */}
       <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--muted)]">
         <span>
-          Ingelogd als{" "}
+          {t.submit.signedInAs}{" "}
           <span className="font-medium text-[var(--ink)]">{user.email}</span>
         </span>
         <button
@@ -291,14 +227,14 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
           onClick={() => signOut(clientAuth)}
           className="ml-auto underline underline-offset-2 hover:text-[var(--ink)]"
         >
-          Uitloggen
+          {t.submit.signOut}
         </button>
       </div>
 
       {/* Kind picker — a soft tag for triage, not a different field set. */}
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-1 text-sm font-medium text-[var(--ink)]">
-          Waar gaat het over?
+          {t.submit.kindLegend}
         </legend>
         <div className="flex flex-wrap gap-2">
           {SUBMISSION_KINDS.map((k) => {
@@ -316,45 +252,45 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
                     : "border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] hover:bg-[var(--surface-2)]")
                 }
               >
-                {SUBMISSION_KIND_LABEL[k]}
+                {t.submit.kindLabel[k]}
               </button>
             );
           })}
         </div>
-        <p className="text-xs text-[var(--muted)]">{KIND_HELP[kind]}</p>
+        <p className="text-xs text-[var(--muted)]">{t.submit.kindHelp[kind]}</p>
       </fieldset>
 
       {/* The one real field: open free text. */}
       <TextAreaField
-        label="Wat wil je ons laten weten?"
+        label={t.submit.messageLabel}
         name="message"
         value={message}
         onChange={setMessage}
         required
         error={err("message")}
         rows={8}
-        placeholder={KIND_PLACEHOLDER[kind]}
+        placeholder={t.submit.kindPlaceholder[kind]}
       />
 
       <TextField
-        label={KIND_URL[kind].label}
+        label={t.submit.kindUrl[kind].label}
         name="url"
         type="url"
         value={url}
         onChange={setUrl}
         error={err("url")}
         placeholder="https://…"
-        hint={KIND_URL[kind].hint}
+        hint={t.submit.kindUrl[kind].hint}
       />
 
       <TextField
-        label="Je e-mailadres (optioneel)"
+        label={t.submit.emailLabel}
         name="contactEmail"
         type="email"
         value={contactEmail}
         onChange={setContactEmail}
         error={err("contactEmail")}
-        hint="Alleen als we een vraag over je inzending hebben."
+        hint={t.submit.emailHint}
       />
 
       {/* Honeypot: visually hidden, off-screen, not focusable, not announced. */}
@@ -362,7 +298,7 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
         aria-hidden
         className="absolute left-[-9999px] top-[-9999px] h-0 w-0 overflow-hidden"
       >
-        <label htmlFor="website_url2">Laat dit veld leeg</label>
+        <label htmlFor="website_url2">{t.submit.honeypotLabel}</label>
         <input
           id="website_url2"
           name="website_url2"
@@ -397,17 +333,16 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
         <Button type="submit" size="lg" disabled={status === "submitting"}>
           {status === "submitting" ? (
             <>
-              <Loader2 className="size-4 animate-spin" aria-hidden /> Versturen…
+              <Loader2 className="size-4 animate-spin" aria-hidden />{" "}
+              {t.submit.submitting}
             </>
           ) : (
             <>
-              <Send className="size-4" aria-hidden /> Inzenden
+              <Send className="size-4" aria-hidden /> {t.submit.submit}
             </>
           )}
         </Button>
-        <p className="text-xs text-[var(--muted)]">
-          We bekijken elke inzending vóór publicatie.
-        </p>
+        <p className="text-xs text-[var(--muted)]">{t.submit.reviewNote}</p>
       </div>
     </form>
   );

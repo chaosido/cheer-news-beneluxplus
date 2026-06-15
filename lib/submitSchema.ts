@@ -82,7 +82,11 @@ type _AssertKinds = SubmissionInput["kind"] extends SubmissionKind
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _assertKinds: _AssertKinds = true;
 
-/** Dutch labels per kind for the form picker + review queue. */
+/**
+ * Dutch labels per kind, for NON-UI / maintainer-facing contexts only (the
+ * notification emails in lib/mailer.ts). The form picker + review queue use the
+ * locale dictionaries (`t.submit.kindLabel`) so they follow the UI language.
+ */
 export const SUBMISSION_KIND_LABEL: Record<SubmissionKind, string> = {
   event: "Evenement",
   gym: "Open gym",

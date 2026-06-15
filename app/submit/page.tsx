@@ -4,28 +4,29 @@
  * Renders intro copy + the client `SubmitForm`. The Turnstile site key is read
  * here (server) and passed to the client; it's a public key so this is safe.
  */
+import type { Metadata } from "next";
 import { SubmitForm } from "@/components/submit/SubmitForm";
+import { getDictionary } from "@/lib/i18n/server";
 
-export const metadata = {
-  title: "Inzenden · Cheer News",
-  description:
-    "Mis je een evenement, open gym of club? Stuur het in. Wij controleren elke inzending voordat die online komt.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getDictionary();
+  return {
+    title: t.submit.metaTitle,
+    description: t.submit.metaDescription,
+  };
+}
 
-export default function SubmitPage() {
+export default async function SubmitPage() {
+  const t = await getDictionary();
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || null;
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:py-14">
       <header className="mb-8">
         <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-          Iets inzenden
+          {t.submit.heading}
         </h1>
-        <p className="mt-3 text-[var(--muted)]">
-          Mis je een wedstrijd, open gym of club op de kaart? Of klopt er iets
-          niet? Stuur het hieronder in. We bekijken elke inzending handmatig
-          voordat die online komt — zo houden we de agenda betrouwbaar.
-        </p>
+        <p className="mt-3 text-[var(--muted)]">{t.submit.intro}</p>
       </header>
 
       <SubmitForm turnstileSiteKey={turnstileSiteKey} />

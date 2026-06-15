@@ -19,6 +19,7 @@ import type { User } from "firebase/auth";
 import { Inbox, Loader2, RefreshCw, Check, X, CircleDashed } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n/context";
 import type {
   EventClient,
   SubmissionClient,
@@ -38,36 +39,6 @@ interface Card {
   note: string;
 }
 
-const COLUMNS: {
-  key: Decision;
-  label: string;
-  icon: React.ReactNode;
-  ring: string;
-  chip: string;
-}[] = [
-  {
-    key: null,
-    label: "Onbeslist",
-    icon: <CircleDashed className="size-4" aria-hidden />,
-    ring: "border-[var(--border)]",
-    chip: "bg-[var(--surface-2)] text-[var(--muted)]",
-  },
-  {
-    key: "agreed",
-    label: "Akkoord",
-    icon: <Check className="size-4" aria-hidden />,
-    ring: "border-emerald-500/40",
-    chip: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-  },
-  {
-    key: "disagreed",
-    label: "Oneens",
-    icon: <X className="size-4" aria-hidden />,
-    ring: "border-[var(--accent)]/40",
-    chip: "bg-[var(--accent-soft)] text-[var(--accent)]",
-  },
-];
-
 interface ReviewQueueProps {
   user: User;
 }
@@ -79,7 +50,38 @@ type LoadState =
   | { phase: "ready"; cards: Card[] };
 
 export function ReviewQueue({ user }: ReviewQueueProps) {
+  const { t } = useI18n();
   const [state, setState] = React.useState<LoadState>({ phase: "loading" });
+
+  const columns: {
+    key: Decision;
+    label: string;
+    icon: React.ReactNode;
+    ring: string;
+    chip: string;
+  }[] = [
+    {
+      key: null,
+      label: t.admin.columnUndecided,
+      icon: <CircleDashed className="size-4" aria-hidden />,
+      ring: "border-[var(--border)]",
+      chip: "bg-[var(--surface-2)] text-[var(--muted)]",
+    },
+    {
+      key: "agreed",
+      label: t.admin.columnAgreed,
+      icon: <Check className="size-4" aria-hidden />,
+      ring: "border-emerald-500/40",
+      chip: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
+    },
+    {
+      key: "disagreed",
+      label: t.admin.columnDisagreed,
+      icon: <X className="size-4" aria-hidden />,
+      ring: "border-[var(--accent)]/40",
+      chip: "bg-[var(--accent-soft)] text-[var(--accent)]",
+    },
+  ];
 
   const load = React.useCallback(async () => {
     try {
@@ -101,7 +103,7 @@ export function ReviewQueue({ user }: ReviewQueueProps) {
       if (!res.ok || !data.ok) {
         setState({
           phase: "error",
-          message: data.error ?? "Kon items niet laden.",
+          message: data.error ?? t.admin.loadError,
         });
         return;
       }
@@ -125,9 +127,9 @@ export function ReviewQueue({ user }: ReviewQueueProps) {
       ];
       setState({ phase: "ready", cards });
     } catch {
-      setState({ phase: "error", message: "Netwerkfout. Probeer opnieuw." });
+      setState({ phase: "error", message: t.admin.networkError });
     }
-  }, [user]);
+  }, [user, t.admin.loadError, t.admin.networkError]);
 
   React.useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -200,11 +202,10 @@ export function ReviewQueue({ user }: ReviewQueueProps) {
     return (
       <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-8 text-center">
         <p className="font-display text-lg font-semibold">
-          Geen toegang met dit account
+          {t.admin.forbiddenTitle}
         </p>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          Dit Google-account is geen beheerder. Log uit en probeer een ander
-          account.
+          {t.admin.forbiddenBody}
         </p>
       </div>
     );
@@ -215,7 +216,7 @@ export function ReviewQueue({ user }: ReviewQueueProps) {
       <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-8 text-center">
         <p className="text-sm text-[var(--muted)]">{state.message}</p>
         <Button variant="secondary" size="sm" className="mt-4" onClick={refresh}>
-          <RefreshCw className="size-4" aria-hidden /> Opnieuw proberen
+          <RefreshCw className="size-4" aria-hidden /> {t.admin.retry}
         </Button>
       </div>
     );
@@ -228,21 +229,23 @@ export function ReviewQueue({ user }: ReviewQueueProps) {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
         <span className="tabular-nums">
-          {cards.length} items · {decided} beslist
+          {t.admin.counts(cards.length, decided)}
         </span>
         <Button variant="ghost" size="sm" className="ml-auto" onClick={refresh}>
-          <RefreshCw className="size-4" aria-hidden /> Vernieuwen
+          <RefreshCw className="size-4" aria-hidden /> {t.admin.refresh}
         </Button>
       </div>
 
       {cards.length === 0 ? (
         <div className="flex flex-col items-center gap-2 rounded-[var(--radius)] border border-dashed border-[var(--border)] bg-[var(--surface)] py-16 text-center">
           <Inbox className="size-8 text-[var(--muted)]" aria-hidden />
-          <p className="text-sm text-[var(--muted)]">Niets te beoordelen.</p>
+          <p className="text-sm text-[var(--muted)]">
+            {t.admin.nothingToReview}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {COLUMNS.map((col) => {
+          {columns.map((col) => {
             const colCards = cards.filter((c) => c.decision === col.key);
             return (
               <section

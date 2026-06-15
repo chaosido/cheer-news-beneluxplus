@@ -4,7 +4,9 @@
  * Static content: explains what Cheer News is, the roadmap of future regional
  * expansions, and who Cheersport Netherlands (CSN) is, the federation this
  * project is built for. No data fetching, so it's a plain Server Component.
+ * Copy comes from the active locale's dictionary.
  */
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -16,90 +18,86 @@ import {
   UserCog,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { getDictionary } from "@/lib/i18n/server";
 
-export const metadata = {
-  title: "Over Cheer News",
-  description:
-    "Cheer News brengt alle cheerleading in Nederland samen op één plek. Een initiatief gebouwd voor Cheersport Netherlands (CSN), de nationale cheerleadingfederatie.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getDictionary();
+  return {
+    title: t.about.metaTitle,
+    description: t.about.metaDescription,
+  };
+}
 
-/** Future big expansions, in the order we plan to ship them. */
-const ROADMAP = [
-  {
-    icon: Globe,
-    title: "België",
-    body: "Clubs, wedstrijden en open gyms uit België erbij, zodat de Lage Landen samen op één kaart staan.",
-    when: "Binnenkort",
-  },
-  {
-    icon: MapPinned,
-    title: "Duitse grensstreek",
-    body: "Het aangrenzende Ruhrgebied en de Duitse grensregio, waar veel clubs vlak bij Nederland zitten.",
-    when: "Later",
-  },
-  {
-    icon: UserCog,
-    title: "Clubs beheren zichzelf",
-    body: "Clubeigenaren kunnen straks zelf hun clubgegevens, teams en evenementen bijwerken — direct, zonder tussenkomst van een redacteur.",
-    when: "Later",
-  },
-];
+export default async function AboutPage() {
+  const t = await getDictionary();
 
-export default function AboutPage() {
+  /** Future big expansions, in the order we plan to ship them. */
+  const roadmap = [
+    {
+      icon: Globe,
+      title: t.about.roadmap.belgiumTitle,
+      body: t.about.roadmap.belgiumBody,
+      when: t.about.roadmap.belgiumWhen,
+    },
+    {
+      icon: MapPinned,
+      title: t.about.roadmap.germanyTitle,
+      body: t.about.roadmap.germanyBody,
+      when: t.about.roadmap.germanyWhen,
+    },
+    {
+      icon: UserCog,
+      title: t.about.roadmap.selfServeTitle,
+      body: t.about.roadmap.selfServeBody,
+      when: t.about.roadmap.selfServeWhen,
+    },
+  ];
+
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:py-14">
       <header className="mb-10">
         <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--accent)]">
-          Over dit project
+          {t.about.eyebrow}
         </p>
         <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-          Alle cheerleading in Nederland, op één plek
+          {t.about.heading}
         </h1>
         <p className="mt-3 text-[var(--muted)]">
-          Cheer News is een open overzicht van de Nederlandse cheerleadingwereld:
-          clubs, wedstrijden, open gyms en trainingstijden, samengebracht op een
-          kaart, een agenda en een clubgids. Een initiatief gebouwd voor{" "}
-          <strong className="text-[var(--ink)]">Cheersport Netherlands</strong>.
+          {t.about.introBefore}{" "}
+          <strong className="text-[var(--ink)]">{t.about.introCsn}</strong>.
         </p>
       </header>
 
       {/* What we build */}
       <section className="mb-12">
         <h2 className="font-display text-xl font-bold tracking-tight">
-          Wat we bouwen
+          {t.about.whatHeading}
         </h2>
-        <p className="mt-3 text-[var(--muted)]">
-          Informatie over cheerleading staat nu verspreid over losse clubsites,
-          social media en federatie-agenda&apos;s. Wij brengen het samen. Data
-          wordt grotendeels automatisch verzameld en aangevuld met meldingen uit
-          de community. Elke onzekere of gemelde toevoeging wordt handmatig
-          gecontroleerd voordat die online komt.
-        </p>
+        <p className="mt-3 text-[var(--muted)]">{t.about.whatBody}</p>
         <div className="mt-5 flex flex-wrap gap-2 text-sm">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--surface-2)] px-3 py-1 font-medium">
             <MapPinned className="size-4 text-[var(--accent)]" aria-hidden />
-            Kaart
+            {t.about.chipMap}
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--surface-2)] px-3 py-1 font-medium">
             <CalendarDays className="size-4 text-[var(--accent)]" aria-hidden />
-            Agenda
+            {t.about.chipAgenda}
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--surface-2)] px-3 py-1 font-medium">
             <Building2 className="size-4 text-[var(--accent)]" aria-hidden />
-            Clubgids
+            {t.about.chipClubs}
           </span>
         </div>
       </section>
 
       {/* Roadmap: future regional expansions */}
       <section className="mb-12">
-        <h2 className="font-display text-xl font-bold tracking-tight">Roadmap</h2>
-        <p className="mt-3 text-[var(--muted)]">
-          Waar Cheer News naartoe groeit: van Nederland naar de bredere regio,
-          zodat uiteindelijk de hele scene op één kaart komt.
-        </p>
+        <h2 className="font-display text-xl font-bold tracking-tight">
+          {t.about.roadmapHeading}
+        </h2>
+        <p className="mt-3 text-[var(--muted)]">{t.about.roadmapIntro}</p>
         <ol className="mt-6 space-y-5">
-          {ROADMAP.map(({ icon: Icon, title, body, when }) => (
+          {roadmap.map(({ icon: Icon, title, body, when }) => (
             <li key={title} className="flex gap-4">
               <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)]">
                 <Icon className="size-5 text-[var(--accent)]" aria-hidden />
@@ -131,19 +129,10 @@ export default function AboutPage() {
           unoptimized
         />
         <h2 className="font-display text-xl font-bold tracking-tight">
-          Over Cheersport Netherlands
+          {t.about.csnHeading}
         </h2>
-        <p className="mt-3 text-[var(--muted)]">
-          Cheersport Netherlands (CSN) is de nationale cheerleadingfederatie van
-          Nederland. CSN zet zich in om cheerleading in het hele land te laten
-          groeien vanuit een visie van samenwerking, opleiding en inclusiviteit.
-          Samen met coaches, sporters, scholen en clubs werkt de federatie aan
-          een sterke cheerleadinggemeenschap. CSN is gevestigd in Maastricht.
-        </p>
-        <p className="mt-3 text-[var(--muted)]">
-          Cheer News is gebouwd in naam van CSN, als publiek venster op de
-          Nederlandse cheerscene.
-        </p>
+        <p className="mt-3 text-[var(--muted)]">{t.about.csnBody1}</p>
+        <p className="mt-3 text-[var(--muted)]">{t.about.csnBody2}</p>
         <div className="mt-5">
           <Button asChild variant="secondary" size="sm">
             <a
@@ -151,7 +140,7 @@ export default function AboutPage() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Bezoek cheersport.nl
+              {t.about.csnVisit}
               <ArrowUpRight className="size-4" aria-hidden />
             </a>
           </Button>
@@ -161,15 +150,14 @@ export default function AboutPage() {
       {/* CTA */}
       <section className="rounded-[var(--radius)] bg-[var(--surface-2)] p-6 text-center">
         <h2 className="font-display text-lg font-bold tracking-tight">
-          Mis je iets?
+          {t.about.ctaHeading}
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-[var(--muted)]">
-          De agenda groeit met de community. Ontbreekt er een club, wedstrijd of
-          open gym? Laat het ons weten.
+          {t.about.ctaBody}
         </p>
         <div className="mt-4">
           <Button asChild size="sm">
-            <Link href="/submit">Ontbrekend item melden</Link>
+            <Link href="/submit">{t.about.ctaButton}</Link>
           </Button>
         </div>
       </section>

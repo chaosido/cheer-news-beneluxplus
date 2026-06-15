@@ -22,8 +22,10 @@ import { LogOut, Loader2 } from "lucide-react";
 import { clientAuth } from "@/lib/firebase";
 import { Button } from "@/components/ui/Button";
 import { ReviewQueue } from "@/components/admin/ReviewQueue";
+import { useI18n } from "@/lib/i18n/context";
 
 export default function AdminPage() {
+  const { t } = useI18n();
   const [user, setUser] = React.useState<User | null>(null);
   const [authReady, setAuthReady] = React.useState(false);
 
@@ -59,7 +61,7 @@ export default function AdminPage() {
       <div className="mb-6 flex items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight">
-            Review queue
+            {t.admin.loadingTitle}
           </h1>
           <p className="text-sm text-[var(--muted)]">{user.email}</p>
         </div>
@@ -68,7 +70,7 @@ export default function AdminPage() {
           size="sm"
           onClick={() => signOut(clientAuth)}
         >
-          <LogOut className="size-4" aria-hidden /> Uitloggen
+          <LogOut className="size-4" aria-hidden /> {t.admin.signOut}
         </Button>
       </div>
       <ReviewQueue user={user} />
@@ -77,6 +79,7 @@ export default function AdminPage() {
 }
 
 function SignIn() {
+  const { t } = useI18n();
   const [error, setError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
 
@@ -87,7 +90,7 @@ function SignIn() {
       await signInWithPopup(clientAuth, new GoogleAuthProvider());
     } catch (err) {
       console.error("[admin] Google sign-in failed:", err);
-      setError("Inloggen met Google is mislukt. Probeer het opnieuw.");
+      setError(t.admin.signInError);
     } finally {
       setBusy(false);
     }
@@ -97,10 +100,10 @@ function SignIn() {
     <div className="flex flex-col gap-4">
       <div>
         <h1 className="font-display text-2xl font-bold tracking-tight">
-          Beheer
+          {t.admin.signInHeading}
         </h1>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          Log in met Google om inzendingen te beoordelen.
+          {t.admin.signInIntro}
         </p>
       </div>
       {error && (
@@ -110,7 +113,7 @@ function SignIn() {
       )}
       <Button size="lg" onClick={handleGoogle} disabled={busy}>
         {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-        Inloggen met Google
+        {t.admin.signInButton}
       </Button>
     </div>
   );

@@ -47,7 +47,7 @@ import {
   Phone,
 } from "lucide-react";
 import "leaflet/dist/leaflet.css";
-import { EVENT_TYPE_COLOR, EVENT_TYPE_LABEL } from "@/lib/eventColors";
+import { EVENT_TYPE_COLOR } from "@/lib/eventColors";
 import type { EventType } from "@/lib/types";
 import type {
   MapClub,
@@ -55,6 +55,11 @@ import type {
   MapEvent,
   MapCoach,
 } from "@/components/home/types";
+import { useI18n } from "@/lib/i18n/context";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/config";
+import { dateFnsLocale } from "@/lib/dateFormat";
+import { formatInTimeZone } from "date-fns-tz";
 import { safeUrl } from "@/lib/safeUrl";
 
 /** Facebook "f" glyph (lucide dropped brand icons), styled like a lucide icon. */
@@ -206,12 +211,12 @@ function pinIcon(state: "default" | "hover" | "selected"): L.DivIcon {
 }
 
 /** Round teal open-gym badge for a venue pin (a Users glyph inside). */
-function venueIcon(): L.DivIcon {
+function venueIcon(label: string): L.DivIcon {
   const size = 28;
   // lucide-react's Users path, inlined so it works in a Leaflet divIcon.
   const glyph = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/></svg>`;
   return L.divIcon({
-    html: `<div class="cheer-venue-badge" aria-label="Open gym locatie">${glyph}</div>`,
+    html: `<div class="cheer-venue-badge" aria-label="${label}">${glyph}</div>`,
     className: "cheer-venue-pin",
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
@@ -348,8 +353,10 @@ function FocusHighlight({
  */
 function ResetViewControl({
   onSelect,
+  t,
 }: {
   onSelect: (id: string | null) => void;
+  t: Dictionary;
 }) {
   const map = useMap();
   const [container, setContainer] = useState<HTMLElement | null>(null);
@@ -382,10 +389,10 @@ function ResetViewControl({
       type="button"
       className="cheer-reset-btn"
       onClick={onReset}
-      aria-label="Toon heel Nederland"
+      aria-label={t.map.resetViewAria}
     >
       <Maximize className="size-3.5" aria-hidden />
-      Heel Nederland
+      {t.map.resetView}
     </button>,
     container,
   );
@@ -464,6 +471,7 @@ export default function Map({
   onSelect,
   resetSignal = 0,
 }: MapProps) {
+  const { t, locale } = useI18n();
   // Memoize the three icon variants (cheap, but avoids re-creating per render).
   const icons = useMemo(
     () => ({
@@ -473,7 +481,10 @@ export default function Map({
     }),
     [],
   );
-  const venueMarkerIcon = useMemo(() => venueIcon(), []);
+  const venueMarkerIcon = useMemo(
+    () => venueIcon(t.map.openGymLocation),
+    [t.map.openGymLocation],
+  );
   const coachMarkerIcon = useMemo(() => coachIcon(), []);
   // One memoized diamond icon per event type (re-used across all event pins).
   const eventIcons = useMemo(() => {
@@ -543,7 +554,7 @@ export default function Map({
           clusterRef={clusterRef}
           markerRefs={markerRefs}
         />
-        <ResetViewControl onSelect={onSelect} />
+        <ResetViewControl onSelect={onSelect} t={t} />
         <ResetView signal={resetSignal} />
 
         {/* All pins (clubs, venues, events, coaches) in one cluster group.
@@ -572,10 +583,11 @@ export default function Map({
               onHover={onHover}
               onSelect={onSelect}
               markerRefs={markerRefs}
+              t={t}
             />
           ))}
           {venues.map((venue) => (
-            <VenueMarker key={venue.id} venue={venue} icon={venueMarkerIcon} />
+            <VenueMarker key={venue.id} venue={venue} icon={venueMarkerIcon} t={t} />
           ))}
         </MarkerClusterGroup>
 
@@ -586,10 +598,17 @@ export default function Map({
           <EventMarker
             event={activeEvent}
             icon={eventIcons[activeEvent.type]}
+            t={t}
+            locale={locale}
           />
         )}
         {activeCoach && (
-          <CoachMarker coach={activeCoach} icon={coachMarkerIcon} />
+          <CoachMarker
+            coach={activeCoach}
+            icon={coachMarkerIcon}
+            t={t}
+            locale={locale}
+          />
         )}
         <RevealPan point={activeEvent ?? activeCoach} />
       </MapContainer>
@@ -597,12 +616,21 @@ export default function Map({
   );
 }
 
-/** Format a venue slot as "Maandag · 19:00 – 22:00". */
-function formatSlot(s: MapVenue["sessions"][number]): string {
-  return `${s.weekday} · ${s.startTime} – ${s.endTime}`;
+/** Format a venue slot as "Maandag · 19:00 – 22:00" / "Monday · …". */
+function formatSlot(s: MapVenue["sessions"][number], t: Dictionary): string {
+  const weekday = t.weekdays[s.weekdayIndex] ?? s.weekday;
+  return `${weekday} · ${s.startTime} – ${s.endTime}`;
 }
 
-function VenueMarker({ venue, icon }: { venue: MapVenue; icon: L.DivIcon }) {
+function VenueMarker({
+  venue,
+  icon,
+  t,
+}: {
+  venue: MapVenue;
+  icon: L.DivIcon;
+  t: Dictionary;
+}) {
   return (
     <Marker position={[venue.lat, venue.lng]} icon={icon} riseOnHover>
       <Tooltip
@@ -632,14 +660,14 @@ function VenueMarker({ venue, icon }: { venue: MapVenue; icon: L.DivIcon }) {
           {venue.sessions.length > 0 && (
             <div className="mt-1 flex flex-col gap-0.5 border-t border-[var(--border)] pt-2">
               <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--muted)]">
-                Open gym
+                {t.map.openGym}
               </span>
               {venue.sessions.map((s) => (
                 <span
                   key={`${s.weekdayIndex}-${s.startTime}`}
                   className="text-xs text-[var(--ink)]"
                 >
-                  {formatSlot(s)}
+                  {formatSlot(s, t)}
                 </span>
               ))}
             </div>
@@ -652,7 +680,7 @@ function VenueMarker({ venue, icon }: { venue: MapVenue; icon: L.DivIcon }) {
               rel="noopener noreferrer"
               className="mt-2 inline-flex items-center justify-center gap-1 rounded-md bg-[var(--accent)] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
             >
-              Naar de website
+              {t.map.toWebsite}
               <ArrowRight className="size-3.5" aria-hidden />
             </a>
           )}
@@ -662,28 +690,31 @@ function VenueMarker({ venue, icon }: { venue: MapVenue; icon: L.DivIcon }) {
   );
 }
 
-const EVENT_DATE_FMT = new Intl.DateTimeFormat("nl-NL", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-});
-const EVENT_TIME_FMT = new Intl.DateTimeFormat("nl-NL", {
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-});
+const TZ = "Europe/Amsterdam";
 
-/** "ma 15 jun · 19:00 – 21:00" (or just the date for all-day events). */
-function formatEventWhen(event: MapEvent): string {
+/** "ma 15 jun · 19:00 – 21:00" / "Mon 15 Jun · …" (date only when all-day). */
+function formatEventWhen(event: MapEvent, locale: Locale): string {
+  const dfns = dateFnsLocale(locale);
   const start = new Date(event.startsAt);
-  const date = EVENT_DATE_FMT.format(start).replace(/\.(?=\s|$)/g, "");
+  const date = formatInTimeZone(start, TZ, "eee d MMM", { locale: dfns });
   if (event.allDay) return date;
-  const startTime = EVENT_TIME_FMT.format(start);
+  const startTime = formatInTimeZone(start, TZ, "HH:mm");
   if (!event.endsAt) return `${date} · ${startTime}`;
-  return `${date} · ${startTime} – ${EVENT_TIME_FMT.format(new Date(event.endsAt))}`;
+  const endTime = formatInTimeZone(new Date(event.endsAt), TZ, "HH:mm");
+  return `${date} · ${startTime} – ${endTime}`;
 }
 
-function EventMarker({ event, icon }: { event: MapEvent; icon: L.DivIcon }) {
+function EventMarker({
+  event,
+  icon,
+  t,
+  locale,
+}: {
+  event: MapEvent;
+  icon: L.DivIcon;
+  t: Dictionary;
+  locale: Locale;
+}) {
   return (
     <Marker position={[event.lat, event.lng]} icon={icon} riseOnHover>
       {/* Permanent: the pin is revealed from an agenda-row hover, so the cursor
@@ -696,9 +727,7 @@ function EventMarker({ event, icon }: { event: MapEvent; icon: L.DivIcon }) {
         className="cheer-tooltip"
       >
         {event.title}
-        <span className="cheer-tooltip-city">
-          {EVENT_TYPE_LABEL[event.type]}
-        </span>
+        <span className="cheer-tooltip-city">{t.eventType[event.type]}</span>
       </Tooltip>
 
       <Popup>
@@ -710,10 +739,10 @@ function EventMarker({ event, icon }: { event: MapEvent; icon: L.DivIcon }) {
             className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold text-white"
             style={{ background: EVENT_TYPE_COLOR[event.type] }}
           >
-            {EVENT_TYPE_LABEL[event.type]}
+            {t.eventType[event.type]}
           </span>
           <span className="mt-0.5 text-xs text-[var(--ink)]">
-            {formatEventWhen(event)}
+            {formatEventWhen(event, locale)}
           </span>
           {event.locationText && (
             <span className="inline-flex items-center gap-1 text-xs text-[var(--muted)]">
@@ -728,7 +757,7 @@ function EventMarker({ event, icon }: { event: MapEvent; icon: L.DivIcon }) {
               rel="noopener noreferrer"
               className="mt-2 inline-flex items-center justify-center gap-1 rounded-md bg-[var(--accent)] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
             >
-              Meer info
+              {t.map.moreInfo}
               <ArrowRight className="size-3.5" aria-hidden />
             </a>
           )}
@@ -738,27 +767,33 @@ function EventMarker({ event, icon }: { event: MapEvent; icon: L.DivIcon }) {
   );
 }
 
-const STAY_DATE_FMT = new Intl.DateTimeFormat("nl-NL", {
-  day: "numeric",
-  month: "short",
-});
-
-/** "15 jun – 20 jun", or "vanaf 15 jun" when open-ended. */
-function formatStay(coach: MapCoach): string {
-  const start = STAY_DATE_FMT.format(new Date(coach.startsAt)).replace(
-    /\.(?=\s|$)/g,
-    "",
-  );
-  if (!coach.endsAt) return `Vanaf ${start}`;
-  const end = STAY_DATE_FMT.format(new Date(coach.endsAt)).replace(
-    /\.(?=\s|$)/g,
-    "",
-  );
+/** "15 jun – 20 jun" / "15 Jun – 20 Jun", or "Vanaf …"/"From …" when open-ended. */
+function formatStay(coach: MapCoach, t: Dictionary, locale: Locale): string {
+  const dfns = dateFnsLocale(locale);
+  const start = formatInTimeZone(new Date(coach.startsAt), TZ, "d MMM", {
+    locale: dfns,
+  });
+  if (!coach.endsAt) return t.map.fromDate(start);
+  const end = formatInTimeZone(new Date(coach.endsAt), TZ, "d MMM", {
+    locale: dfns,
+  });
   return `${start} – ${end}`;
 }
 
-function CoachMarker({ coach, icon }: { coach: MapCoach; icon: L.DivIcon }) {
-  // Icon-row contact links, mirroring ClubMarker's `socials` pattern.
+function CoachMarker({
+  coach,
+  icon,
+  t,
+  locale,
+}: {
+  coach: MapCoach;
+  icon: L.DivIcon;
+  t: Dictionary;
+  locale: Locale;
+}) {
+  // Icon-row contact links, mirroring ClubMarker's `socials` pattern. Network
+  // names (Instagram/TikTok/…) are brand proper nouns; only Email/Phone are
+  // localized labels.
   const socials: { href: string; label: string; Icon: typeof Globe }[] = [];
   if (coach.instagramUrl)
     socials.push({
@@ -775,13 +810,13 @@ function CoachMarker({ coach, icon }: { coach: MapCoach; icon: L.DivIcon }) {
   if (coach.contactEmail)
     socials.push({
       href: `mailto:${coach.contactEmail}`,
-      label: "E-mail",
+      label: "Email",
       Icon: Mail,
     });
   if (coach.phone)
     socials.push({
       href: `tel:${coach.phone.replace(/[^\d+]/g, "")}`,
-      label: "Telefoon",
+      label: "Phone",
       Icon: Phone,
     });
 
@@ -813,7 +848,7 @@ function CoachMarker({ coach, icon }: { coach: MapCoach; icon: L.DivIcon }) {
             {coach.city}
           </span>
           <span className="mt-0.5 text-xs text-[var(--ink)]">
-            {formatStay(coach)}
+            {formatStay(coach, t, locale)}
           </span>
           {socials.length > 0 && (
             <div className="mt-2 flex items-center gap-3 border-t border-[var(--border)] pt-2">
@@ -823,7 +858,7 @@ function CoachMarker({ coach, icon }: { coach: MapCoach; icon: L.DivIcon }) {
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`${coach.name} via ${label}`}
+                  aria-label={t.map.coachVia(coach.name, label)}
                   title={label}
                   className="text-[var(--muted)] hover:text-[var(--ink)]"
                 >
@@ -871,6 +906,7 @@ function ClubMarker({
   onHover,
   onSelect,
   markerRefs,
+  t,
 }: {
   club: MapClub;
   icon: L.DivIcon;
@@ -879,6 +915,7 @@ function ClubMarker({
   onHover: (id: string | null) => void;
   onSelect: (id: string | null) => void;
   markerRefs: React.RefObject<globalThis.Map<string, L.Marker>>;
+  t: Dictionary;
 }) {
   const markerRef = useRef<L.Marker>(null);
 
@@ -969,7 +1006,7 @@ function ClubMarker({
             href={`/clubs/${club.slug}`}
             className="mt-2 inline-flex items-center justify-center gap-1 rounded-md bg-[var(--accent)] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
           >
-            Bekijk clubpagina
+            {t.map.viewClubPage}
             <ArrowRight className="size-3.5" aria-hidden />
           </Link>
           {socials.length > 0 && (
@@ -980,7 +1017,7 @@ function ClubMarker({
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`${club.name} op ${label}`}
+                  aria-label={t.map.clubVia(club.name, label)}
                   title={label}
                   className="text-[var(--muted)] hover:text-[var(--ink)]"
                 >

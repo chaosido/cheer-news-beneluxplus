@@ -26,6 +26,8 @@ export function LanguageToggle() {
     if (next === locale) return;
     // `SameSite=Lax` is enough for a UI preference; `path=/` so it applies
     // site-wide. No `Secure` flag so it also works on http during local dev.
+    // Writing document.cookie is the whole point of this user-event handler.
+    // eslint-disable-next-line react-hooks/immutability
     document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=${LOCALE_COOKIE_MAX_AGE}; samesite=lax`;
     router.refresh();
   }

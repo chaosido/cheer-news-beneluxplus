@@ -7,7 +7,7 @@
  * for a dataset that is mostly sparse one-offs plus many recurring open gyms.
  * Instead we render a tight, scannable list grouped by date ("Vandaag",
  * "Morgen", "ma 16 jun"). Each row shows, at a glance and with no clicking:
- *   - a type color dot + NL type label (EVENT_TYPE_LABEL / EVENT_TYPE_COLOR)
+ *   - a type color dot + localized type label (t.eventType / EVENT_TYPE_COLOR)
  *   - the time / duration (or "Hele dag", or a multi-day range)
  *   - the title
  *   - the club name

@@ -16,7 +16,7 @@ import {
   getPublishedVisitingCoaches,
 } from "@/lib/queries";
 import { expandOpenGym, weeklySlots } from "@/lib/recurrence";
-import { EVENT_TYPE_LABEL } from "@/lib/eventColors";
+import { getDictionary } from "@/lib/i18n/server";
 import type { ClubClient } from "@/lib/types";
 import { HomeView } from "@/components/HomeView";
 import type {
@@ -38,6 +38,7 @@ function clubProfileUrl(slug: string): string {
 }
 
 export default async function Home() {
+  const t = await getDictionary();
   const now = new Date();
   const horizon = new Date(now.getTime() + HORIZON_DAYS * 24 * 60 * 60 * 1000);
 
@@ -125,7 +126,7 @@ export default async function Home() {
         venueId: gym.clubId ? null : (gym.venueId ?? gym.id),
         title: venueName
           ? `Open gym · ${venueName}`
-          : EVENT_TYPE_LABEL.open_gym,
+          : t.eventType.open_gym,
         type: "open_gym" as const,
         allDay: false,
         startsAt: occ.startsAt,
@@ -150,7 +151,7 @@ export default async function Home() {
       if (!venue) {
         venue = {
           id: `venue:${vid}`,
-          name: gym.venueName ?? EVENT_TYPE_LABEL.open_gym,
+          name: gym.venueName ?? t.eventType.open_gym,
           city: gym.city ?? "",
           region: gym.region ?? null,
           address: gym.address ?? null,

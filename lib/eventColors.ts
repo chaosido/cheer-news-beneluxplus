@@ -11,7 +11,11 @@ export const EVENT_TYPE_COLOR: Record<EventType, string> = {
   other: "#6b6973",
 };
 
-/** Dutch label per event type (UI is NL-first). */
+/**
+ * Dutch label per event type, for NON-UI / maintainer-facing contexts only
+ * (e.g. server-side title fallbacks, notification emails). The user-facing UI
+ * uses the locale dictionaries (`t.eventType`) instead, so it follows NL/EN.
+ */
 export const EVENT_TYPE_LABEL: Record<EventType, string> = {
   competition: "Wedstrijd",
   open_gym: "Open gym",
