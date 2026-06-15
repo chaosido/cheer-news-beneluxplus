@@ -53,11 +53,6 @@ env:
     value: wonnink.jesse@gmail.com
     availability:
       - RUNTIME
-  - variable: NEXT_PUBLIC_ADMIN_EMAILS
-    value: wonnink.jesse@gmail.com
-    availability:
-      - BUILD
-      - RUNTIME
   # Server-only secrets (create with: firebase apphosting:secrets:set <name>).
   # IP pseudonymization salt — REQUIRED in production (the submit endpoint
   # throws without it). Create with a random 32-byte value:

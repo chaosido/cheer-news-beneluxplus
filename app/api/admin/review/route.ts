@@ -53,7 +53,11 @@ export async function GET(req: Request) {
 interface ReviewBody {
   kind?: "submission" | "event";
   id?: string;
-  action?: "approve" | "reject";
+  action?: "approve" | "reject" | "decide";
+  /** For action:"decide" — the triage bucket. "undecided" clears it. */
+  decision?: "agreed" | "disagreed" | "undecided";
+  /** For action:"decide" — optional free-text note. */
+  note?: string;
 }
 
 export async function POST(req: Request) {
@@ -76,11 +80,46 @@ export async function POST(req: Request) {
   }
 
   const { kind, id, action } = body;
-  if (
-    (kind !== "submission" && kind !== "event") ||
-    !id ||
-    (action !== "approve" && action !== "reject")
-  ) {
+  if ((kind !== "submission" && kind !== "event") || !id) {
+    return NextResponse.json(
+      { ok: false, error: "Ongeldige parameters" },
+      { status: 400 },
+    );
+  }
+
+  // Triage: record a decision + note WITHOUT acting (item stays pending so it
+  // remains on the board; the changes are applied later in a batch).
+  if (action === "decide") {
+    const { decision, note } = body;
+    if (
+      decision !== "agreed" &&
+      decision !== "disagreed" &&
+      decision !== "undecided"
+    ) {
+      return NextResponse.json(
+        { ok: false, error: "Ongeldige decision" },
+        { status: 400 },
+      );
+    }
+    const collection = kind === "event" ? COLLECTIONS.events : COLLECTIONS.submissions;
+    try {
+      await adminDb
+        .collection(collection)
+        .doc(id)
+        .update({
+          reviewDecision: decision === "undecided" ? null : decision,
+          reviewNote: typeof note === "string" ? note.slice(0, 2000) : null,
+          reviewDecidedBy: admin.email,
+          reviewDecidedAt: FieldValue.serverTimestamp(),
+        });
+      return NextResponse.json({ ok: true });
+    } catch (err) {
+      console.error("[api/admin/review] decide failed:", err);
+      return NextResponse.json({ ok: false, error: "Kon niet opslaan." }, { status: 500 });
+    }
+  }
+
+  if (action !== "approve" && action !== "reject") {
     return NextResponse.json(
       { ok: false, error: "Ongeldige parameters" },
       { status: 400 },

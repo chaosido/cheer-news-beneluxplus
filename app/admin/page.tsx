@@ -55,7 +55,7 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-10">
+    <main className="mx-auto w-full max-w-7xl px-4 py-10">
       <div className="mb-6 flex items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight">

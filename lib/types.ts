@@ -162,6 +162,9 @@ export interface EventClient extends EventBase {
   endsAt: string | null;
   sources: EventSourceRef[];
   updatedAt: string;
+  /** Triage bucket (null = undecided) + free-text note, set in /admin. */
+  reviewDecision?: ReviewDecision | null;
+  reviewNote?: string | null;
 }
 
 // ---- Open gyms (recurring) ----
@@ -277,6 +280,13 @@ export interface SourceClient {
 
 // ---- Submissions ----
 
+/**
+ * Triage decision a maintainer records on a queue item. `null`/absent means
+ * "undecided". The decision is recorded WITHOUT acting on the item — the
+ * maintainer clicks through everything, then the changes are applied in a batch.
+ */
+export type ReviewDecision = "agreed" | "disagreed";
+
 export interface SubmissionClient {
   id: string;
   kind: SubmissionKind;
@@ -286,6 +296,9 @@ export interface SubmissionClient {
   reviewedBy: string | null;
   ipHash: string | null;
   createdAt: string;
+  /** Triage bucket (null = undecided) + free-text note, set in /admin. */
+  reviewDecision?: ReviewDecision | null;
+  reviewNote?: string | null;
 }
 
 // ---- Extraction contract (emitted by JSON-LD/Gemini extractor, see lib/extract.ts) ----
