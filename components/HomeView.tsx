@@ -73,6 +73,11 @@ export function HomeView({
   const [filters, setFilters] = useState<HomeFilters>(EMPTY_FILTERS);
   const [hoveredClubId, setHoveredClubId] = useState<string | null>(null);
   const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
+  // The agenda row currently hovered, keyed by CalendarItem id (`event:{id}` /
+  // `gym:{id}:{i}`). Events have NO persistent map pin; hovering their row
+  // reveals a single pin on the map (matched by id in <Map>). Independent of the
+  // club-keyed highlight above, since an event is its own location, not a club's.
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   const [tab, setTab] = useState<"map" | "calendar">("map");
   // Bumped to tell <Map> to recenter on the whole country.
   const [resetSignal, setResetSignal] = useState(0);
@@ -83,6 +88,7 @@ export function HomeView({
     function onReset() {
       setSelectedClubId(null);
       setHoveredClubId(null);
+      setHoveredItemId(null);
       setFilters((f) => ({ ...f, province: null }));
       setResetSignal((n) => n + 1);
     }
@@ -142,15 +148,10 @@ export function HomeView({
     );
   }, [coaches, filters.province]);
 
-  // Event pins mirror the agenda exactly: keep only events whose CalendarItem
-  // survived the (type/date/province/openGymsOnly) filters above. Both share
-  // the `event:{id}` id, so a Set membership check needs no duplicated logic.
-  const filteredEvents = useMemo(() => {
-    const visible = new Set(
-      filteredItems.filter((it) => !it.isOpenGym).map((it) => it.id),
-    );
-    return events.filter((e) => visible.has(e.id));
-  }, [events, filteredItems]);
+  // Events have no persistent pins, so they aren't pre-filtered for the map: the
+  // single revealed pin is matched by `hoveredItemId` below, and that id always
+  // comes from a currently-visible (filtered) agenda row — so reveal is
+  // inherently consistent with the active filters, no Set membership needed.
 
   // Toggle selection off when clicking the already-selected club.
   function handleSelect(id: string | null) {
@@ -168,8 +169,9 @@ export function HomeView({
       <Map
         clubs={filteredClubs}
         venues={filteredVenues}
-        events={filteredEvents}
+        events={events}
         coaches={filteredCoaches}
+        activeEventId={hoveredItemId}
         hoveredClubId={hoveredClubId}
         selectedClubId={selectedClubId}
         onHover={setHoveredClubId}
@@ -200,6 +202,7 @@ export function HomeView({
           selectedClubId={selectedClubId}
           onHover={setHoveredClubId}
           onSelect={handleSelect}
+          onHoverItem={setHoveredItemId}
         />
       </div>
     </div>

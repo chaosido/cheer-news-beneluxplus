@@ -1,59 +1,47 @@
 /**
  * About page (Server Component).
  *
- * Static content: explains what Cheer News is, the feature roadmap ("the route"),
- * and who Cheersport Netherlands (CSN) is — the federation this project is built
- * for. No data fetching, so it's a plain Server Component.
+ * Static content: explains what Cheer News is, the roadmap of future regional
+ * expansions, and who Cheersport Netherlands (CSN) is, the federation this
+ * project is built for. No data fetching, so it's a plain Server Component.
  */
+import Image from "next/image";
 import Link from "next/link";
 import {
   MapPinned,
   CalendarDays,
   Building2,
-  Clock4,
-  Send,
   Globe,
   ArrowUpRight,
+  UserCog,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 export const metadata = {
   title: "Over Cheer News",
   description:
-    "Cheer News BeneluxPlus brengt alle cheerleading in Nederland samen op één plek — een initiatief gebouwd voor Cheersport Netherlands (CSN), de nationale cheerleadingfederatie.",
+    "Cheer News brengt alle cheerleading in Nederland samen op één plek. Een initiatief gebouwd voor Cheersport Netherlands (CSN), de nationale cheerleadingfederatie.",
 };
 
-/** The build roadmap, in the order we ship it. */
-const ROUTE = [
-  {
-    icon: MapPinned,
-    title: "Eén kaart, één agenda",
-    body: "Clubs als pins op een interactieve kaart, gekoppeld aan een agenda van wedstrijden, open gyms, clinics en tryouts — kaart en agenda lichten elkaars items op.",
-    status: "live" as const,
-  },
-  {
-    icon: Building2,
-    title: "Clubgids",
-    body: "Een doorzoekbare gids met clubprofielen: locatie, sociale kanalen en hun aankomende activiteiten.",
-    status: "live" as const,
-  },
-  {
-    icon: Clock4,
-    title: "Open gyms & trainingstijden",
-    body: "Terugkerende open gyms en vaste trainingsmomenten — ook locatie-onafhankelijke open gyms in turnhallen.",
-    status: "live" as const,
-  },
-  {
-    icon: Send,
-    title: "Meldingen & review",
-    body: "Iedereen kan ontbrekende items melden. Inzendingen en onzekere data komen eerst in een reviewwachtrij voordat ze publiek worden — zo blijft de agenda betrouwbaar.",
-    status: "live" as const,
-  },
+/** Future big expansions, in the order we plan to ship them. */
+const ROADMAP = [
   {
     icon: Globe,
-    title: "Verder dan Nederland",
-    body: "De fundering is BeneluxPlus: later uitbreidbaar naar België en het Ruhrgebied, zodat de hele regio op één kaart komt.",
-    status: "soon" as const,
+    title: "België",
+    body: "Clubs, wedstrijden en open gyms uit België erbij, zodat de Lage Landen samen op één kaart staan.",
+    when: "Binnenkort",
+  },
+  {
+    icon: MapPinned,
+    title: "Duitse grensstreek",
+    body: "Het aangrenzende Ruhrgebied en de Duitse grensregio, waar veel clubs vlak bij Nederland zitten.",
+    when: "Later",
+  },
+  {
+    icon: UserCog,
+    title: "Clubs beheren zichzelf",
+    body: "Clubeigenaren kunnen straks zelf hun clubgegevens, teams en evenementen bijwerken — direct, zonder tussenkomst van een redacteur.",
+    when: "Later",
   },
 ];
 
@@ -68,10 +56,10 @@ export default function AboutPage() {
           Alle cheerleading in Nederland, op één plek
         </h1>
         <p className="mt-3 text-[var(--muted)]">
-          Cheer News BeneluxPlus is een open overzicht van de Nederlandse
-          cheerleadingwereld — clubs, wedstrijden, open gyms en trainingstijden,
-          samengebracht op een kaart, een agenda en een clubgids. Een initiatief
-          gebouwd voor <strong className="text-[var(--ink)]">Cheersport Netherlands</strong>.
+          Cheer News is een open overzicht van de Nederlandse cheerleadingwereld:
+          clubs, wedstrijden, open gyms en trainingstijden, samengebracht op een
+          kaart, een agenda en een clubgids. Een initiatief gebouwd voor{" "}
+          <strong className="text-[var(--ink)]">Cheersport Netherlands</strong>.
         </p>
       </header>
 
@@ -84,7 +72,7 @@ export default function AboutPage() {
           Informatie over cheerleading staat nu verspreid over losse clubsites,
           social media en federatie-agenda&apos;s. Wij brengen het samen. Data
           wordt grotendeels automatisch verzameld en aangevuld met meldingen uit
-          de community — elke onzekere of gemelde toevoeging wordt handmatig
+          de community. Elke onzekere of gemelde toevoeging wordt handmatig
           gecontroleerd voordat die online komt.
         </p>
         <div className="mt-5 flex flex-wrap gap-2 text-sm">
@@ -103,15 +91,15 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* The route / feature path */}
+      {/* Roadmap: future regional expansions */}
       <section className="mb-12">
-        <h2 className="font-display text-xl font-bold tracking-tight">De route</h2>
+        <h2 className="font-display text-xl font-bold tracking-tight">Roadmap</h2>
         <p className="mt-3 text-[var(--muted)]">
-          Hoe het platform stap voor stap groeit — van de kern die er nu staat
-          tot de regio eromheen.
+          Waar Cheer News naartoe groeit: van Nederland naar de bredere regio,
+          zodat uiteindelijk de hele scene op één kaart komt.
         </p>
         <ol className="mt-6 space-y-5">
-          {ROUTE.map(({ icon: Icon, title, body, status }) => (
+          {ROADMAP.map(({ icon: Icon, title, body, when }) => (
             <li key={title} className="flex gap-4">
               <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)]">
                 <Icon className="size-5 text-[var(--accent)]" aria-hidden />
@@ -121,14 +109,8 @@ export default function AboutPage() {
                   <h3 className="font-display text-base font-bold tracking-tight">
                     {title}
                   </h3>
-                  <span
-                    className={
-                      status === "live"
-                        ? "rounded-full bg-[var(--secondary-soft)] px-2 py-0.5 text-xs font-semibold text-[var(--secondary)]"
-                        : "rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-xs font-semibold text-[var(--muted)]"
-                    }
-                  >
-                    {status === "live" ? "Live" : "Binnenkort"}
+                  <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-xs font-semibold text-[var(--muted)]">
+                    {when}
                   </span>
                 </div>
                 <p className="mt-1 text-sm text-[var(--muted)]">{body}</p>
@@ -140,20 +122,27 @@ export default function AboutPage() {
 
       {/* About CSN */}
       <section className="mb-12 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-sm)]">
+        <Image
+          src="/cheersport-netherlands.svg"
+          alt="Cheersport Netherlands"
+          width={200}
+          height={60}
+          className="mb-5 h-auto w-44"
+          unoptimized
+        />
         <h2 className="font-display text-xl font-bold tracking-tight">
           Over Cheersport Netherlands
         </h2>
         <p className="mt-3 text-[var(--muted)]">
           Cheersport Netherlands (CSN) is de nationale cheerleadingfederatie van
           Nederland. CSN zet zich in om cheerleading in het hele land te laten
-          groeien vanuit een visie van samenwerking, opleiding en
-          inclusiviteit — samen met coaches, sporters, scholen en clubs aan een
-          sterke cheerleadinggemeenschap. De federatie is gevestigd in
-          Maastricht.
+          groeien vanuit een visie van samenwerking, opleiding en inclusiviteit.
+          Samen met coaches, sporters, scholen en clubs werkt de federatie aan
+          een sterke cheerleadinggemeenschap. CSN is gevestigd in Maastricht.
         </p>
         <p className="mt-3 text-[var(--muted)]">
-          Cheer News BeneluxPlus is gebouwd in naam van CSN, als publiek venster
-          op de Nederlandse cheerscene.
+          Cheer News is gebouwd in naam van CSN, als publiek venster op de
+          Nederlandse cheerscene.
         </p>
         <div className="mt-5">
           <Button asChild variant="secondary" size="sm">

@@ -78,27 +78,18 @@ export default async function Home() {
       };
     });
 
-    // Located events → map pins (colored by type). The pin id matches the
-    // CalendarItem id so HomeView can keep pins in sync with the filtered
-    // agenda. Events without coordinates simply list in the agenda only.
-    const SAME_COORD_EPS = 1e-6;
+    // Located events → hover-reveal map pins. The map shows NO persistent event
+    // pins (they cluttered the map — e.g. a club's off-site showcase sitting as
+    // its own diamond). Instead, every located event is a *candidate* pin keyed
+    // by the same `event:{id}` id as its CalendarItem; the pin only appears when
+    // its agenda row is hovered (see HomeView `hoveredItemId` → Map
+    // `activeEventId`). Club-hosted and independent events alike are included so
+    // hovering any event row reveals where it actually is.
     mapEvents = events
       .filter(
         (e): e is typeof e & { lat: number; lng: number } =>
           e.lat != null && e.lng != null,
       )
-      .filter((e) => {
-        // Drop an event sitting exactly on its club's pin — the club teardrop
-        // already marks that spot, so a diamond on top is redundant. Club-less
-        // events and off-site club events (e.g. a competition at a sports hall)
-        // keep their own pin.
-        const club = e.clubId ? clubsById.get(e.clubId) : undefined;
-        if (!club || club.lat == null || club.lng == null) return true;
-        return (
-          Math.abs(club.lat - e.lat) > SAME_COORD_EPS ||
-          Math.abs(club.lng - e.lng) > SAME_COORD_EPS
-        );
-      })
       .map((e) => {
         const club = e.clubId ? clubsById.get(e.clubId) : undefined;
         return {

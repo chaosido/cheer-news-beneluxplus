@@ -88,6 +88,6 @@ export const SUBMISSION_KIND_LABEL: Record<SubmissionKind, string> = {
   gym: "Open gym",
   club: "Club",
   coach: "Gastcoach (op bezoek)",
-  correction: "Correctie",
+  correction: "Ontbrekende of onjuiste info",
   feedback: "Feedback",
 };

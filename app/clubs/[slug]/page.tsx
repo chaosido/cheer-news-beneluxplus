@@ -17,16 +17,33 @@ import {
   AtSign,
   CalendarClock,
   CalendarDays,
-  Dumbbell,
+  DoorOpen,
   Globe,
   Mail,
   MapPin,
   Music2,
   Play,
-  Share2,
   Trophy,
   Users,
 } from "lucide-react";
+
+/** Facebook "f" glyph (lucide dropped brand icons), styled like a lucide icon. */
+function Facebook({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  );
+}
 import {
   getClubBySlug,
   getClubTeams,
@@ -153,7 +170,7 @@ export default async function ClubProfilePage({
     facebookUrl && {
       href: facebookUrl,
       label: "Facebook",
-      icon: Share2,
+      icon: Facebook as typeof Globe,
     },
     tiktokUrl && {
       href: tiktokUrl,
@@ -287,7 +304,7 @@ export default async function ClubProfilePage({
             <EventsList events={events} />
           </Section>
 
-          <Section icon={Dumbbell} title="Open gyms">
+          <Section icon={DoorOpen} title="Open gyms">
             <OpenGymsList openGyms={openGyms} />
           </Section>
         </div>

@@ -16,19 +16,21 @@
  * Open-gym occurrences for the same club on the same day are condensed into one
  * row (with an "×N" count) so the handful of one-off events stay prominent.
  *
- * Hover/select sync (unchanged contract): each row reports its `clubId` via
- * `onHover` on mouse enter; when a club is focused (here or via a map pin), its
- * rows get an accent ring and the others dim. Clicking a row promotes to a
- * sticky selection (`onSelect`) and, if the item has a url, navigates
- * (internal → router push, external → new tab).
+ * Hover/select sync: each row reports its `clubId` via `onHover` on mouse enter
+ * (highlights the club's rows + tints its pin — no map movement); when a club is
+ * focused (here or via a map pin), its rows get an accent ring and the others
+ * dim. Clicking the row BODY promotes to a sticky selection (`onSelect`), which
+ * makes the map zoom to that club's pin — it does NOT navigate. A separate
+ * trailing link button is the only thing that navigates, to the club/coach/event
+ * page (internal → next/link, external → new tab).
  *
  * Props are unchanged except `view` is dropped (no longer needed — the same
  * list serves the desktop right pane and the mobile "Agenda" tab) and an
  * optional `clubNames` map is accepted to render a clean club line.
  */
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Clock, MapPin, CalendarDays } from "lucide-react";
+import Link from "next/link";
+import { Clock, MapPin, CalendarDays, ArrowRight, ExternalLink } from "lucide-react";
 import { EVENT_TYPE_COLOR, EVENT_TYPE_LABEL } from "@/lib/eventColors";
 import { cn } from "@/lib/utils";
 import type { CalendarItem } from "@/components/home/types";
@@ -40,6 +42,12 @@ interface CalendarProps {
   selectedClubId: string | null;
   onHover: (id: string | null) => void;
   onSelect: (id: string | null) => void;
+  /**
+   * Reports the hovered row's CalendarItem id (`event:{id}` / `gym:...`), or
+   * null on leave. The map uses this to reveal an event's location pin on hover
+   * (events have no persistent pin). Independent of the club-keyed `onHover`.
+   */
+  onHoverItem?: (id: string | null) => void;
   /** clubId → display name, for the club line (events may not embed it). */
   clubNames?: Record<string, string>;
 }
@@ -60,9 +68,9 @@ export function Calendar({
   selectedClubId,
   onHover,
   onSelect,
+  onHoverItem,
   clubNames,
 }: CalendarProps) {
-  const router = useRouter();
   // Single "now" per mount so "Vandaag"/"Morgen" headers are stable across
   // renders. A lazy useState initializer runs exactly once on mount and is a
   // legitimate render-time value (unlike reading a ref during render).
@@ -71,14 +79,6 @@ export function Calendar({
   const groups = useMemo(() => buildAgenda(items, now), [items, now]);
 
   const focusId = selectedClubId ?? hoveredClubId;
-
-  function navigate(item: CalendarItem) {
-    if (item.clubId) onSelect(item.clubId);
-    if (item.url) {
-      if (item.url.startsWith("/")) router.push(item.url);
-      else window.open(item.url, "_blank", "noopener,noreferrer");
-    }
-  }
 
   if (groups.length === 0) {
     return (
@@ -118,7 +118,8 @@ export function Calendar({
                   focusId={focusId}
                   clubNames={clubNames}
                   onHover={onHover}
-                  onActivate={navigate}
+                  onSelect={onSelect}
+                  onHoverItem={onHoverItem}
                 />
               ))}
             </ul>
@@ -129,18 +130,28 @@ export function Calendar({
   );
 }
 
+/** Button label for the "go to page" link, tailored to where the url points. */
+function linkLabel(url: string): string {
+  if (url.startsWith("/clubs/")) return "Bekijk club";
+  if (url.startsWith("/coaches")) return "Bekijk coach";
+  if (url.startsWith("/")) return "Meer info";
+  return "Website";
+}
+
 function AgendaRowItem({
   row,
   focusId,
   clubNames,
   onHover,
-  onActivate,
+  onSelect,
+  onHoverItem,
 }: {
   row: AgendaRow;
   focusId: string | null;
   clubNames?: Record<string, string>;
   onHover: (id: string | null) => void;
-  onActivate: (item: CalendarItem) => void;
+  onSelect: (id: string | null) => void;
+  onHoverItem?: (id: string | null) => void;
 }) {
   const { item } = row;
   const color = EVENT_TYPE_COLOR[item.type];
@@ -154,10 +165,15 @@ function AgendaRowItem({
     (item.clubId && clubNames?.[item.clubId]) ||
     (item.isOpenGym ? clubNameFromTitle(item.title) : null);
 
-  const interactive = Boolean(item.url || item.clubId);
+  // The row body selects the event's club → the map zooms to its location. The
+  // trailing link (if the item has a url) is the ONLY thing that navigates away,
+  // to the club/coach/event page. Splitting them lets a click reveal the pin
+  // without leaving the page, and keeps the <a> out of the <button> (invalid).
+  const canFocus = Boolean(item.clubId);
+  const linkHref = item.url;
+  const linkIsInternal = linkHref?.startsWith("/") ?? false;
 
-  // Inner content is identical whether the row is interactive or not; only the
-  // wrapping element differs (a native <button> vs a plain <div>).
+  // Inner content is identical whether the row body is a <button> or a <div>.
   const content = (
     <>
       {/* Type color marker */}
@@ -209,35 +225,77 @@ function AgendaRowItem({
     </>
   );
 
-  const innerClass = cn(
-    "flex w-full items-start gap-3 px-4 py-2.5 text-left transition-colors",
-    interactive && "cursor-pointer",
-    // Only show the neutral hover background when NOT focused; otherwise the gray
-    // hover would override the red highlight on whichever row the cursor is on (so
-    // the selected/hovered row would drop out of the club's red set).
-    interactive && !focused && "hover:bg-[var(--surface-2)]",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent)]",
+  // Row-level visual state (dim non-focused, highlight focused) wraps the whole
+  // row — body + link button — so the accent ring frames both.
+  const rowClass = cn(
+    "flex items-stretch transition-colors",
+    // Neutral hover background only when NOT focused, so the gray hover doesn't
+    // override the red highlight on whichever row the cursor is on.
+    !focused && (canFocus || linkHref) && "hover:bg-[var(--surface-2)]",
     dimmed && "opacity-40",
     focused && "bg-[var(--accent-soft)] ring-2 ring-inset ring-[var(--accent)]",
   );
 
+  const bodyClass = cn(
+    "flex min-w-0 flex-1 items-start gap-3 py-2.5 pl-4 text-left",
+    linkHref ? "pr-2" : "pr-4",
+    canFocus &&
+      "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent)]",
+  );
+
+  const linkClass = cn(
+    "my-1.5 mr-2 flex shrink-0 items-center gap-1 self-center rounded-md border border-[var(--border)] px-2.5 py-1.5 text-xs font-semibold text-[var(--muted)] transition-colors",
+    "hover:border-[var(--accent)] hover:text-[var(--accent)]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]",
+  );
+
   return (
     <li
-      onMouseEnter={() => onHover(item.clubId)}
-      onMouseLeave={() => onHover(null)}
+      onMouseEnter={() => {
+        onHover(item.clubId);
+        onHoverItem?.(item.id);
+      }}
+      onMouseLeave={() => {
+        onHover(null);
+        onHoverItem?.(null);
+      }}
+      className={rowClass}
     >
-      {interactive ? (
+      {canFocus ? (
         <button
           type="button"
-          onClick={() => onActivate(item)}
-          aria-label={`${displayTitle(item)} — meer info`}
-          className={innerClass}
+          onClick={() => onSelect(item.clubId)}
+          aria-label={`${displayTitle(item)} — toon locatie op de kaart`}
+          className={bodyClass}
         >
           {content}
         </button>
       ) : (
-        <div className={innerClass}>{content}</div>
+        <div className={bodyClass}>{content}</div>
       )}
+
+      {linkHref &&
+        (linkIsInternal ? (
+          <Link
+            href={linkHref}
+            className={linkClass}
+            aria-label={`${displayTitle(item)} — ${linkLabel(linkHref)}`}
+          >
+            {linkLabel(linkHref)}
+            <ArrowRight className="size-3.5" aria-hidden />
+          </Link>
+        ) : (
+          <a
+            href={linkHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={linkClass}
+            aria-label={`${displayTitle(item)} — ${linkLabel(linkHref)} (externe link)`}
+          >
+            {linkLabel(linkHref)}
+            <ExternalLink className="size-3.5" aria-hidden />
+          </a>
+        ))}
     </li>
   );
 }

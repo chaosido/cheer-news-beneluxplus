@@ -57,3 +57,65 @@ describe("buildAgenda venue merging", () => {
     expect(groups[0].rows).toHaveLength(2);
   });
 });
+
+/** Build a one-off (non-open-gym) event CalendarItem. */
+function event(
+  id: string,
+  startsAt: string,
+  endsAt: string | null,
+  allDay = false,
+): CalendarItem {
+  return {
+    id,
+    clubId: null,
+    venueId: null,
+    title: "Skills Days",
+    type: "other",
+    allDay,
+    startsAt,
+    endsAt,
+    url: null,
+    locationText: null,
+    city: null,
+    province: null,
+    isOpenGym: false,
+  };
+}
+
+describe("buildAgenda multi-day events", () => {
+  it("shows a multi-day event under each day it spans", () => {
+    const items = [
+      event("skills", "2026-08-01T00:00:00+02:00", "2026-08-02T23:59:00+02:00", true),
+    ];
+    const groups = buildAgenda(items, NOW);
+    expect(groups.map((g) => g.dayKey)).toEqual(["2026-08-01", "2026-08-02"]);
+    expect(groups[0].rows).toHaveLength(1);
+    expect(groups[1].rows).toHaveLength(1);
+    // Same underlying item, distinct per-day row keys.
+    expect(groups[0].rows[0].item.id).toBe("skills");
+    expect(groups[1].rows[0].item.id).toBe("skills");
+    expect(groups[0].rows[0].key).not.toBe(groups[1].rows[0].key);
+    expect(groups[0].rows[0].timeLabel).toBe("Hele dag");
+  });
+
+  it("leaves a single-day event as one row with the plain id key", () => {
+    const items = [
+      event("one", "2026-08-01T19:00:00+02:00", "2026-08-01T21:00:00+02:00"),
+    ];
+    const groups = buildAgenda(items, NOW);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].rows).toHaveLength(1);
+    expect(groups[0].rows[0].key).toBe("one");
+    expect(groups[0].rows[0].timeLabel).toBe("19:00 – 21:00");
+  });
+
+  it("labels timed multi-day spans with start time and 'tot' end time", () => {
+    const items = [
+      event("camp", "2026-08-01T10:00:00+02:00", "2026-08-02T16:00:00+02:00"),
+    ];
+    const groups = buildAgenda(items, NOW);
+    expect(groups).toHaveLength(2);
+    expect(groups[0].rows[0].timeLabel).toBe("10:00");
+    expect(groups[1].rows[0].timeLabel).toBe("tot 16:00");
+  });
+});

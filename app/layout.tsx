@@ -22,8 +22,8 @@ const display = Bricolage_Grotesque({
 
 export const metadata: Metadata = {
   title: {
-    default: "Cheer News BeneluxPlus — alle cheerleading in Nederland",
-    template: "%s · Cheer News BeneluxPlus",
+    default: "Cheer News: alle cheerleading in Nederland",
+    template: "%s · Cheer News",
   },
   description:
     "Eén overzicht van alle cheerleadingclubs, wedstrijden, open gyms en trainingstijden in Nederland. Kaart, kalender en clubgids.",

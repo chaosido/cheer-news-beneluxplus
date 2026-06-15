@@ -1,4 +1,4 @@
-import { Dumbbell, MapPin } from "lucide-react";
+import { DoorOpen, MapPin } from "lucide-react";
 import { EmptyState } from "@/components/home/EmptyState";
 import { weeklySlots } from "@/lib/recurrence";
 import type { OpenGymClient } from "@/lib/types";
@@ -37,7 +37,7 @@ export function OpenGymsList({ openGyms }: { openGyms: OpenGymClient[] }) {
   if (rows.length === 0) {
     return (
       <EmptyState
-        icon={Dumbbell}
+        icon={DoorOpen}
         title="Nog geen open gyms bekend"
         hint="Terugkerende open-gym tijden verschijnen hier zodra ze bekend zijn."
       />

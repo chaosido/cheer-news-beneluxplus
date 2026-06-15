@@ -9,24 +9,19 @@
  * building markers from inline SVG `divIcon`s, which also lets us tint the
  * selected/hovered pin with the spirit accent.
  *
- * STACKED PINS — clustering + spiderfy:
- *   Many clubs are geocoded to their city centre, so several share *identical*
- *   coordinates and their pins would stack exactly on top of one another. We
- *   wrap every marker in a `<MarkerClusterGroup>` (leaflet.markercluster):
- *     - Nearby pins collapse into a themed count badge.
- *     - Clicking a cluster zooms toward its members.
- *     - Members at the *same* coordinate cannot be separated by zoom, so the
- *       group spiderfies them (fans them out on a ring) on click — every pin
- *       then becomes individually hoverable/clickable with its own tooltip and
- *       popup.
+ * OVERLAPPING PINS — clustering + click-to-spiderfy:
+ *   All pins (clubs, venues, events, coaches) live in one `<MarkerClusterGroup>`.
+ *   Nearby pins collapse into an accent count badge (the "pink circle"), and the
+ *   clusters break apart automatically as you zoom in. Clicking a cluster
+ *   spiderfies it IN PLACE (zoomToBoundsOnClick is off) — the members fan out on
+ *   a ring at the current zoom so each is clickable, without the camera zooming.
  *
  * Hover/select sync: hovering a pin calls `onHover`, clicking selects via
  * `onSelect`; the externally-controlled `hoveredClubId`/`selectedClubId` props
- * restyle the matching marker. When a club is highlighted from elsewhere (e.g.
- * the agenda) we ask the cluster group to reveal it (`zoomToShowLayer`, which
- * zooms/spiderfies as needed) so a buried pin surfaces and shows its highlight.
+ * restyle the matching marker. Selecting a club (here or from the agenda) flies
+ * the camera to that pin's spread position; hover never moves the camera.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
@@ -39,26 +34,19 @@ import {
 } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
+import "leaflet.markercluster";
 import {
   Globe,
   AtSign,
-  Share2,
   Music2,
   MapPin,
   ArrowRight,
   Maximize,
-  Dumbbell,
+  Users,
   Mail,
   Phone,
 } from "lucide-react";
-// Pull in the `@types/leaflet.markercluster` global augmentation of the
-// "leaflet" module so `L.MarkerCluster` / `L.MarkerClusterGroup` resolve.
-// `leaflet.markercluster` is already loaded at runtime (transitively via
-// react-leaflet-cluster), so this side-effect import changes no behavior.
-import "leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
-import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
-import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import { EVENT_TYPE_COLOR, EVENT_TYPE_LABEL } from "@/lib/eventColors";
 import type { EventType } from "@/lib/types";
 import type {
@@ -69,9 +57,28 @@ import type {
 } from "@/components/home/types";
 import { safeUrl } from "@/lib/safeUrl";
 
+/** Facebook "f" glyph (lucide dropped brand icons), styled like a lucide icon. */
+function Facebook({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  );
+}
+
 const NL_CENTER: [number, number] = [52.2, 5.3];
 const NL_ZOOM = 7;
-// City-level cap so focusing a pin surfaces it without flying all the way in.
+// City-level cap so revealing a pin from the agenda surfaces it without flying
+// all the way in.
 const FOCUS_MAX_ZOOM = 11;
 
 /**
@@ -110,11 +117,8 @@ const MAP_THEME_CSS = `
   /* Neutralize Leaflet's directional tooltip arrow (we omit it for clarity). */
   .cheer-tooltip.leaflet-tooltip::before { display: none; }
 
-  /* ---- Cluster badge: themed count bubble (replaces the default blue). ---- */
-  .cheer-cluster {
-    background: transparent;
-    border: none;
-  }
+  /* ---- Cluster badge: an accent count bubble (the "pink circle"). ---- */
+  .cheer-cluster { background: transparent; border: none; }
   .cheer-cluster-badge {
     display: flex;
     align-items: center;
@@ -130,8 +134,6 @@ const MAP_THEME_CSS = `
     border: 2px solid #ffffff;
     box-shadow: 0 1px 4px rgb(23 22 27 / 0.35);
   }
-  /* A faint accent halo so dense clusters read as "more". */
-  .cheer-cluster-badge--lg { font-size: 14px; }
   .leaflet-cluster-anim .leaflet-marker-icon,
   .leaflet-cluster-anim .leaflet-marker-shadow { transition: transform 0.25s ease-out, opacity 0.25s ease-in; }
 
@@ -187,10 +189,12 @@ function pinIcon(state: "default" | "hover" | "selected"): L.DivIcon {
   const scale = state === "default" ? 1 : 1.18;
   const w = Math.round(26 * scale);
   const h = Math.round(34 * scale);
+  // An "all-star" star glyph reads as the club/team's home base.
+  const star = `<svg x="6" y="5.5" width="14" height="14" viewBox="0 0 24 24" fill="#ffffff" xmlns="http://www.w3.org/2000/svg"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.12 2.12 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.12 2.12 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.12 2.12 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.12 2.12 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.12 2.12 0 0 0 1.597-1.16z"/></svg>`;
   const svg = `
     <svg width="${w}" height="${h}" viewBox="0 0 26 34" xmlns="http://www.w3.org/2000/svg">
       <path d="M13 0C5.82 0 0 5.82 0 13c0 9.2 11.1 19.7 12.2 20.7a1.2 1.2 0 0 0 1.6 0C14.9 32.7 26 22.2 26 13 26 5.82 20.18 0 13 0Z" fill="${fill}"/>
-      <circle cx="13" cy="13" r="5" fill="#ffffff"/>
+      ${star}
     </svg>`;
   return L.divIcon({
     html: svg,
@@ -201,11 +205,11 @@ function pinIcon(state: "default" | "hover" | "selected"): L.DivIcon {
   });
 }
 
-/** Round teal open-gym badge for a venue pin (a Dumbbell glyph inside). */
+/** Round teal open-gym badge for a venue pin (a Users glyph inside). */
 function venueIcon(): L.DivIcon {
   const size = 28;
-  // lucide-react's Dumbbell path, inlined so it works in a Leaflet divIcon.
-  const glyph = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>`;
+  // lucide-react's Users path, inlined so it works in a Leaflet divIcon.
+  const glyph = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/></svg>`;
   return L.divIcon({
     html: `<div class="cheer-venue-badge" aria-label="Open gym locatie">${glyph}</div>`,
     className: "cheer-venue-pin",
@@ -215,20 +219,46 @@ function venueIcon(): L.DivIcon {
   });
 }
 
-/** Diamond event pin, colored by event type (distinct from club/venue pins). */
+// Per-type lucide glyph (inner paths, drawn white-stroked) so each event pin
+// carries a symbol that matches its kind.
+const EVENT_GLYPH: Record<EventType, string> = {
+  // Trophy
+  competition: `<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>`,
+  // Users
+  open_gym: `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/>`,
+  // GraduationCap (Workshop)
+  clinic: `<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>`,
+  // ClipboardCheck
+  tryout: `<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>`,
+  // Sparkles
+  showcase: `<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0z"/>`,
+  // Activity
+  training: `<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>`,
+  // Calendar
+  other: `<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>`,
+};
+
+/**
+ * Teardrop event pin, colored by type, with a per-type glyph. The pointed pin
+ * shape distinguishes a located *event* from the round open-gym *hall* (venue)
+ * badge, so an open-gym-type event never looks like an open-gym venue.
+ */
 function eventIcon(type: EventType): L.DivIcon {
   const fill = EVENT_TYPE_COLOR[type];
-  const size = 24;
+  const w = 26;
+  const h = 34;
+  const glyph = `<svg x="6.5" y="5" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${EVENT_GLYPH[type]}</svg>`;
   const svg = `
-    <svg width="${size}" height="${size}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <rect x="5" y="5" width="14" height="14" rx="3" transform="rotate(45 12 12)" fill="${fill}" stroke="#ffffff" stroke-width="2"/>
+    <svg width="${w}" height="${h}" viewBox="0 0 26 34" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 0C5.82 0 0 5.82 0 13c0 9.2 11.1 19.7 12.2 20.7a1.2 1.2 0 0 0 1.6 0C14.9 32.7 26 22.2 26 13 26 5.82 20.18 0 13 0Z" fill="${fill}"/>
+      ${glyph}
     </svg>`;
   return L.divIcon({
     html: svg,
     className: "cheer-event-pin",
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
-    popupAnchor: [0, -size / 2],
+    iconSize: [w, h],
+    iconAnchor: [w / 2, h],
+    popupAnchor: [0, -h + 6],
   });
 }
 
@@ -255,16 +285,14 @@ function coachIcon(): L.DivIcon {
 }
 
 /**
- * Themed cluster icon: an accent count bubble that grows slightly with the
- * number of children, so a "37" cluster reads heavier than a "3".
+ * Themed cluster icon: the accent "pink circle" count bubble. Clicking it
+ * spiderfies the cluster in place (no zoom) — see the MarkerClusterGroup config.
  */
 function clusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   const count = cluster.getChildCount();
-  // Size scales gently with count (clamped) for legibility at any density.
   const size = count < 10 ? 34 : count < 100 ? 40 : 48;
-  const lg = count >= 100 ? " cheer-cluster-badge--lg" : "";
   return L.divIcon({
-    html: `<div class="cheer-cluster-badge${lg}" aria-label="${count} clubs">${count}</div>`,
+    html: `<div class="cheer-cluster-badge" aria-label="${count} items">${count}</div>`,
     className: "cheer-cluster",
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
@@ -272,31 +300,19 @@ function clusterIcon(cluster: L.MarkerCluster): L.DivIcon {
 }
 
 /**
- * Reveals a club highlighted from OUTSIDE the map (e.g. the agenda/calendar
- * row sync), when its pin is currently buried inside an un-expanded cluster.
- *
- * Crucially, this must NOT move the camera for pins that are already visible on
- * the map. Hovering a pin (or a spiderfied leg) updates the focus id, and if we
- * reacted to that by zooming/panning, the camera would jump on every hover —
- * the spiderfy-hover bug. So before any camera move we check visibility:
- * `getVisibleParent(marker) === marker` means the marker is already shown
- * (standalone or spiderfied) → do nothing. We only reveal when the marker is
- * hidden (its visible parent is a cluster) or not yet on the map.
- *
- * When a reveal is warranted, `zoomToShowLayer` (markercluster) zooms in until
- * the marker is no longer inside a cluster, spiderfying when same-coordinate
- * markers can't be split by zoom — so a buried/stacked pin surfaces and shows
- * its highlight. It can fly in too deep, so we clamp to a city-level zoom in
- * its callback before gently panning to the pin.
+ * Reveals a club selected from OUTSIDE the map (an agenda row): if its pin is
+ * buried in a cluster, `zoomToShowLayer` surfaces it (spiderfying if needed);
+ * if it's already visible we just pan to it. `focusId` is selection-only — NOT
+ * hover — so the camera never moves on hover.
  */
 function FocusHighlight({
-  clubs,
   focusId,
+  clubs,
   clusterRef,
   markerRefs,
 }: {
-  clubs: MapClub[];
   focusId: string | null;
+  clubs: MapClub[];
   clusterRef: React.RefObject<L.MarkerClusterGroup | null>;
   markerRefs: React.RefObject<globalThis.Map<string, L.Marker>>;
 }) {
@@ -305,28 +321,19 @@ function FocusHighlight({
     if (!focusId) return;
     const club = clubs.find((c) => c.id === focusId);
     if (!club) return;
-
     const group = clusterRef.current;
     const marker = markerRefs.current.get(focusId);
-
     if (group && marker && group.hasLayer(marker)) {
-      // Already visible on the map (standalone pin or a spiderfied leg)? Then
-      // this focus came from interacting with a pin that's right there — leave
-      // the camera completely alone. This is what kills the spiderfy-hover jump.
-      if (group.getVisibleParent(marker) === marker) return;
-
-      // Otherwise the pin is buried in an un-expanded cluster (agenda→map
-      // reveal): zoom/spiderfy until it surfaces, clamp the zoom, then nudge to it.
+      if (group.getVisibleParent(marker) === marker) {
+        map.panTo([club.lat, club.lng], { animate: true });
+        return;
+      }
       group.zoomToShowLayer(marker, () => {
-        if (map.getZoom() > FOCUS_MAX_ZOOM) {
-          map.setZoom(FOCUS_MAX_ZOOM);
-        }
+        if (map.getZoom() > FOCUS_MAX_ZOOM) map.setZoom(FOCUS_MAX_ZOOM);
         map.panTo([club.lat, club.lng], { animate: true });
       });
       return;
     }
-
-    // Marker not on the cluster group yet (still mounting): pan toward it.
     map.panTo([club.lat, club.lng], { animate: true });
   }, [focusId, clubs, map, clusterRef, markerRefs]);
   return null;
@@ -402,14 +409,41 @@ function ResetView({ signal }: { signal: number }) {
   return null;
 }
 
+/**
+ * Pans to a hover-revealed event/coach pin ONLY when it sits outside the current
+ * view, so the revealed pin is always visible without yanking the camera around
+ * for pins already on screen. Zoom is never changed (a calm nudge, not a fly-in).
+ */
+function RevealPan({ point }: { point: { lat: number; lng: number } | null }) {
+  const map = useMap();
+  const lat = point?.lat ?? null;
+  const lng = point?.lng ?? null;
+  useEffect(() => {
+    if (lat == null || lng == null) return;
+    if (map.getBounds().contains([lat, lng])) return;
+    map.panTo([lat, lng], { animate: true });
+  }, [lat, lng, map]);
+  return null;
+}
+
 interface MapProps {
   clubs: MapClub[];
   /** Club-independent open-gym venues, rendered as a distinct pin layer. */
   venues?: MapVenue[];
-  /** Located events, rendered as diamond pins colored by type. */
+  /**
+   * Located events — candidates for a hover-revealed pin. Events have NO
+   * persistent pin; only the one whose id matches `activeEventId` is shown.
+   */
   events?: MapEvent[];
-  /** Visiting coaches, rendered as amber teardrop pins. */
+  /** Visiting coaches. Like events, only the `activeEventId` match is shown. */
   coaches?: MapCoach[];
+  /**
+   * The agenda row currently hovered (`event:{id}` / `coach:{id}`). Reveals the
+   * matching event or coach as a single standalone pin (kept out of the cluster
+   * group so it never gets swallowed into a count badge), panning to it only if
+   * it sits off-screen.
+   */
+  activeEventId?: string | null;
   hoveredClubId: string | null;
   selectedClubId: string | null;
   onHover: (id: string | null) => void;
@@ -423,6 +457,7 @@ export default function Map({
   venues = [],
   events = [],
   coaches = [],
+  activeEventId = null,
   hoveredClubId,
   selectedClubId,
   onHover,
@@ -450,14 +485,42 @@ export default function Map({
   }, []);
 
   // Cluster group + per-club marker handles, so FocusHighlight can reveal a
-  // buried pin (zoomToShowLayer) when a club is highlighted from the agenda.
+  // club's pin (zoomToShowLayer) when it's selected from the agenda.
   const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const markerRefs = useRef<globalThis.Map<string, L.Marker>>(
     new globalThis.Map(),
   );
 
-  // Focus = explicit selection wins over hover (used for revealing/panning).
-  const focusId = selectedClubId ?? hoveredClubId;
+  // Callback ref: store the cluster group AND bind clusterclick → spiderfy the
+  // moment the group exists (a plain effect could run before the ref is set).
+  // Clicking a cluster fans it out IN PLACE; `zoomToBoundsOnClick={false}` only
+  // disables the zoom, it doesn't auto-spiderfy below max zoom.
+  const setClusterGroup = useCallback((group: L.MarkerClusterGroup | null) => {
+    clusterRef.current = group;
+    const g = group as (L.MarkerClusterGroup & { _cheerBound?: boolean }) | null;
+    if (g && !g._cheerBound) {
+      g._cheerBound = true;
+      g.on("clusterclick", (e: { layer: L.MarkerCluster }) =>
+        e.layer.spiderfy(),
+      );
+    }
+  }, []);
+
+  // Camera reveal/pan is driven by an explicit *selection* only. Hover must
+  // never move the map — it only restyles the matching pin. Hovering an agenda
+  // event highlights the pin without moving the camera.
+  const focusId = selectedClubId;
+
+  // The single event/coach revealed by hovering its agenda row (if any). Kept
+  // out of the cluster group below so a lone pin never collapses into a badge.
+  const activeEvent = useMemo(
+    () => events.find((e) => e.id === activeEventId) ?? null,
+    [events, activeEventId],
+  );
+  const activeCoach = useMemo(
+    () => coaches.find((c) => c.id === activeEventId) ?? null,
+    [coaches, activeEventId],
+  );
 
   return (
     <>
@@ -475,68 +538,60 @@ export default function Map({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <FocusHighlight
-          clubs={clubs}
           focusId={focusId}
+          clubs={clubs}
           clusterRef={clusterRef}
           markerRefs={markerRefs}
         />
         <ResetViewControl onSelect={onSelect} />
         <ResetView signal={resetSignal} />
 
+        {/* All pins (clubs, venues, events, coaches) in one cluster group.
+            Nearby pins merge into the accent count badge; clicking it spiderfies
+            in place (zoomToBoundsOnClick off) — no zoom; clusters break apart as
+            you zoom in. */}
         <MarkerClusterGroup
-          ref={clusterRef}
-          // Same-coordinate pins fan out on click so each is clickable.
+          ref={setClusterGroup}
+          zoomToBoundsOnClick={false}
           spiderfyOnMaxZoom
-          // Touch-friendly: spiderfy still works on tap; the legs stay clickable.
           showCoverageOnHover={false}
-          // Keep the spiderfy ring roomy enough to tap individual pins on mobile.
           spiderfyDistanceMultiplier={1.6}
-          // Group pins within ~50px; tighter than the default 80 so distinct
-          // cities don't over-merge while true city-center stacks still group.
           maxClusterRadius={50}
           chunkedLoading
           iconCreateFunction={clusterIcon}
         >
-          {clubs.map((club) => {
-            const state =
-              club.id === selectedClubId
-                ? "selected"
-                : club.id === hoveredClubId
-                  ? "hover"
-                  : "default";
-            return (
-              <ClubMarker
-                key={club.id}
-                club={club}
-                icon={icons[state]}
-                isSelected={club.id === selectedClubId}
-                onHover={onHover}
-                onSelect={onSelect}
-                markerRefs={markerRefs}
-              />
-            );
-          })}
+          {clubs.map((club) => (
+            <ClubMarker
+              key={club.id}
+              club={club}
+              icon={
+                icons[club.id === selectedClubId ? "selected" : "default"]
+              }
+              isSelected={club.id === selectedClubId}
+              isHovered={club.id === hoveredClubId}
+              onHover={onHover}
+              onSelect={onSelect}
+              markerRefs={markerRefs}
+            />
+          ))}
+          {venues.map((venue) => (
+            <VenueMarker key={venue.id} venue={venue} icon={venueMarkerIcon} />
+          ))}
         </MarkerClusterGroup>
 
-        {/* Venue open-gym pins live outside the cluster group: they are few,
-            and clustering them with clubs would muddle the "X clubs" badge. */}
-        {venues.map((venue) => (
-          <VenueMarker key={venue.id} venue={venue} icon={venueMarkerIcon} />
-        ))}
-
-        {/* Located event pins (diamonds, colored by type). */}
-        {events.map((event) => (
+        {/* Hover-revealed event / coach pin. Rendered OUTSIDE the cluster group
+            (so a single pin can't be swallowed into a count badge) and only
+            while its agenda row is hovered. */}
+        {activeEvent && (
           <EventMarker
-            key={event.id}
-            event={event}
-            icon={eventIcons[event.type]}
+            event={activeEvent}
+            icon={eventIcons[activeEvent.type]}
           />
-        ))}
-
-        {/* Visiting coach pins (amber teardrop). */}
-        {coaches.map((coach) => (
-          <CoachMarker key={coach.id} coach={coach} icon={coachMarkerIcon} />
-        ))}
+        )}
+        {activeCoach && (
+          <CoachMarker coach={activeCoach} icon={coachMarkerIcon} />
+        )}
+        <RevealPan point={activeEvent ?? activeCoach} />
       </MapContainer>
     </>
   );
@@ -549,7 +604,7 @@ function formatSlot(s: MapVenue["sessions"][number]): string {
 
 function VenueMarker({ venue, icon }: { venue: MapVenue; icon: L.DivIcon }) {
   return (
-    <Marker position={[venue.lat, venue.lng]} icon={icon}>
+    <Marker position={[venue.lat, venue.lng]} icon={icon} riseOnHover>
       <Tooltip
         direction="top"
         offset={[0, -16]}
@@ -563,7 +618,7 @@ function VenueMarker({ venue, icon }: { venue: MapVenue; icon: L.DivIcon }) {
       <Popup>
         <div className="flex min-w-52 flex-col gap-1">
           <span className="inline-flex items-center gap-1.5 font-display text-sm font-bold text-[var(--ink)]">
-            <Dumbbell
+            <Users
               className="size-3.5 text-[var(--type-open_gym,#0e7c7b)]"
               aria-hidden
             />
@@ -630,11 +685,14 @@ function formatEventWhen(event: MapEvent): string {
 
 function EventMarker({ event, icon }: { event: MapEvent; icon: L.DivIcon }) {
   return (
-    <Marker position={[event.lat, event.lng]} icon={icon}>
+    <Marker position={[event.lat, event.lng]} icon={icon} riseOnHover>
+      {/* Permanent: the pin is revealed from an agenda-row hover, so the cursor
+          is on the agenda — a hover-only tooltip would never show. */}
       <Tooltip
         direction="top"
         offset={[0, -14]}
         opacity={1}
+        permanent
         className="cheer-tooltip"
       >
         {event.title}
@@ -711,7 +769,7 @@ function CoachMarker({ coach, icon }: { coach: MapCoach; icon: L.DivIcon }) {
   if (coach.tiktokUrl)
     socials.push({ href: coach.tiktokUrl, label: "TikTok", Icon: Music2 });
   if (coach.facebookUrl)
-    socials.push({ href: coach.facebookUrl, label: "Facebook", Icon: Share2 });
+    socials.push({ href: coach.facebookUrl, label: "Facebook", Icon: Facebook as typeof Globe });
   if (coach.websiteUrl)
     socials.push({ href: coach.websiteUrl, label: "Website", Icon: Globe });
   if (coach.contactEmail)
@@ -728,11 +786,13 @@ function CoachMarker({ coach, icon }: { coach: MapCoach; icon: L.DivIcon }) {
     });
 
   return (
-    <Marker position={[coach.lat, coach.lng]} icon={icon}>
+    <Marker position={[coach.lat, coach.lng]} icon={icon} riseOnHover>
+      {/* Permanent: revealed from a hover elsewhere, so show the label at once. */}
       <Tooltip
         direction="top"
         offset={[0, -30]}
         opacity={1}
+        permanent
         className="cheer-tooltip"
       >
         {coach.name}
@@ -802,10 +862,12 @@ function UserGlyph() {
   );
 }
 
+
 function ClubMarker({
   club,
   icon,
   isSelected,
+  isHovered,
   onHover,
   onSelect,
   markerRefs,
@@ -813,6 +875,7 @@ function ClubMarker({
   club: MapClub;
   icon: L.DivIcon;
   isSelected: boolean;
+  isHovered: boolean;
   onHover: (id: string | null) => void;
   onSelect: (id: string | null) => void;
   markerRefs: React.RefObject<globalThis.Map<string, L.Marker>>;
@@ -825,7 +888,8 @@ function ClubMarker({
     markerRef.current?.setIcon(icon);
   }, [icon]);
 
-  // Register the marker handle so FocusHighlight can reveal it from outside.
+  // Register the marker handle so FocusHighlight can reveal it (zoomToShowLayer)
+  // when this club is selected from the agenda.
   useEffect(() => {
     const refs = markerRefs.current;
     const marker = markerRef.current;
@@ -834,6 +898,12 @@ function ClubMarker({
       refs.delete(club.id);
     };
   }, [club.id, markerRefs]);
+
+  // Open the popup when the club becomes selected (e.g. from the agenda); a
+  // direct pin click opens it via Leaflet's default behaviour.
+  useEffect(() => {
+    if (isSelected) markerRef.current?.openPopup();
+  }, [isSelected]);
 
   // Re-validate each href against the http(s) allowlist (defense-in-depth).
   const websiteUrl = safeUrl(club.websiteUrl);
@@ -846,7 +916,7 @@ function ClubMarker({
   if (instagramUrl)
     socials.push({ href: instagramUrl, label: "Instagram", Icon: AtSign });
   if (facebookUrl)
-    socials.push({ href: facebookUrl, label: "Facebook", Icon: Share2 });
+    socials.push({ href: facebookUrl, label: "Facebook", Icon: Facebook as typeof Globe });
   if (tiktokUrl)
     socials.push({ href: tiktokUrl, label: "TikTok", Icon: Music2 });
 
@@ -855,6 +925,9 @@ function ClubMarker({
       ref={markerRef}
       position={[club.lat, club.lng]}
       icon={icon}
+      // Raise the hovered/selected pin above any neighbours it overlaps.
+      riseOnHover
+      zIndexOffset={isSelected ? 1000 : 0}
       eventHandlers={{
         mouseover: () => onHover(club.id),
         mouseout: () => onHover(null),
@@ -862,23 +935,27 @@ function ClubMarker({
       }}
     >
       {/*
-        Club identity label. The selected club's label is `permanent` so it
-        stays readable during the pin↔agenda sync; all others show on hover.
-        Re-keyed on selection so Leaflet rebuilds the tooltip with the right
-        permanence/styling (it can't toggle `permanent` in place).
+        Club identity label. The label is shown (as a permanent tooltip) whenever
+        the club is hovered OR selected — driven by React state, not Leaflet's
+        own hover tooltip, so it reliably disappears on mouse-out (the old
+        hover tooltip could get stuck when the icon swapped). Keyed by state so
+        Leaflet rebuilds it with the right styling.
       */}
-      <Tooltip
-        key={isSelected ? "permanent" : "hover"}
-        direction="top"
-        offset={[0, -28]}
-        opacity={1}
-        permanent={isSelected}
-        className={`cheer-tooltip${isSelected ? " cheer-tooltip--selected" : ""}`}
-      >
-        {club.name}
-        <span className="cheer-tooltip-city">{club.city}</span>
-      </Tooltip>
+      {(isSelected || isHovered) && (
+        <Tooltip
+          key={isSelected ? "selected" : "hover"}
+          direction="top"
+          offset={[0, -28]}
+          opacity={1}
+          permanent
+          className={`cheer-tooltip${isSelected ? " cheer-tooltip--selected" : ""}`}
+        >
+          {club.name}
+          <span className="cheer-tooltip-city">{club.city}</span>
+        </Tooltip>
+      )}
 
+      {isSelected && (
       <Popup>
         <div className="flex min-w-48 flex-col gap-1">
           <span className="font-display text-sm font-bold text-[var(--ink)]">
@@ -914,6 +991,7 @@ function ClubMarker({
           )}
         </div>
       </Popup>
+      )}
     </Marker>
   );
 }

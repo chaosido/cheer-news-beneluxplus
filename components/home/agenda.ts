@@ -89,6 +89,44 @@ export function timeLabel(item: CalendarItem): string {
   return `${startTime} – ${timeFmt(item.endsAt)}`;
 }
 
+/** Max days a single event may be exploded across (guards bad data). */
+const MAX_SPAN_DAYS = 31;
+
+/**
+ * The yyyy-MM-dd day keys an item spans, inclusive. A single-day item returns
+ * one key; a multi-day event returns one per calendar day from start to end so
+ * it can appear under each day's header. Anchored at noon UTC so the calendar
+ * day is unambiguous regardless of the Amsterdam offset.
+ */
+function spannedDayKeys(item: CalendarItem): string[] {
+  const startKey = dayKey(item.startsAt);
+  const endKey = item.endsAt ? dayKey(item.endsAt) : startKey;
+  if (endKey <= startKey) return [startKey];
+  const keys: string[] = [];
+  const cursor = new Date(`${startKey}T12:00:00Z`);
+  for (let i = 0; i < MAX_SPAN_DAYS; i++) {
+    const key = cursor.toISOString().slice(0, 10);
+    keys.push(key);
+    if (key >= endKey) break;
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  return keys;
+}
+
+/**
+ * Per-day time cell for one day of a multi-day event: the start time on the
+ * first day, "tot HH:mm" on the last, and "Hele dag" for full days in between
+ * (or any all-day event).
+ */
+function timeLabelForDay(item: CalendarItem, dKey: string, span: string[]): string {
+  if (item.allDay) return "Hele dag";
+  if (dKey === span[0]) return timeFmt(item.startsAt);
+  if (dKey === span[span.length - 1] && item.endsAt) {
+    return `tot ${timeFmt(item.endsAt)}`;
+  }
+  return "Hele dag";
+}
+
 /**
  * Build date-grouped, condensed agenda rows from a flat (already filtered)
  * item list.
@@ -112,18 +150,23 @@ export function buildAgenda(items: CalendarItem[], now: Date): AgendaGroup[] {
   // Merge bucket for open gyms: `${dayKey}|${clubId|venueId}` → AgendaRow pushed.
   const gymMerge = new Map<string, AgendaRow>();
 
-  for (const item of sorted) {
-    const dKey = dayKey(item.startsAt);
+  const groupFor = (dKey: string): AgendaGroup => {
     let group = groups.get(dKey);
     if (!group) {
       group = { dayKey: dKey, label: headerLabel(dKey, todayKey), rows: [] };
       groups.set(dKey, group);
     }
+    return group;
+  };
 
-    // Condense by club, or by venue for club-independent gyms.
+  for (const item of sorted) {
+    const startDayKey = dayKey(item.startsAt);
+
+    // Condense open gyms by club (or by venue for club-independent gyms). Open
+    // gyms are single-day occurrences, so they live only on their start day.
     const locator = item.clubId ?? item.venueId;
     if (item.isOpenGym && locator) {
-      const mergeKey = `${dKey}|${locator}`;
+      const mergeKey = `${startDayKey}|${locator}`;
       const existing = gymMerge.get(mergeKey);
       if (existing) {
         existing.count += 1;
@@ -136,16 +179,23 @@ export function buildAgenda(items: CalendarItem[], now: Date): AgendaGroup[] {
         timeLabel: timeLabel(item),
       };
       gymMerge.set(mergeKey, row);
-      group.rows.push(row);
+      groupFor(startDayKey).rows.push(row);
       continue;
     }
 
-    group.rows.push({
-      key: item.id,
-      item,
-      count: 1,
-      timeLabel: timeLabel(item),
-    });
+    // Events appear under every day they span, so a multi-day event (e.g. a
+    // two-day "Skills Days") shows under each day's header rather than as a
+    // single range row on day one.
+    const span = spannedDayKeys(item);
+    for (const dKey of span) {
+      groupFor(dKey).rows.push({
+        key: span.length > 1 ? `${item.id}:${dKey}` : item.id,
+        item,
+        count: 1,
+        timeLabel:
+          span.length > 1 ? timeLabelForDay(item, dKey, span) : timeLabel(item),
+      });
+    }
   }
 
   return [...groups.values()].sort((a, b) => a.dayKey.localeCompare(b.dayKey));

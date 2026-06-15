@@ -65,6 +65,38 @@ const KIND_PLACEHOLDER: Record<SubmissionKind, string> = {
   feedback: "Vertel ons wat beter kan, of wat je opviel op de site.",
 };
 
+/**
+ * Per-kind copy for the optional supporting-link field. The field itself is the
+ * same for every kind (see the open-format rationale); only the label/hint
+ * adapt — for a correction we explicitly invite the relevant page/link.
+ */
+const KIND_URL: Record<SubmissionKind, { label: string; hint: string }> = {
+  event: {
+    label: "Link (optioneel)",
+    hint: "Een website, ticketpagina of Instagram die helpt.",
+  },
+  gym: {
+    label: "Link (optioneel)",
+    hint: "Een website of Instagram van de club.",
+  },
+  club: {
+    label: "Link (optioneel)",
+    hint: "Website of Instagram van de club.",
+  },
+  coach: {
+    label: "Link (optioneel)",
+    hint: "Je website, Instagram of boekingspagina.",
+  },
+  correction: {
+    label: "Relevante link (optioneel)",
+    hint: "Plak de pagina of link die hoort bij wat ontbreekt of niet klopt. Meer dan één? Zet de rest ook in je bericht.",
+  },
+  feedback: {
+    label: "Link (optioneel)",
+    hint: "Een pagina of screenshot-link die helpt.",
+  },
+};
+
 type FieldErrors = Record<string, string[] | undefined>;
 
 interface SubmitFormProps {
@@ -305,14 +337,14 @@ export function SubmitForm({ turnstileSiteKey }: SubmitFormProps) {
       />
 
       <TextField
-        label="Link (optioneel)"
+        label={KIND_URL[kind].label}
         name="url"
         type="url"
         value={url}
         onChange={setUrl}
         error={err("url")}
         placeholder="https://…"
-        hint="Een website, Instagram of pagina die helpt."
+        hint={KIND_URL[kind].hint}
       />
 
       <TextField
