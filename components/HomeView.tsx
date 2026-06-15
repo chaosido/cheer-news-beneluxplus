@@ -78,6 +78,10 @@ export function HomeView({
   // reveals a single pin on the map (matched by id in <Map>). Independent of the
   // club-keyed highlight above, since an event is its own location, not a club's.
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+  // Sticky pick of a club-less item with its own pin (e.g. an event at a venue).
+  // Clicking such a row zooms the map to its pin and keeps it shown. Mutually
+  // exclusive with `selectedClubId` — selecting one clears the other.
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [tab, setTab] = useState<"map" | "calendar">("map");
   // Bumped to tell <Map> to recenter on the whole country.
   const [resetSignal, setResetSignal] = useState(0);
@@ -89,6 +93,7 @@ export function HomeView({
       setSelectedClubId(null);
       setHoveredClubId(null);
       setHoveredItemId(null);
+      setSelectedItemId(null);
       setFilters((f) => ({ ...f, province: null }));
       setResetSignal((n) => n + 1);
     }
@@ -153,9 +158,25 @@ export function HomeView({
   // comes from a currently-visible (filtered) agenda row — so reveal is
   // inherently consistent with the active filters, no Set membership needed.
 
-  // Toggle selection off when clicking the already-selected club.
+  // Ids of agenda items that have their OWN map pin (located events + coaches),
+  // so the Calendar knows which club-less rows are clickable-to-zoom.
+  const pinnableItemIds = useMemo(
+    () => new Set<string>([...events.map((e) => e.id), ...coaches.map((c) => c.id)]),
+    [events, coaches],
+  );
+
+  // Toggle selection off when clicking the already-selected club. Selecting a
+  // club clears any club-less item selection (one sticky pick at a time).
   function handleSelect(id: string | null) {
     setSelectedClubId((prev) => (prev === id ? null : id));
+    setSelectedItemId(null);
+  }
+
+  // Select a club-less item (its own pin) → the map zooms to it. Toggles off on
+  // re-click, and clears any club selection.
+  function handleSelectItem(id: string | null) {
+    setSelectedItemId((prev) => (prev === id ? null : id));
+    setSelectedClubId(null);
   }
 
   const hasClubs = clubs.length > 0;
@@ -171,7 +192,8 @@ export function HomeView({
         venues={filteredVenues}
         events={events}
         coaches={filteredCoaches}
-        activeEventId={hoveredItemId}
+        hoveredEventId={hoveredItemId}
+        selectedEventId={selectedItemId}
         hoveredClubId={hoveredClubId}
         selectedClubId={selectedClubId}
         onHover={setHoveredClubId}
@@ -203,6 +225,9 @@ export function HomeView({
           onHover={setHoveredClubId}
           onSelect={handleSelect}
           onHoverItem={setHoveredItemId}
+          selectedItemId={selectedItemId}
+          onSelectItem={handleSelectItem}
+          pinnableItemIds={pinnableItemIds}
         />
       </div>
     </div>

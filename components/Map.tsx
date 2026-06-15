@@ -426,24 +426,47 @@ function RevealPan({ point }: { point: { lat: number; lng: number } | null }) {
   return null;
 }
 
+/**
+ * Flies to a SELECTED (clicked) event/coach pin and zooms in to city level,
+ * mirroring what clicking a club pin does — so a club-less pin row zooms like
+ * every other agenda row. Never zooms back out: a click that lands on an
+ * already-closer view just recenters.
+ */
+function FocusEvent({ point }: { point: { lat: number; lng: number } | null }) {
+  const map = useMap();
+  const lat = point?.lat ?? null;
+  const lng = point?.lng ?? null;
+  useEffect(() => {
+    if (lat == null || lng == null) return;
+    const zoom = Math.max(map.getZoom(), FOCUS_MAX_ZOOM);
+    map.flyTo([lat, lng], zoom, { animate: true });
+  }, [lat, lng, map]);
+  return null;
+}
+
 interface MapProps {
   clubs: MapClub[];
   /** Club-independent open-gym venues, rendered as a distinct pin layer. */
   venues?: MapVenue[];
   /**
-   * Located events — candidates for a hover-revealed pin. Events have NO
-   * persistent pin; only the one whose id matches `activeEventId` is shown.
+   * Located events — candidates for a revealed pin. Events have NO persistent
+   * pin; only the one whose id matches `hoveredEventId`/`selectedEventId` shows.
    */
   events?: MapEvent[];
-  /** Visiting coaches. Like events, only the `activeEventId` match is shown. */
+  /** Visiting coaches. Like events, shown only when hovered/selected. */
   coaches?: MapCoach[];
   /**
-   * The agenda row currently hovered (`event:{id}` / `coach:{id}`). Reveals the
-   * matching event or coach as a single standalone pin (kept out of the cluster
-   * group so it never gets swallowed into a count badge), panning to it only if
-   * it sits off-screen.
+   * The agenda row currently HOVERED (`event:{id}` / `coach:{id}`). Reveals the
+   * matching pin (kept out of the cluster group so it never collapses into a
+   * count badge) and pans to it only if off-screen — a calm preview, no zoom.
    */
-  activeEventId?: string | null;
+  hoveredEventId?: string | null;
+  /**
+   * The agenda row CLICKED (sticky). Keeps the pin shown after the cursor
+   * leaves AND zooms the camera to it — the event/coach analogue of selecting a
+   * club, so a club-less pin row zooms like every other row.
+   */
+  selectedEventId?: string | null;
   hoveredClubId: string | null;
   selectedClubId: string | null;
   onHover: (id: string | null) => void;
@@ -457,7 +480,8 @@ export default function Map({
   venues = [],
   events = [],
   coaches = [],
-  activeEventId = null,
+  hoveredEventId = null,
+  selectedEventId = null,
   hoveredClubId,
   selectedClubId,
   onHover,
@@ -506,13 +530,14 @@ export default function Map({
     }
   }, []);
 
-  // Camera reveal/pan is driven by an explicit *selection* only. Hover must
-  // never move the map — it only restyles the matching pin. Hovering an agenda
-  // event highlights the pin without moving the camera.
+  // Club camera reveal/pan is driven by an explicit club *selection* only.
   const focusId = selectedClubId;
 
-  // The single event/coach revealed by hovering its agenda row (if any). Kept
-  // out of the cluster group below so a lone pin never collapses into a badge.
+  // The single event/coach pin to show: the hovered row wins (live preview),
+  // falling back to the selected (sticky) one so a clicked pin stays put after
+  // the cursor leaves. Kept out of the cluster group below so a lone pin never
+  // collapses into a count badge.
+  const activeEventId = hoveredEventId ?? selectedEventId;
   const activeEvent = useMemo(
     () => events.find((e) => e.id === activeEventId) ?? null,
     [events, activeEventId],
@@ -520,6 +545,23 @@ export default function Map({
   const activeCoach = useMemo(
     () => coaches.find((c) => c.id === activeEventId) ?? null,
     [coaches, activeEventId],
+  );
+
+  // Hovered point → gentle pan-if-offscreen (no zoom). Selected point → zoom-in
+  // fly (matches clicking a club). Looked up across events + coaches by id.
+  const hoveredPoint = useMemo(
+    () =>
+      events.find((e) => e.id === hoveredEventId) ??
+      coaches.find((c) => c.id === hoveredEventId) ??
+      null,
+    [events, coaches, hoveredEventId],
+  );
+  const selectedPoint = useMemo(
+    () =>
+      events.find((e) => e.id === selectedEventId) ??
+      coaches.find((c) => c.id === selectedEventId) ??
+      null,
+    [events, coaches, selectedEventId],
   );
 
   return (
@@ -591,7 +633,9 @@ export default function Map({
         {activeCoach && (
           <CoachMarker coach={activeCoach} icon={coachMarkerIcon} />
         )}
-        <RevealPan point={activeEvent ?? activeCoach} />
+        {/* Hover pans only if off-screen (calm preview); a click zooms in. */}
+        <RevealPan point={hoveredPoint} />
+        <FocusEvent point={selectedPoint} />
       </MapContainer>
     </>
   );
