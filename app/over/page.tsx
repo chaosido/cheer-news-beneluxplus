@@ -1,10 +1,11 @@
 /**
  * About page (Server Component).
  *
- * Static content: explains what Cheer News is, the roadmap of future regional
- * expansions, and who Cheersport Netherlands (CSN) is, the federation this
- * project is built for. No data fetching, so it's a plain Server Component.
- * Copy comes from the active locale's dictionary.
+ * Static content: a first-person intro to what Cheer News is, the roadmap of
+ * future regional expansions, and short profiles of the two national bodies it
+ * references — Cheersport Netherlands (CSN) and Team Cheerleading Nederland
+ * (TCNL). No data fetching, so it's a plain Server Component. Copy comes from
+ * the active locale's dictionary.
  */
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -90,10 +91,7 @@ export default async function AboutPage() {
         <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
           {t.about.heading}
         </h1>
-        <p className="mt-3 text-[var(--muted)]">
-          {t.about.introBefore}{" "}
-          <strong className="text-[var(--ink)]">{t.about.introCsn}</strong>.
-        </p>
+        <p className="mt-3 text-[var(--muted)]">{t.about.introBefore}</p>
       </header>
 
       {/* What we build */}
@@ -160,7 +158,6 @@ export default async function AboutPage() {
           {t.about.csnHeading}
         </h2>
         <p className="mt-3 text-[var(--muted)]">{t.about.csnBody1}</p>
-        <p className="mt-3 text-[var(--muted)]">{t.about.csnBody2}</p>
         <div className="mt-5">
           <Button asChild variant="secondary" size="sm">
             <a
@@ -177,6 +174,14 @@ export default async function AboutPage() {
 
       {/* About TCNL */}
       <section className="mb-12 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-sm)]">
+        <Image
+          src="/team-cheerleading-nederland.svg"
+          alt="Team Cheerleading Nederland"
+          width={117}
+          height={157}
+          className="mb-5 h-20 w-auto"
+          unoptimized
+        />
         <h2 className="font-display text-xl font-bold tracking-tight">
           {t.about.tcnlHeading}
         </h2>

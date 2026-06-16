@@ -13,18 +13,21 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "firebasestorage.googleapis.com" },
     ],
   },
-  // Defense-in-depth response headers applied to every route. No Content-Security
-  // -Policy yet: the app loads external Leaflet map tiles, the Firebase Auth
-  // helper, and Turnstile, so a CSP needs per-source allowlisting to avoid
-  // breakage — tracked separately. These headers are safe and break nothing.
+  // Defense-in-depth response headers applied to every route. The
+  // Content-Security-Policy is set separately in proxy.ts because it needs a
+  // fresh per-request nonce (a static header here cannot do that). These
+  // headers are safe and break nothing.
   async headers() {
     return [
       {
         source: "/:path*",
         headers: [
           {
+            // No `preload`: that submits the apex + all subdomains to the
+            // browser preload list and is hard to reverse. Graduate to a longer
+            // max-age + preload once every subdomain is confirmed HTTPS-only.
             key: "Strict-Transport-Security",
-            value: "max-age=63072000; includeSubDomains; preload",
+            value: "max-age=31536000; includeSubDomains",
           },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },

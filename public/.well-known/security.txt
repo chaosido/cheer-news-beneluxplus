@@ -1,0 +1,6 @@
+# Security contact for Cheer News BeneluxPlus (RFC 9116).
+# If you find a vulnerability, please email us before disclosing publicly.
+Contact: mailto:wonnink.jesse@gmail.com
+Expires: 2027-06-16T00:00:00.000Z
+Preferred-Languages: nl, en
+Canonical: https://cheer-news-beneluxplus.web.app/.well-known/security.txt

@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/home/EmptyState";
 import { EVENT_TYPE_COLOR } from "@/lib/eventColors";
 import { formatDateTimeRange } from "@/components/clubs/dateFormat";
+import { safeUrl } from "@/lib/safeUrl";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import type { EventClient } from "@/lib/types";
@@ -49,11 +50,15 @@ export function EventsList({
             )}
           </>
         );
+        // Defense-in-depth: event URLs are validated at write time, but
+        // re-check the protocol allowlist at render so a malformed/legacy DB
+        // value can never reach an href (no javascript:/data: schemes).
+        const href = safeUrl(e.url);
         return (
           <li key={e.id} className="py-3 first:pt-0 last:pb-0">
-            {e.url ? (
+            {href ? (
               <a
-                href={e.url}
+                href={href}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block rounded-lg px-1 transition-colors hover:bg-[var(--surface-2)]"

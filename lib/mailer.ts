@@ -52,6 +52,16 @@ function buildTransport() {
   });
 }
 
+/**
+ * Collapse CR/LF and other control characters in a submitted value into single
+ * spaces. Keeps one "key: value" pair on one line so a payload can't inject
+ * extra lines / fake fields into the maintainer's notification (the plaintext
+ * branch interpolates these raw; the HTML branch escapes them separately).
+ */
+function oneLine(s: string): string {
+  return s.replace(/[\u0000-\u001F\u007F]+/g, " ").trim();
+}
+
 /** Render a payload's non-empty fields as "key: value" lines. */
 function payloadLines(payload: Record<string, unknown>): string[] {
   return Object.entries(payload)
@@ -59,7 +69,7 @@ function payloadLines(payload: Record<string, unknown>): string[] {
       ([, val]) =>
         val !== undefined && val !== null && String(val).trim() !== "",
     )
-    .map(([key, val]) => `${key}: ${String(val)}`);
+    .map(([key, val]) => `${oneLine(key)}: ${oneLine(String(val))}`);
 }
 
 function escapeHtml(s: string): string {

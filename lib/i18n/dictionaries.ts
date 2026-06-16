@@ -380,15 +380,14 @@ export const nl = {
   about: {
     metaTitle: "Over Cheer News",
     metaDescription:
-      "Cheer News brengt alle cheerleading in Nederland samen op één plek. Een initiatief gebouwd voor Cheersport Netherlands (CSN), de nationale cheerleadingfederatie.",
+      "Cheer News brengt alle cheerleading in Nederland samen op één plek: clubs, wedstrijden, open gyms en trainingstijden op een kaart, agenda en clubgids.",
     eyebrow: "Over dit project",
     heading: "Alle cheerleading in Nederland, op één plek",
     introBefore:
-      "Cheer News is een open overzicht van de Nederlandse cheerleadingwereld: clubs, wedstrijden, open gyms en trainingstijden, samengebracht op een kaart, een agenda en een clubgids. Een initiatief gebouwd voor",
-    introCsn: "Cheersport Netherlands",
-    whatHeading: "Wat we bouwen",
+      "Cheer News brengt de Nederlandse cheerleadingwereld samen op één plek: clubs, wedstrijden, open gyms en trainingstijden, op een kaart, agenda en clubgids. Ik heb het gemaakt omdat die informatie nu verspreid staat over clubsites, socials en federatie-agenda's.",
+    whatHeading: "Wat ik bouw",
     whatBody:
-      "Informatie over cheerleading staat nu verspreid over losse clubsites, social media en federatie-agenda's. Wij brengen het samen. Data wordt grotendeels automatisch verzameld en aangevuld met meldingen uit de community. Elke onzekere of gemelde toevoeging wordt handmatig gecontroleerd voordat die online komt.",
+      "Informatie over cheerleading staat nu verspreid over losse clubsites, social media en federatie-agenda's. Ik breng het samen. Data wordt grotendeels automatisch verzameld en aangevuld met meldingen uit de community. Elke onzekere of gemelde toevoeging controleer ik handmatig voordat die online komt.",
     chipMap: "Kaart",
     chipAgenda: "Agenda",
     chipClubs: "Clubgids",
@@ -406,7 +405,7 @@ export const nl = {
       germanyWhen: "Later",
       selfServeTitle: "Clubs beheren zichzelf",
       selfServeBody:
-        "Clubeigenaren kunnen straks zelf hun clubgegevens, teams en evenementen bijwerken — direct, zonder tussenkomst van een redacteur.",
+        "Clubeigenaren kunnen straks zelf hun clubgegevens, teams en evenementen bijwerken, direct en zonder tussenkomst van een redacteur.",
       selfServeWhen: "Later",
       sourcesTitle: "Bronnenpagina",
       sourcesBody:
@@ -414,7 +413,7 @@ export const nl = {
       sourcesWhen: "Later",
       rulesAiTitle: "Regels-assistent",
       rulesAiBody:
-        "Een Google NotebookLM gevuld met de officiële cheerleadingreglementen, zodat je gewoon een vraag kunt stellen — “mag deze stunt in level 3?” — en meteen antwoord krijgt, met verwijzing naar de bron.",
+        "Een Google NotebookLM gevuld met de officiële cheerleadingreglementen, zodat je een vraag als “mag deze stunt in level 3?” kunt stellen en meteen antwoord krijgt, met verwijzing naar de bron.",
       rulesAiWhen: "Later",
       teamClassTitle: "Betere teamindeling",
       teamClassBody:
@@ -427,13 +426,11 @@ export const nl = {
     },
     csnHeading: "Over Cheersport Netherlands",
     csnBody1:
-      "Cheersport Netherlands (CSN) is de nationale cheerleadingfederatie van Nederland. CSN zet zich in om cheerleading in het hele land te laten groeien vanuit een visie van samenwerking, opleiding en inclusiviteit. Samen met coaches, sporters, scholen en clubs werkt de federatie aan een sterke cheerleadinggemeenschap. CSN is gevestigd in Maastricht.",
-    csnBody2:
-      "Cheer News is gebouwd in naam van CSN, als publiek venster op de Nederlandse cheerscene.",
+      "Cheersport Netherlands (CSN) is de nationale cheerleadingfederatie van Nederland, gevestigd in Maastricht. Samen met coaches, sporters, scholen en clubs laat CSN cheerleading groeien vanuit samenwerking, opleiding en inclusiviteit.",
     csnVisit: "Bezoek cheersport.nl",
     tcnlHeading: "Over Team Cheerleading Nederland",
     tcnlBody1:
-      "Stichting Team Cheerleading Nederland (TCNL) is de organisatie achter de Nederlandse nationale teams — de Dutch Equipe — die ons land vertegenwoordigen op internationale wedstrijden zoals de ICU World Cheerleading Championships. Aangesteld door Cheersport Netherlands en volledig gedragen door vrijwilligers, regelt TCNL de landelijke trainingen, coaches, kleding, reizen en sponsoring rondom de nationale selectie. Team Cheer NL komt uit in de categorieën Coed, All Girl, Junior, Youth en Adaptive Abilities.",
+      "Stichting Team Cheerleading Nederland (TCNL) staat achter de nationale teams (de Dutch Equipe) die Nederland vertegenwoordigen op internationale wedstrijden zoals de ICU World Championships. Aangesteld door CSN en volledig gedragen door vrijwilligers, regelt TCNL de trainingen, coaches, kleding, reizen en sponsoring. Team Cheer NL komt uit in Coed, All Girl, Junior, Youth en Adaptive Abilities.",
     tcnlVisit: "Bezoek teamcheerleading.nl",
     ctaHeading: "Mis je iets?",
     ctaBody:
@@ -815,15 +812,14 @@ export const en = {
   about: {
     metaTitle: "About Cheer News",
     metaDescription:
-      "Cheer News brings all cheerleading in the Netherlands together in one place. An initiative built for Cheersport Netherlands (CSN), the national cheerleading federation.",
+      "Cheer News brings all cheerleading in the Netherlands together in one place: clubs, competitions, open gyms and training times on a map, agenda and club directory.",
     eyebrow: "About this project",
     heading: "All cheerleading in the Netherlands, in one place",
     introBefore:
-      "Cheer News is an open overview of the Dutch cheerleading world: clubs, competitions, open gyms and training times, brought together on a map, an agenda and a club directory. An initiative built for",
-    introCsn: "Cheersport Netherlands",
-    whatHeading: "What we build",
+      "Cheer News brings the Dutch cheerleading world together in one place: clubs, competitions, open gyms and training times, on a map, agenda and club directory. I built it because that information is currently scattered across club sites, socials and federation calendars.",
+    whatHeading: "What I'm building",
     whatBody:
-      "Information about cheerleading is currently scattered across separate club sites, social media and federation calendars. We bring it together. Data is mostly collected automatically and supplemented with reports from the community. Every uncertain or reported addition is checked by hand before it goes live.",
+      "Information about cheerleading is currently scattered across separate club sites, social media and federation calendars. I bring it together. Data is mostly collected automatically and supplemented with reports from the community. Every uncertain or reported addition I check by hand before it goes live.",
     chipMap: "Map",
     chipAgenda: "Agenda",
     chipClubs: "Club directory",
@@ -841,7 +837,7 @@ export const en = {
       germanyWhen: "Later",
       selfServeTitle: "Clubs manage themselves",
       selfServeBody:
-        "Club owners will be able to update their own club details, teams and events directly — without an editor in between.",
+        "Club owners will be able to update their own club details, teams and events directly, without an editor in between.",
       selfServeWhen: "Later",
       sourcesTitle: "Sources page",
       sourcesBody:
@@ -849,7 +845,7 @@ export const en = {
       sourcesWhen: "Later",
       rulesAiTitle: "Ask-the-rules assistant",
       rulesAiBody:
-        "A Google NotebookLM loaded with the official cheerleading rulebooks, so you can simply ask a question — “is this stunt allowed in level 3?” — and get an answer, with a reference back to the source.",
+        "A Google NotebookLM loaded with the official cheerleading rulebooks, so you can ask a question like “is this stunt allowed in level 3?” and get an answer, with a reference back to the source.",
       rulesAiWhen: "Later",
       teamClassTitle: "Better team classification",
       teamClassBody:
@@ -862,13 +858,11 @@ export const en = {
     },
     csnHeading: "About Cheersport Netherlands",
     csnBody1:
-      "Cheersport Netherlands (CSN) is the national cheerleading federation of the Netherlands. CSN works to grow cheerleading across the country from a vision of collaboration, education and inclusivity. Together with coaches, athletes, schools and clubs, the federation builds a strong cheerleading community. CSN is based in Maastricht.",
-    csnBody2:
-      "Cheer News is built in the name of CSN, as a public window on the Dutch cheer scene.",
+      "Cheersport Netherlands (CSN) is the national cheerleading federation of the Netherlands, based in Maastricht. Together with coaches, athletes, schools and clubs, it grows the sport from a vision of collaboration, education and inclusivity.",
     csnVisit: "Visit cheersport.nl",
     tcnlHeading: "About Team Cheerleading Nederland",
     tcnlBody1:
-      "Stichting Team Cheerleading Nederland (TCNL) is the organisation behind the national teams — the Dutch Equipe — that represent the country at international competitions such as the ICU World Cheerleading Championships. Appointed by Cheersport Netherlands and run entirely by volunteers, TCNL handles the nationwide training, coaching, apparel, travel and sponsorship around the national squad. Team Cheer NL competes in the Coed, All Girl, Junior, Youth and Adaptive Abilities categories.",
+      "Stichting Team Cheerleading Nederland (TCNL) is the body behind the national teams (the Dutch Equipe) that represent the country at international competitions such as the ICU World Championships. Appointed by CSN and run entirely by volunteers, it handles the training, coaching, apparel, travel and sponsorship. Team Cheer NL competes in Coed, All Girl, Junior, Youth and Adaptive Abilities.",
     tcnlVisit: "Visit teamcheerleading.nl",
     ctaHeading: "Missing something?",
     ctaBody:

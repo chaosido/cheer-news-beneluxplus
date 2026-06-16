@@ -434,20 +434,30 @@ function MapFocus({
     marker.setZIndexOffset(1000);
     prevVenue.current = marker;
 
-    const group = clusterRef.current;
-    const reveal = () => {
-      map.panTo([venue.lat, venue.lng], { animate: true });
-      marker.openPopup();
+    // Zoom IN to the venue, mirroring a club-less event row (see <FocusEvent>).
+    // Turnzalen are geographically isolated, so the cluster's unbury-zoom never
+    // kicks in — a plain panTo would leave the map at country zoom and feel like
+    // "nothing happened". After the fly settles, surface the pin (spiderfy if
+    // it's somehow still clustered) and open its popup.
+    const surface = () => {
+      map.off("moveend", surface);
+      const group = clusterRef.current;
+      if (
+        group &&
+        group.hasLayer(marker) &&
+        group.getVisibleParent(marker) !== marker
+      ) {
+        group.zoomToShowLayer(marker, () => marker.openPopup());
+      } else {
+        marker.openPopup();
+      }
     };
-    if (
-      group &&
-      group.hasLayer(marker) &&
-      group.getVisibleParent(marker) !== marker
-    ) {
-      group.zoomToShowLayer(marker, reveal); // buried → spider open, then popup
-    } else {
-      reveal();
-    }
+    const zoom = Math.max(map.getZoom(), FOCUS_MAX_ZOOM);
+    map.on("moveend", surface);
+    map.flyTo([venue.lat, venue.lng], zoom, { animate: true });
+    return () => {
+      map.off("moveend", surface);
+    };
   }, [selectedVenueId, venues, map, clusterRef, venueRefs]);
 
   return null;
