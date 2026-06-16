@@ -64,6 +64,16 @@ interface CalendarProps {
    * to, so it stays non-interactive.
    */
   pinnableItemIds?: Set<string>;
+  /**
+   * Venue channel for club-independent open-gym rows (`item.venueId`). Mirrors
+   * the club channel: hovering/clicking such a row reveals + highlights the
+   * venue's pin on the map (which lives inside the cluster, like a club's). All
+   * rows sharing a venue light up together, just like a club's rows do.
+   */
+  hoveredVenueId?: string | null;
+  selectedVenueId?: string | null;
+  onHoverVenue?: (id: string | null) => void;
+  onSelectVenue?: (id: string | null) => void;
   /** clubId → display name, for the club line (events may not embed it). */
   clubNames?: Record<string, string>;
 }
@@ -88,6 +98,10 @@ export function Calendar({
   selectedItemId,
   onSelectItem,
   pinnableItemIds,
+  hoveredVenueId,
+  selectedVenueId,
+  onHoverVenue,
+  onSelectVenue,
   clubNames,
 }: CalendarProps) {
   const { t, locale } = useI18n();
@@ -113,6 +127,8 @@ export function Calendar({
   );
 
   const focusId = selectedClubId ?? hoveredClubId;
+  // Venue analogue of `focusId`: a selected venue wins over a hovered one.
+  const venueFocusId = selectedVenueId ?? hoveredVenueId ?? null;
 
   if (groups.length === 0) {
     return (
@@ -158,6 +174,9 @@ export function Calendar({
                   selectedItemId={selectedItemId}
                   onSelectItem={onSelectItem}
                   pinnable={pinnableItemIds?.has(row.item.id) ?? false}
+                  venueFocusId={venueFocusId}
+                  onHoverVenue={onHoverVenue}
+                  onSelectVenue={onSelectVenue}
                 />
               ))}
             </ul>
@@ -187,6 +206,9 @@ function AgendaRowItem({
   selectedItemId,
   onSelectItem,
   pinnable,
+  venueFocusId,
+  onHoverVenue,
+  onSelectVenue,
 }: {
   row: AgendaRow;
   focusId: string | null;
@@ -199,6 +221,10 @@ function AgendaRowItem({
   onSelectItem?: (id: string | null) => void;
   /** This item has its own map pin (club-less located event/coach). */
   pinnable?: boolean;
+  /** The venue currently focused (selected ?? hovered), for venue open-gym rows. */
+  venueFocusId?: string | null;
+  onHoverVenue?: (id: string | null) => void;
+  onSelectVenue?: (id: string | null) => void;
 }) {
   const { item } = row;
   const color = EVENT_TYPE_COLOR[item.type];
@@ -206,9 +232,14 @@ function AgendaRowItem({
   // rows) highlights EVERY row that belongs to it — so all of a club's open-gym
   // occurrences light up together, not just the hovered/clicked one. A club-less
   // pin row is its own thing, so it highlights only when it's the selected item.
-  const dimmed = focusId != null && item.clubId !== focusId;
+  // A club focus dims rows of other clubs; a venue focus dims rows of other
+  // venues. (Club and venue focus are mutually exclusive — at most one is set.)
+  const dimmed =
+    (focusId != null && item.clubId !== focusId) ||
+    (venueFocusId != null && item.venueId !== venueFocusId);
   const focused =
     (focusId != null && item.clubId === focusId) ||
+    (venueFocusId != null && item.venueId === venueFocusId) ||
     (selectedItemId != null && selectedItemId === item.id);
 
   const clubName =
@@ -220,9 +251,13 @@ function AgendaRowItem({
   // (onSelectItem). The trailing link (if the item has a url) is the ONLY thing
   // that navigates away; splitting them lets a click reveal the pin without
   // leaving the page, and keeps the <a> out of the <button> (invalid).
-  const canFocus = Boolean(item.clubId) || Boolean(pinnable);
-  const focusItem = () =>
-    item.clubId ? onSelect(item.clubId) : onSelectItem?.(item.id);
+  const canFocus =
+    Boolean(item.clubId) || Boolean(item.venueId) || Boolean(pinnable);
+  const focusItem = () => {
+    if (item.clubId) onSelect(item.clubId);
+    else if (item.venueId) onSelectVenue?.(item.venueId);
+    else onSelectItem?.(item.id);
+  };
   const linkHref = item.url;
   const linkIsInternal = linkHref?.startsWith("/") ?? false;
 
@@ -306,10 +341,14 @@ function AgendaRowItem({
     <li
       onMouseEnter={() => {
         onHover(item.clubId);
-        onHoverItem?.(item.id);
+        // A venue open-gym row drives the venue channel; any other club-less row
+        // (located event/coach) drives the item channel. Club rows do neither.
+        if (item.venueId) onHoverVenue?.(item.venueId);
+        else onHoverItem?.(item.id);
       }}
       onMouseLeave={() => {
         onHover(null);
+        onHoverVenue?.(null);
         onHoverItem?.(null);
       }}
       className={rowClass}

@@ -22,7 +22,7 @@
  * restyle the matching marker. Selecting a club (here or from the agenda) flies
  * the camera to that pin's spread position; hover never moves the camera.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
@@ -305,60 +305,151 @@ function clusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   });
 }
 
+/** HTML-escape text before injecting it into an imperative Leaflet tooltip. */
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"]/g, (c) =>
+    c === "&" ? "&amp;" : c === "<" ? "&lt;" : c === ">" ? "&gt;" : "&quot;",
+  );
+}
+
+/** Name + city markup mirroring the `cheer-tooltip` React label. */
+function pinTooltipHtml(name: string, city: string | null): string {
+  const cityHtml = city
+    ? `<span class="cheer-tooltip-city">${escapeHtml(city)}</span>`
+    : "";
+  return `${escapeHtml(name)}${cityHtml}`;
+}
+
 /**
- * Surfaces a club focused from OUTSIDE the map (an agenda row), so its
- * highlighted pin is actually visible instead of being hidden inside a pink
- * cluster badge.
+ * Imperative highlight + reveal driver for clustered pins (clubs and venues).
  *
- * Two intents, handled differently to avoid the camera jumping on every hover:
- *  - SELECTION (click): pan to the pin, and reveal it (zoom/spiderfy) if buried.
- *  - HOVER: reveal ONLY when the pin is buried in a cluster — zoom in as far as
- *    `zoomToShowLayer` needs so the individual pin (and its highlight) appears.
- *    When the pin is already an individual marker, do nothing (the highlight is
- *    already visible; moving the camera on hover would be jarring).
+ * WHY IMPERATIVE: the cluster subtree is memoized so it never re-renders — that
+ * is what stops an open spider from collapsing (react-leaflet-cluster rebuilds
+ * all layers on any child change). Per-pin focus visuals therefore can't be
+ * React props; we apply them straight onto the Leaflet markers via the ref maps.
  *
- * We deliberately do NOT clamp the reveal zoom: clamping could stop short and
- * leave the pin still clustered, defeating the whole point. `zoomToShowLayer`
- * only zooms as far as needed (and spiderfies same-coordinate stacks), so it
- * won't overshoot.
+ * For the active pin of each kind (a click/selection wins over a hover):
+ *  - CLUB: swap to the hover/selected icon, raise it, show a permanent name
+ *    tooltip, and on selection open its popup.
+ *  - VENUE (club-independent open gym): no icon variants, so reveal it and, on
+ *    selection, open its popup — the "spider opens + the gym is highlighted"
+ *    behaviour these rows were missing.
+ *
+ * If the pin is buried in a cluster, `zoomToShowLayer` zooms/spiderfies until it
+ * surfaces first (we never clamp the zoom — that could stop short and leave it
+ * clustered). HOVER only surfaces/zooms when buried; SELECTION also pans + opens
+ * the popup. The previously-active pin of each kind is reverted before the next.
  */
-function FocusHighlight({
-  selectedId,
-  hoveredId,
+function MapFocus({
+  selectedClubId,
+  hoveredClubId,
+  selectedVenueId,
+  hoveredVenueId,
   clubs,
+  venues,
   clusterRef,
   markerRefs,
+  venueRefs,
+  icons,
 }: {
-  selectedId: string | null;
-  hoveredId: string | null;
+  selectedClubId: string | null;
+  hoveredClubId: string | null;
+  selectedVenueId: string | null;
+  hoveredVenueId: string | null;
   clubs: MapClub[];
+  venues: MapVenue[];
   clusterRef: React.RefObject<L.MarkerClusterGroup | null>;
   markerRefs: React.RefObject<globalThis.Map<string, L.Marker>>;
+  venueRefs: React.RefObject<globalThis.Map<string, L.Marker>>;
+  icons: { default: L.DivIcon; hover: L.DivIcon; selected: L.DivIcon };
 }) {
   const map = useMap();
-  const focusId = selectedId ?? hoveredId;
-  const isSelection = selectedId != null;
+  const prevClub = useRef<L.Marker | null>(null);
+  const prevVenue = useRef<L.Marker | null>(null);
+
+  // --- Clubs ---
+  const clubFocus = selectedClubId ?? hoveredClubId;
+  const clubIsSelection = selectedClubId != null;
   useEffect(() => {
-    if (!focusId) return;
-    const club = clubs.find((c) => c.id === focusId);
-    if (!club) return;
-    const group = clusterRef.current;
-    const marker = markerRefs.current.get(focusId);
-    if (group && marker && group.hasLayer(marker)) {
-      if (group.getVisibleParent(marker) === marker) {
-        // Already an individual pin → highlight is visible. Pan only on a click.
-        if (isSelection) map.panTo([club.lat, club.lng], { animate: true });
-        return;
-      }
-      // Buried in a cluster → zoom/spiderfy until the pin surfaces so its
-      // highlight shows. Pan to it afterward only when this was a click.
-      group.zoomToShowLayer(marker, () => {
-        if (isSelection) map.panTo([club.lat, club.lng], { animate: true });
-      });
-      return;
+    // Revert the previously highlighted club to its resting state.
+    if (prevClub.current) {
+      prevClub.current.setIcon(icons.default);
+      prevClub.current.setZIndexOffset(0);
+      prevClub.current.unbindTooltip();
+      prevClub.current.closePopup();
+      prevClub.current = null;
     }
-    if (isSelection) map.panTo([club.lat, club.lng], { animate: true });
-  }, [focusId, isSelection, clubs, map, clusterRef, markerRefs]);
+    if (!clubFocus) return;
+    const club = clubs.find((c) => c.id === clubFocus);
+    const marker = markerRefs.current.get(clubFocus);
+    if (!club || !marker) return;
+
+    marker.setIcon(clubIsSelection ? icons.selected : icons.hover);
+    marker.setZIndexOffset(1000);
+    marker.bindTooltip(pinTooltipHtml(club.name, club.city), {
+      permanent: true,
+      direction: "top",
+      offset: [0, -28],
+      opacity: 1,
+      className: `cheer-tooltip${clubIsSelection ? " cheer-tooltip--selected" : ""}`,
+    });
+    marker.openTooltip();
+    prevClub.current = marker;
+
+    const group = clusterRef.current;
+    const reveal = () => {
+      marker.openTooltip();
+      if (clubIsSelection) {
+        map.panTo([club.lat, club.lng], { animate: true });
+        marker.openPopup();
+      }
+    };
+    if (
+      group &&
+      group.hasLayer(marker) &&
+      group.getVisibleParent(marker) !== marker
+    ) {
+      group.zoomToShowLayer(marker, reveal); // buried → surface, then highlight
+    } else {
+      reveal();
+    }
+  }, [clubFocus, clubIsSelection, clubs, icons, map, clusterRef, markerRefs]);
+
+  // --- Venues (club-independent open gyms) ---
+  const venueFocus = selectedVenueId ?? hoveredVenueId;
+  const venueIsSelection = selectedVenueId != null;
+  useEffect(() => {
+    if (prevVenue.current) {
+      prevVenue.current.setZIndexOffset(0);
+      prevVenue.current.closePopup();
+      prevVenue.current = null;
+    }
+    if (!venueFocus) return;
+    const venue = venues.find((v) => v.id === venueFocus);
+    const marker = venueRefs.current.get(venueFocus);
+    if (!venue || !marker) return;
+
+    marker.setZIndexOffset(1000);
+    prevVenue.current = marker;
+
+    const group = clusterRef.current;
+    const reveal = () => {
+      if (venueIsSelection) {
+        map.panTo([venue.lat, venue.lng], { animate: true });
+        marker.openPopup();
+      }
+    };
+    if (
+      group &&
+      group.hasLayer(marker) &&
+      group.getVisibleParent(marker) !== marker
+    ) {
+      group.zoomToShowLayer(marker, reveal);
+    } else {
+      reveal();
+    }
+  }, [venueFocus, venueIsSelection, venues, map, clusterRef, venueRefs]);
+
   return null;
 }
 
@@ -496,6 +587,16 @@ interface MapProps {
   selectedClubId: string | null;
   onHover: (id: string | null) => void;
   onSelect: (id: string | null) => void;
+  /**
+   * Venue channel — the club-independent open-gym pin currently hovered/selected
+   * from the agenda (or by clicking the pin itself). Venues live INSIDE the
+   * cluster like clubs, so they reveal via the same `zoomToShowLayer` machinery:
+   * hovering surfaces the buried pin, selecting also opens its popup.
+   */
+  hoveredVenueId?: string | null;
+  selectedVenueId?: string | null;
+  onHoverVenue?: (id: string | null) => void;
+  onSelectVenue?: (id: string | null) => void;
   /** Bumped by HomeView to trigger a reset to the whole-NL view. */
   resetSignal?: number;
 }
@@ -511,6 +612,10 @@ export default function Map({
   selectedClubId,
   onHover,
   onSelect,
+  hoveredVenueId = null,
+  selectedVenueId = null,
+  onHoverVenue,
+  onSelectVenue,
   resetSignal = 0,
 }: MapProps) {
   const { t, locale } = useI18n();
@@ -543,6 +648,16 @@ export default function Map({
   const markerRefs = useRef<globalThis.Map<string, L.Marker>>(
     new globalThis.Map(),
   );
+  // Venue marker handles, so MapFocus can reveal a buried open-gym pin the same
+  // way it reveals a buried club pin (zoomToShowLayer → spiderfy).
+  const venueRefs = useRef<globalThis.Map<string, L.Marker>>(
+    new globalThis.Map(),
+  );
+  // Stable no-op fallbacks so the venue handlers are always referentially
+  // constant — the memoized cluster subtree below depends on them not changing.
+  const noop = useCallback(() => {}, []);
+  const handleHoverVenue = onHoverVenue ?? noop;
+  const handleSelectVenue = onSelectVenue ?? noop;
 
   // Just store the cluster group ref (FocusHighlight uses it to reveal a buried
   // pin). Cluster CLICKS use the library's default zoom-to-bounds — see the
@@ -582,6 +697,64 @@ export default function Map({
     [events, coaches, selectedEventId],
   );
 
+  // The cluster subtree is memoized on data + STABLE callbacks only — never on
+  // hover/selection. This is the crux of the spiderfy fix: react-leaflet-cluster
+  // tears down and rebuilds all its layers whenever its React children change,
+  // which collapses any open spider and drops buried pins before their popup can
+  // show. By keeping this element referentially constant across hover/select
+  // renders, the cluster is never reconciled, so a spider stays open and the
+  // imperative MapFocus driver can highlight/reveal pins in place. Markers carry
+  // only a constant default icon + an always-mounted popup; MapFocus swaps icons
+  // and opens popups/tooltips imperatively via the ref maps.
+  const clusterGroup = useMemo(
+    () => (
+      <MarkerClusterGroup
+        ref={setClusterGroup}
+        spiderfyOnMaxZoom
+        showCoverageOnHover={false}
+        spiderfyDistanceMultiplier={1.6}
+        maxClusterRadius={50}
+        chunkedLoading
+        iconCreateFunction={clusterIcon}
+      >
+        {clubs.map((club) => (
+          <ClubMarker
+            key={club.id}
+            club={club}
+            defaultIcon={icons.default}
+            onHover={onHover}
+            onSelect={onSelect}
+            markerRefs={markerRefs}
+            t={t}
+          />
+        ))}
+        {venues.map((venue) => (
+          <VenueMarker
+            key={venue.id}
+            venue={venue}
+            icon={venueMarkerIcon}
+            onHover={handleHoverVenue}
+            onSelect={handleSelectVenue}
+            venueRefs={venueRefs}
+            t={t}
+          />
+        ))}
+      </MarkerClusterGroup>
+    ),
+    [
+      clubs,
+      venues,
+      icons.default,
+      venueMarkerIcon,
+      onHover,
+      onSelect,
+      handleHoverVenue,
+      handleSelectVenue,
+      setClusterGroup,
+      t,
+    ],
+  );
+
   return (
     <>
       <style>{MAP_THEME_CSS}</style>
@@ -597,52 +770,28 @@ export default function Map({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <FocusHighlight
-          selectedId={selectedClubId}
-          hoveredId={hoveredClubId}
+        <MapFocus
+          selectedClubId={selectedClubId}
+          hoveredClubId={hoveredClubId}
+          selectedVenueId={selectedVenueId}
+          hoveredVenueId={hoveredVenueId}
           clubs={clubs}
+          venues={venues}
           clusterRef={clusterRef}
           markerRefs={markerRefs}
+          venueRefs={venueRefs}
+          icons={icons}
         />
         <ResetViewControl onSelect={onSelect} t={t} />
         <ResetView signal={resetSignal} />
 
-        {/* Pins merge into the accent count badge. Clicking a cluster ZOOMS in
-            to its bounds (the library default) so the members become individual,
-            reliably-clickable pins. We dropped the old in-place spiderfy: it fans
-            out at the current zoom but the transient spider collapses the moment
-            any hover re-renders the marker tree (a react-leaflet-cluster
-            rebuild), so reaching a leg felt broken. Genuinely coincident pins
-            (same coordinate, can't be split by zoom) still spiderfy at max zoom
-            via `spiderfyOnMaxZoom`. */}
-        <MarkerClusterGroup
-          ref={setClusterGroup}
-          spiderfyOnMaxZoom
-          showCoverageOnHover={false}
-          spiderfyDistanceMultiplier={1.6}
-          maxClusterRadius={50}
-          chunkedLoading
-          iconCreateFunction={clusterIcon}
-        >
-          {clubs.map((club) => (
-            <ClubMarker
-              key={club.id}
-              club={club}
-              icon={
-                icons[club.id === selectedClubId ? "selected" : "default"]
-              }
-              isSelected={club.id === selectedClubId}
-              isHovered={club.id === hoveredClubId}
-              onHover={onHover}
-              onSelect={onSelect}
-              markerRefs={markerRefs}
-              t={t}
-            />
-          ))}
-          {venues.map((venue) => (
-            <VenueMarker key={venue.id} venue={venue} icon={venueMarkerIcon} t={t} />
-          ))}
-        </MarkerClusterGroup>
+        {/* Pins merge into the accent count badge. Clicking a cluster ZOOMS to
+            its bounds (library default) so members become individual pins;
+            genuinely coincident pins spiderfy at max zoom. The subtree is
+            memoized (see `clusterGroup`) so hover/selection never rebuilds it —
+            that rebuild is what used to collapse an open spider. Highlighting and
+            reveal are done imperatively by <MapFocus> above. */}
+        {clusterGroup}
 
         {/* Hover-revealed event / coach pin. Rendered OUTSIDE the cluster group
             (so a single pin can't be swallowed into a count badge) and only
@@ -677,17 +826,52 @@ function formatSlot(s: MapVenue["sessions"][number], t: Dictionary): string {
   return `${weekday} · ${s.startTime} – ${s.endTime}`;
 }
 
-function VenueMarker({
+/**
+ * A club-independent open-gym venue pin. Like <ClubMarker> it is stable +
+ * memoized (constant icon, always-mounted popup, an always-mounted native-hover
+ * tooltip) so it never rebuilds the cluster. It registers its handle in
+ * `venueRefs` so <MapFocus> can reveal it (zoomToShowLayer → spiderfy) and open
+ * its popup when its agenda row is clicked, and reports its own hover/click so
+ * the agenda row stays in sync.
+ */
+const VenueMarker = memo(function VenueMarker({
   venue,
   icon,
+  onHover,
+  onSelect,
+  venueRefs,
   t,
 }: {
   venue: MapVenue;
   icon: L.DivIcon;
+  onHover: (id: string | null) => void;
+  onSelect: (id: string | null) => void;
+  venueRefs: React.RefObject<globalThis.Map<string, L.Marker>>;
   t: Dictionary;
 }) {
+  const markerRef = useRef<L.Marker>(null);
+
+  useEffect(() => {
+    const refs = venueRefs.current;
+    const marker = markerRef.current;
+    if (marker) refs.set(venue.id, marker);
+    return () => {
+      refs.delete(venue.id);
+    };
+  }, [venue.id, venueRefs]);
+
   return (
-    <Marker position={[venue.lat, venue.lng]} icon={icon} riseOnHover>
+    <Marker
+      ref={markerRef}
+      position={[venue.lat, venue.lng]}
+      icon={icon}
+      riseOnHover
+      eventHandlers={{
+        mouseover: () => onHover(venue.id),
+        mouseout: () => onHover(null),
+        click: () => onSelect(venue.id),
+      }}
+    >
       <Tooltip
         direction="top"
         offset={[0, -16]}
@@ -743,7 +927,7 @@ function VenueMarker({
       </Popup>
     </Marker>
   );
-}
+});
 
 const TZ = "Europe/Amsterdam";
 
@@ -953,20 +1137,25 @@ function UserGlyph() {
 }
 
 
-function ClubMarker({
+/**
+ * A club pin. Deliberately STABLE: its rendered tree never changes with
+ * hover/selection (constant `defaultIcon`, an always-mounted popup, no
+ * conditional tooltip) and it's wrapped in `React.memo`. That stability is what
+ * lets the parent memoize the whole cluster subtree, so hovering/selecting never
+ * rebuilds the cluster (which would collapse an open spider). All focus visuals
+ * — icon swap, name tooltip, opening the popup — are applied imperatively by
+ * <MapFocus> through the registered marker handle.
+ */
+const ClubMarker = memo(function ClubMarker({
   club,
-  icon,
-  isSelected,
-  isHovered,
+  defaultIcon,
   onHover,
   onSelect,
   markerRefs,
   t,
 }: {
   club: MapClub;
-  icon: L.DivIcon;
-  isSelected: boolean;
-  isHovered: boolean;
+  defaultIcon: L.DivIcon;
   onHover: (id: string | null) => void;
   onSelect: (id: string | null) => void;
   markerRefs: React.RefObject<globalThis.Map<string, L.Marker>>;
@@ -974,14 +1163,8 @@ function ClubMarker({
 }) {
   const markerRef = useRef<L.Marker>(null);
 
-  // Leaflet doesn't re-key markers on icon prop change in react-leaflet v5
-  // reliably for divIcons, so set it imperatively when it changes.
-  useEffect(() => {
-    markerRef.current?.setIcon(icon);
-  }, [icon]);
-
-  // Register the marker handle so FocusHighlight can reveal it (zoomToShowLayer)
-  // when this club is selected from the agenda.
+  // Register the marker handle so <MapFocus> can highlight/reveal it imperatively
+  // (setIcon, openPopup, zoomToShowLayer) without re-rendering this component.
   useEffect(() => {
     const refs = markerRefs.current;
     const marker = markerRef.current;
@@ -990,12 +1173,6 @@ function ClubMarker({
       refs.delete(club.id);
     };
   }, [club.id, markerRefs]);
-
-  // Open the popup when the club becomes selected (e.g. from the agenda); a
-  // direct pin click opens it via Leaflet's default behaviour.
-  useEffect(() => {
-    if (isSelected) markerRef.current?.openPopup();
-  }, [isSelected]);
 
   // Re-validate each href against the http(s) allowlist (defense-in-depth).
   const websiteUrl = safeUrl(club.websiteUrl);
@@ -1016,10 +1193,9 @@ function ClubMarker({
     <Marker
       ref={markerRef}
       position={[club.lat, club.lng]}
-      icon={icon}
+      icon={defaultIcon}
       // Raise the hovered/selected pin above any neighbours it overlaps.
       riseOnHover
-      zIndexOffset={isSelected ? 1000 : 0}
       eventHandlers={{
         mouseover: () => onHover(club.id),
         mouseout: () => onHover(null),
@@ -1027,27 +1203,13 @@ function ClubMarker({
       }}
     >
       {/*
-        Club identity label. The label is shown (as a permanent tooltip) whenever
-        the club is hovered OR selected — driven by React state, not Leaflet's
-        own hover tooltip, so it reliably disappears on mouse-out (the old
-        hover tooltip could get stuck when the icon swapped). Keyed by state so
-        Leaflet rebuilds it with the right styling.
+        Popup is ALWAYS mounted (a closed popup is invisible) so this marker's
+        child tree never changes on selection — a changing tree would force the
+        cluster to rebuild and collapse any open spider. <MapFocus> opens it
+        imperatively; a direct pin click opens it via Leaflet's bound-popup
+        default. The hover/selected name label is a tooltip bound imperatively by
+        <MapFocus>, not a React child here, for the same stability reason.
       */}
-      {(isSelected || isHovered) && (
-        <Tooltip
-          key={isSelected ? "selected" : "hover"}
-          direction="top"
-          offset={[0, -28]}
-          opacity={1}
-          permanent
-          className={`cheer-tooltip${isSelected ? " cheer-tooltip--selected" : ""}`}
-        >
-          {club.name}
-          <span className="cheer-tooltip-city">{club.city}</span>
-        </Tooltip>
-      )}
-
-      {isSelected && (
       <Popup>
         <div className="flex min-w-48 flex-col gap-1">
           <span className="font-display text-sm font-bold text-[var(--ink)]">
@@ -1083,7 +1245,6 @@ function ClubMarker({
           )}
         </div>
       </Popup>
-      )}
     </Marker>
   );
-}
+});

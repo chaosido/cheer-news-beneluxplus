@@ -19,7 +19,7 @@
  * The map is dynamically imported with `{ ssr: false }` because Leaflet needs
  * `window`.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { Map as MapIcon, CalendarDays, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/Calendar";
@@ -84,6 +84,11 @@ export function HomeView({
   // Clicking such a row zooms the map to its pin and keeps it shown. Mutually
   // exclusive with `selectedClubId` — selecting one clears the other.
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  // Club-independent open-gym venues live INSIDE the map cluster (like clubs),
+  // so they get their own hover/select channel: hovering/clicking a venue open-
+  // gym row reveals (spiders open) and highlights its buried pin via <MapFocus>.
+  const [hoveredVenueId, setHoveredVenueId] = useState<string | null>(null);
+  const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null);
   const [tab, setTab] = useState<"map" | "calendar">("map");
   // Bumped to tell <Map> to recenter on the whole country.
   const [resetSignal, setResetSignal] = useState(0);
@@ -96,6 +101,8 @@ export function HomeView({
       setHoveredClubId(null);
       setHoveredItemId(null);
       setSelectedItemId(null);
+      setHoveredVenueId(null);
+      setSelectedVenueId(null);
       setFilters((f) => ({ ...f, province: null }));
       setResetSignal((n) => n + 1);
     }
@@ -167,19 +174,32 @@ export function HomeView({
     [events, coaches],
   );
 
-  // Toggle selection off when clicking the already-selected club. Selecting a
-  // club clears any club-less item selection (one sticky pick at a time).
-  function handleSelect(id: string | null) {
+  // Toggle selection off when clicking the already-selected club. Only one
+  // sticky pick at a time, so selecting a club clears any item/venue selection.
+  // `useCallback` keeps these referentially stable — the Map memoizes its whole
+  // cluster subtree on these callbacks, and a new identity each render would
+  // rebuild the cluster and collapse any open spider.
+  const handleSelect = useCallback((id: string | null) => {
     setSelectedClubId((prev) => (prev === id ? null : id));
     setSelectedItemId(null);
-  }
+    setSelectedVenueId(null);
+  }, []);
 
   // Select a club-less item (its own pin) → the map zooms to it. Toggles off on
-  // re-click, and clears any club selection.
-  function handleSelectItem(id: string | null) {
+  // re-click, and clears any club/venue selection.
+  const handleSelectItem = useCallback((id: string | null) => {
     setSelectedItemId((prev) => (prev === id ? null : id));
     setSelectedClubId(null);
-  }
+    setSelectedVenueId(null);
+  }, []);
+
+  // Select a club-independent open-gym venue → <MapFocus> spiders its cluster
+  // open and opens its popup. Toggles off on re-click; clears club/item picks.
+  const handleSelectVenue = useCallback((id: string | null) => {
+    setSelectedVenueId((prev) => (prev === id ? null : id));
+    setSelectedClubId(null);
+    setSelectedItemId(null);
+  }, []);
 
   const hasClubs = clubs.length > 0;
   const hasVenues = venues.length > 0;
@@ -200,6 +220,10 @@ export function HomeView({
         selectedClubId={selectedClubId}
         onHover={setHoveredClubId}
         onSelect={handleSelect}
+        hoveredVenueId={hoveredVenueId}
+        selectedVenueId={selectedVenueId}
+        onHoverVenue={setHoveredVenueId}
+        onSelectVenue={handleSelectVenue}
         resetSignal={resetSignal}
       />
     ) : (
@@ -230,6 +254,10 @@ export function HomeView({
           selectedItemId={selectedItemId}
           onSelectItem={handleSelectItem}
           pinnableItemIds={pinnableItemIds}
+          hoveredVenueId={hoveredVenueId}
+          selectedVenueId={selectedVenueId}
+          onHoverVenue={setHoveredVenueId}
+          onSelectVenue={handleSelectVenue}
         />
       </div>
     </div>
