@@ -53,6 +53,14 @@ env:
     value: wonnink.jesse@gmail.com
     availability:
       - RUNTIME
+  # Content-Security-Policy rollout switch (read by proxy.ts):
+  #   report-only → browser logs violations, blocks nothing (start here)
+  #   enforce     → policy is enforced (flip after the report-only soak is clean)
+  #   off         → no CSP header
+  - variable: CSP_MODE
+    value: report-only
+    availability:
+      - RUNTIME
   # Server-only secrets (create with: firebase apphosting:secrets:set <name>).
   # IP pseudonymization salt — REQUIRED in production (the submit endpoint
   # throws without it). Create with a random 32-byte value:

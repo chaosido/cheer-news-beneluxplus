@@ -1,9 +1,10 @@
 name: CI
 
 # Quality gate for every PR and pushes to the long-lived branches.
-# Hard gates (fail the run): lint, typecheck, test.
-# Informational (continue-on-error): format drift, npm audit, next build —
-# these are signal without blocking merges while the repo is being cleaned up.
+# Hard gates (fail the run): lint, typecheck, test, dependency audit (high+),
+# secret scan (gitleaks).
+# Informational (continue-on-error): format drift, next build — signal without
+# blocking merges while the repo is being cleaned up.
 on:
   pull_request:
   push:
@@ -48,12 +49,31 @@ jobs:
         run: npm run format:check
         continue-on-error: true
 
-      - name: Dependency audit
-        run: npm audit --audit-level=high
-        continue-on-error: true
-
       - name: Build
         run: npm run build
         continue-on-error: true
         env:
           NEXT_TELEMETRY_DISABLED: "1"
+
+      # --- Hard gate: dependency audit --------------------------------------
+      # Fails the run on high/critical advisories. Moderate and below stay
+      # informational. If a fix isn't yet available upstream, triage with
+      # `npm audit` locally and add a scoped allowance rather than reverting
+      # this gate.
+      - name: Dependency audit
+        run: npm audit --audit-level=high
+
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          # Full history so gitleaks scans every commit, not just the tip.
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
