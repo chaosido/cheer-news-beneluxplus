@@ -21,6 +21,7 @@ import {
   Layers,
   UserPlus,
   Sparkles,
+  Contact,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { getDictionary } from "@/lib/i18n/server";
@@ -73,6 +74,12 @@ export default async function AboutPage() {
       title: t.about.roadmap.teamClassTitle,
       body: t.about.roadmap.teamClassBody,
       when: t.about.roadmap.teamClassWhen,
+    },
+    {
+      icon: Contact,
+      title: t.about.roadmap.coachesTitle,
+      body: t.about.roadmap.coachesBody,
+      when: t.about.roadmap.coachesWhen,
     },
     {
       icon: UserPlus,
