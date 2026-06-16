@@ -391,25 +391,27 @@ function MapFocus({
       opacity: 1,
       className: `cheer-tooltip${clubIsSelection ? " cheer-tooltip--selected" : ""}`,
     });
-    marker.openTooltip();
     prevClub.current = marker;
 
     const group = clusterRef.current;
-    const reveal = () => {
-      marker.openTooltip();
-      if (clubIsSelection) {
+    const buried = group
+      ? group.hasLayer(marker) && group.getVisibleParent(marker) !== marker
+      : false;
+
+    if (clubIsSelection) {
+      // A CLICK travels to the pin: reveal it (zoom/spiderfy if buried), then
+      // pan and open its popup.
+      const reveal = () => {
+        marker.openTooltip();
         map.panTo([club.lat, club.lng], { animate: true });
         marker.openPopup();
-      }
-    };
-    if (
-      group &&
-      group.hasLayer(marker) &&
-      group.getVisibleParent(marker) !== marker
-    ) {
-      group.zoomToShowLayer(marker, reveal); // buried → surface, then highlight
-    } else {
-      reveal();
+      };
+      if (buried && group) group.zoomToShowLayer(marker, reveal);
+      else reveal();
+    } else if (!buried) {
+      // HOVER only highlights — never moves the camera. A pin buried in a
+      // cluster stays put; its tooltip can't show until a click reveals it.
+      marker.openTooltip();
     }
   }, [clubFocus, clubIsSelection, clubs, icons, map, clusterRef, markerRefs]);
 
@@ -520,23 +522,6 @@ function ResetView({ signal }: { signal: number }) {
     }
     map.setView(NL_CENTER, NL_ZOOM, { animate: true });
   }, [signal, map]);
-  return null;
-}
-
-/**
- * Pans to a hover-revealed event/coach pin ONLY when it sits outside the current
- * view, so the revealed pin is always visible without yanking the camera around
- * for pins already on screen. Zoom is never changed (a calm nudge, not a fly-in).
- */
-function RevealPan({ point }: { point: { lat: number; lng: number } | null }) {
-  const map = useMap();
-  const lat = point?.lat ?? null;
-  const lng = point?.lng ?? null;
-  useEffect(() => {
-    if (lat == null || lng == null) return;
-    if (map.getBounds().contains([lat, lng])) return;
-    map.panTo([lat, lng], { animate: true });
-  }, [lat, lng, map]);
   return null;
 }
 
@@ -677,15 +662,8 @@ export default function Map({
     [coaches, activeEventId],
   );
 
-  // Hovered point → gentle pan-if-offscreen (no zoom). Selected point → zoom-in
-  // fly (matches clicking a club). Looked up across events + coaches by id.
-  const hoveredPoint = useMemo(
-    () =>
-      events.find((e) => e.id === hoveredEventId) ??
-      coaches.find((c) => c.id === hoveredEventId) ??
-      null,
-    [events, coaches, hoveredEventId],
-  );
+  // Selected point → zoom-in fly (matches clicking a club). Looked up across
+  // events + coaches by id. Hover never moves the camera — see <FocusEvent>.
   const selectedPoint = useMemo(
     () =>
       events.find((e) => e.id === selectedEventId) ??
@@ -808,8 +786,7 @@ export default function Map({
             locale={locale}
           />
         )}
-        {/* Hover pans only if off-screen (calm preview); a click zooms in. */}
-        <RevealPan point={hoveredPoint} />
+        {/* Camera only moves on a click; hovering just reveals the pin in place. */}
         <FocusEvent point={selectedPoint} />
       </MapContainer>
     </>
