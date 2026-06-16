@@ -334,6 +334,7 @@ function pinTooltipHtml(name: string, city: string | null): string {
 function MapFocus({
   selectedClubId,
   hoveredClubId,
+  hoveredVenueId,
   selectedVenueId,
   clubs,
   venues,
@@ -344,6 +345,7 @@ function MapFocus({
 }: {
   selectedClubId: string | null;
   hoveredClubId: string | null;
+  hoveredVenueId: string | null;
   selectedVenueId: string | null;
   clubs: MapClub[];
   venues: MapVenue[];
@@ -408,49 +410,56 @@ function MapFocus({
   }, [clubFocus, clubIsSelection, clubs, icons, map, clusterRef, markerRefs]);
 
   // --- Venues (club-independent open gyms) ---
-  // Unlike clubs, a venue reveals ONLY on a click (selection), never on hover —
-  // hovering a gym row should not move the camera, just highlight the row (the
-  // Calendar handles that via `venueFocusId`). So this keys on `selectedVenueId`
-  // alone and ignores the hover channel.
+  // Venues live INSIDE the cluster exactly like clubs (they hide under the count
+  // badge when zoomed out), so they follow the club pattern verbatim: HOVER
+  // shows the name tag and highlights; a CLICK reveals the buried pin
+  // (zoomToShowLayer) or pans to a visible one, then opens its popup — never a
+  // bespoke zoom-to-max flyTo.
+  const venueFocus = selectedVenueId ?? hoveredVenueId;
+  const venueIsSelection = selectedVenueId != null;
   useEffect(() => {
     if (prevVenue.current) {
       prevVenue.current.setZIndexOffset(0);
+      prevVenue.current.unbindTooltip();
       prevVenue.current.closePopup();
       prevVenue.current = null;
     }
-    if (!selectedVenueId) return;
-    const venue = venues.find((v) => v.id === selectedVenueId);
-    const marker = venueRefs.current.get(selectedVenueId);
+    if (!venueFocus) return;
+    const venue = venues.find((v) => v.id === venueFocus);
+    const marker = venueRefs.current.get(venueFocus);
     if (!venue || !marker) return;
 
     marker.setZIndexOffset(1000);
     prevVenue.current = marker;
 
-    // Zoom IN to the venue, mirroring a club-less event row (see <FocusEvent>).
-    // Turnzalen are geographically isolated, so the cluster's unbury-zoom never
-    // kicks in — a plain panTo would leave the map at country zoom and feel like
-    // "nothing happened". After the fly settles, surface the pin (spiderfy if
-    // it's somehow still clustered) and open its popup.
-    const surface = () => {
-      map.off("moveend", surface);
-      const group = clusterRef.current;
-      if (
-        group &&
-        group.hasLayer(marker) &&
-        group.getVisibleParent(marker) !== marker
-      ) {
-        group.zoomToShowLayer(marker, () => marker.openPopup());
-      } else {
+    const group = clusterRef.current;
+    const buried = group
+      ? group.hasLayer(marker) && group.getVisibleParent(marker) !== marker
+      : false;
+
+    if (venueIsSelection) {
+      // A CLICK travels to the pin: reveal it (zoom/spiderfy if buried), then
+      // pan and open its popup. No name-tag tooltip — the popup carries the name.
+      const reveal = () => {
+        map.panTo([venue.lat, venue.lng], { animate: true });
         marker.openPopup();
-      }
-    };
-    const zoom = Math.max(map.getZoom(), FOCUS_MAX_ZOOM);
-    map.on("moveend", surface);
-    map.flyTo([venue.lat, venue.lng], zoom, { animate: true });
-    return () => {
-      map.off("moveend", surface);
-    };
-  }, [selectedVenueId, venues, map, clusterRef, venueRefs]);
+      };
+      if (buried && group) group.zoomToShowLayer(marker, reveal);
+      else reveal();
+    } else if (!buried) {
+      // HOVER shows the name-tag tooltip and highlights — never moves the
+      // camera. A pin buried in a cluster stays put; its tooltip can't show
+      // until a click reveals it.
+      marker.bindTooltip(pinTooltipHtml(venue.name, venue.city), {
+        permanent: true,
+        direction: "top",
+        offset: [0, -16],
+        opacity: 1,
+        className: "cheer-tooltip",
+      });
+      marker.openTooltip();
+    }
+  }, [venueFocus, venueIsSelection, venues, map, clusterRef, venueRefs]);
 
   return null;
 }
@@ -597,6 +606,7 @@ export default function Map({
   selectedClubId,
   onHover,
   onSelect,
+  hoveredVenueId = null,
   selectedVenueId = null,
   onHoverVenue,
   onSelectVenue,
@@ -663,6 +673,12 @@ export default function Map({
     () => coaches.find((c) => c.id === activeEventId) ?? null,
     [coaches, activeEventId],
   );
+  // Whether the shown pin is the CLICKED one (not just a hover preview), mirror
+  // of a club's `clubIsSelection`: a selection wins. Drives the hover-tag vs
+  // click-popup split on the event/coach marker (HOVER → name tag, CLICK →
+  // popup only).
+  const eventIsSelection =
+    selectedEventId != null && selectedEventId === activeEventId;
 
   // Selected point → zoom-in fly (matches clicking a club). Looked up across
   // events + coaches by id. Hover never moves the camera — see <FocusEvent>.
@@ -758,6 +774,7 @@ export default function Map({
         <MapFocus
           selectedClubId={selectedClubId}
           hoveredClubId={hoveredClubId}
+          hoveredVenueId={hoveredVenueId}
           selectedVenueId={selectedVenueId}
           clubs={clubs}
           venues={venues}
@@ -786,6 +803,7 @@ export default function Map({
             icon={eventIcons[activeEvent.type]}
             t={t}
             locale={locale}
+            selected={eventIsSelection}
           />
         )}
         {activeCoach && (
@@ -794,6 +812,7 @@ export default function Map({
             icon={coachMarkerIcon}
             t={t}
             locale={locale}
+            selected={eventIsSelection}
           />
         )}
         {/* Camera only moves on a click; hovering just reveals the pin in place. */}
@@ -855,16 +874,9 @@ const VenueMarker = memo(function VenueMarker({
         click: () => onSelect(venue.id),
       }}
     >
-      <Tooltip
-        direction="top"
-        offset={[0, -16]}
-        opacity={1}
-        className="cheer-tooltip"
-      >
-        {venue.name}
-        {venue.city && <span className="cheer-tooltip-city">{venue.city}</span>}
-      </Tooltip>
-
+      {/* No declarative tooltip: the hover name-tag is bound imperatively by
+          <MapFocus> (like <ClubMarker>), keeping this subtree constant so the
+          cluster never rebuilds and collapses an open spider. */}
       <Popup>
         <div className="flex min-w-52 flex-col gap-1">
           <span className="inline-flex items-center gap-1.5 font-display text-sm font-bold text-[var(--ink)]">
@@ -931,28 +943,48 @@ function EventMarker({
   icon,
   t,
   locale,
+  selected,
 }: {
   event: MapEvent;
   icon: L.DivIcon;
   t: Dictionary;
   locale: Locale;
+  /** True when the pin is the CLICKED row (popup), not a hover preview (tag). */
+  selected: boolean;
 }) {
+  const markerRef = useRef<L.Marker>(null);
+  // Click → open the popup (the camera is moved by <FocusEvent>); hover → leave
+  // the popup closed so only the name tag shows. Mirrors a club's behaviour.
+  useEffect(() => {
+    const marker = markerRef.current;
+    if (!marker) return;
+    if (selected) marker.openPopup();
+    else marker.closePopup();
+  }, [selected]);
   return (
-    <Marker position={[event.lat, event.lng]} icon={icon} riseOnHover>
-      {/* Permanent: the pin is revealed from an agenda-row hover, so the cursor
-          is on the agenda — a hover-only tooltip would never show. */}
-      <Tooltip
-        direction="top"
-        offset={[0, -14]}
-        opacity={1}
-        permanent
-        className="cheer-tooltip"
-      >
-        {event.title}
-        <span className="cheer-tooltip-city">{t.eventType[event.type]}</span>
-      </Tooltip>
+    <Marker
+      ref={markerRef}
+      position={[event.lat, event.lng]}
+      icon={icon}
+      riseOnHover
+    >
+      {/* HOVER name tag only. Permanent because the pin is revealed from an
+          agenda-row hover, so the cursor is on the agenda — a hover-only tooltip
+          would never show. On selection it's dropped so only the popup shows. */}
+      {!selected && (
+        <Tooltip
+          direction="top"
+          offset={[0, -14]}
+          opacity={1}
+          permanent
+          className="cheer-tooltip"
+        >
+          {event.title}
+          <span className="cheer-tooltip-city">{t.eventType[event.type]}</span>
+        </Tooltip>
+      )}
 
-      <Popup>
+      <Popup autoPan={false}>
         <div className="flex min-w-48 flex-col gap-1">
           <span className="font-display text-sm font-bold text-[var(--ink)]">
             {event.title}
@@ -1007,11 +1039,14 @@ function CoachMarker({
   icon,
   t,
   locale,
+  selected,
 }: {
   coach: MapCoach;
   icon: L.DivIcon;
   t: Dictionary;
   locale: Locale;
+  /** True when the pin is the CLICKED row (popup), not a hover preview (tag). */
+  selected: boolean;
 }) {
   // Icon-row contact links, mirroring ClubMarker's `socials` pattern. Network
   // names (Instagram/TikTok/…) are brand proper nouns; only Email/Phone are
@@ -1026,7 +1061,11 @@ function CoachMarker({
   if (coach.tiktokUrl)
     socials.push({ href: coach.tiktokUrl, label: "TikTok", Icon: Music2 });
   if (coach.facebookUrl)
-    socials.push({ href: coach.facebookUrl, label: "Facebook", Icon: Facebook as typeof Globe });
+    socials.push({
+      href: coach.facebookUrl,
+      label: "Facebook",
+      Icon: Facebook as typeof Globe,
+    });
   if (coach.websiteUrl)
     socials.push({ href: coach.websiteUrl, label: "Website", Icon: Globe });
   if (coach.contactEmail)
@@ -1042,21 +1081,38 @@ function CoachMarker({
       Icon: Phone,
     });
 
+  const markerRef = useRef<L.Marker>(null);
+  // Click → open the popup (the camera is moved by <FocusEvent>); hover → leave
+  // the popup closed so only the name tag shows. Mirrors a club's behaviour.
+  useEffect(() => {
+    const marker = markerRef.current;
+    if (!marker) return;
+    if (selected) marker.openPopup();
+    else marker.closePopup();
+  }, [selected]);
   return (
-    <Marker position={[coach.lat, coach.lng]} icon={icon} riseOnHover>
-      {/* Permanent: revealed from a hover elsewhere, so show the label at once. */}
-      <Tooltip
-        direction="top"
-        offset={[0, -30]}
-        opacity={1}
-        permanent
-        className="cheer-tooltip"
-      >
-        {coach.name}
-        <span className="cheer-tooltip-city">{coach.city}</span>
-      </Tooltip>
+    <Marker
+      ref={markerRef}
+      position={[coach.lat, coach.lng]}
+      icon={icon}
+      riseOnHover
+    >
+      {/* HOVER name tag only; revealed from a hover elsewhere so it's permanent.
+          On selection it's dropped so only the popup shows. */}
+      {!selected && (
+        <Tooltip
+          direction="top"
+          offset={[0, -30]}
+          opacity={1}
+          permanent
+          className="cheer-tooltip"
+        >
+          {coach.name}
+          <span className="cheer-tooltip-city">{coach.city}</span>
+        </Tooltip>
+      )}
 
-      <Popup>
+      <Popup autoPan={false}>
         <div className="flex min-w-48 flex-col gap-1">
           <span className="inline-flex items-center gap-1.5 font-display text-sm font-bold text-[var(--ink)]">
             <UserGlyph />
@@ -1119,7 +1175,6 @@ function UserGlyph() {
   );
 }
 
-
 /**
  * A club pin. Deliberately STABLE: its rendered tree never changes with
  * hover/selection (constant `defaultIcon`, an always-mounted popup, no
@@ -1168,7 +1223,11 @@ const ClubMarker = memo(function ClubMarker({
   if (instagramUrl)
     socials.push({ href: instagramUrl, label: "Instagram", Icon: AtSign });
   if (facebookUrl)
-    socials.push({ href: facebookUrl, label: "Facebook", Icon: Facebook as typeof Globe });
+    socials.push({
+      href: facebookUrl,
+      label: "Facebook",
+      Icon: Facebook as typeof Globe,
+    });
   if (tiktokUrl)
     socials.push({ href: tiktokUrl, label: "TikTok", Icon: Music2 });
 
