@@ -442,7 +442,7 @@ export const nl = {
       teamClassTitle: "Betere teamindeling",
       teamClassBody:
         "Een duidelijker classificatie van teams op niveau, divisie en leeftijdsgroep, zodat je clubs en wedstrijden preciezer kunt filteren en vergelijken.",
-      teamClassWhen: "Later",
+      teamClassWhen: "Geleverd",
       coachesTitle: "Uitgebreidere coachespagina",
       coachesBody:
         "De bestaande coachespagina verder uitbouwen voor de coaches die al bij clubs trainen: rijkere profielen met specialisaties en bij welke club ze coachen, zodat je makkelijker de juiste coach vindt.",
@@ -903,7 +903,7 @@ export const en = {
       teamClassTitle: "Better team classification",
       teamClassBody:
         "A clearer classification of teams by level, division and age group, so you can filter and compare clubs and competitions more precisely.",
-      teamClassWhen: "Later",
+      teamClassWhen: "Shipped",
       coachesTitle: "Expanded coaches page",
       coachesBody:
         "Building out the existing coaches page for the coaches already training at clubs: richer profiles with specialisms and which club they coach at, so you can find the right coach more easily.",
