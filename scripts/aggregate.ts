@@ -43,7 +43,7 @@ const MAX_LLM_CALLS = Number(process.env.MAX_LLM_CALLS_PER_RUN ?? 40);
 const PUBLISH_THRESHOLD = 0.85;
 const FETCH_TIMEOUT_MS = 20_000;
 const USER_AGENT =
-  "CheerNewsBeneluxPlus/1.0 (+https://cheer-news-beneluxplus.web.app; wonnink.jesse@gmail.com)";
+  "CheerNewsBeneluxPlus/1.0 (+https://cheer-news-beneluxplus--cheer-news-beneluxplus.europe-west4.hosted.app; wonnink.jesse@gmail.com)";
 
 interface RunStats {
   sources: number;

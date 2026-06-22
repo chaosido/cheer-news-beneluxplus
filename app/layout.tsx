@@ -30,7 +30,9 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s · Cheer News",
     },
     description: t.meta.description,
-    metadataBase: new URL("https://cheer-news-beneluxplus.web.app"),
+    metadataBase: new URL(
+      "https://cheer-news-beneluxplus--cheer-news-beneluxplus.europe-west4.hosted.app",
+    ),
   };
 }
 
