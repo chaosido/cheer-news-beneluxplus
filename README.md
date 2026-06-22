@@ -36,6 +36,60 @@ account. There is no public-read or anon-write surface.
 
 ## Local development
 
+### Using local firebase emulator
+Create and pupulate your `.env.local` file
+
+
+```
+GCP_PROJECT_ID=<PROJECT_ID>
+
+# Point both SDKs at the emulators
+FIRESTORE_EMULATOR_HOST=localhost:8080
+FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
+NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=http://localhost:9099
+
+# Dummy web config (Auth requires some value; the emulator ignores it)
+NEXT_PUBLIC_FIREBASE_API_KEY=demo
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=demo.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=demo.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=0
+NEXT_PUBLIC_FIREBASE_APP_ID=demo
+
+IP_HASH_SALT=local-dev-salt
+```
+
+
+Edit your `firebase.json` as below
+```json
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "auth":      { "port": 9099 },
+    "firestore": { "port": 8080 },
+    "ui":        { "enabled": true, "port": 4000 },
+    "singleProjectMode": true
+  }
+}
+```
+
+In a terminal start the emulator
+```bash
+firebase emulators:start --project <projectname>
+```
+
+In a seperate terminal start the app
+```bash
+npm install
+# Optional - seeds some test data to local firebase emulator
+FIRESTORE_EMULATOR_HOST=localhost:8080 GCP_PROJECT_ID=cheer-overview-site npx tsx scripts/seed-emulator.ts
+npm run dev
+```
+
+### Using your own firebase env
+
 ```bash
 npm install
 # .env.local holds Firebase config + GEMINI_API_KEY + GOOGLE_APPLICATION_CREDENTIALS
