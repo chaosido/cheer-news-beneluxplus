@@ -1,4 +1,7 @@
+import { BadgeCheck } from "lucide-react";
 import type { Coach } from "@/lib/types";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { Badge } from "@/components/ui/Badge";
 
 /** Up-to-two-letter initials from a person's name, for an avatar chip. */
 function initials(name: string): string {
@@ -13,10 +16,11 @@ function initials(name: string): string {
 
 /**
  * The club's coaching staff. Each coach is an initials avatar + name, with the
- * role as supporting text when known. Renders nothing for an empty roster — the
- * caller decides whether to show the surrounding section.
+ * role as supporting text when known and an ICU badge when certified. Renders
+ * nothing for an empty roster — the caller decides whether to show the
+ * surrounding section.
  */
-export function CoachList({ coaches }: { coaches: Coach[] }) {
+export function CoachList({ coaches, t }: { coaches: Coach[]; t: Dictionary }) {
   if (coaches.length === 0) return null;
 
   return (
@@ -30,9 +34,21 @@ export function CoachList({ coaches }: { coaches: Coach[] }) {
             {initials(coach.name)}
           </span>
           <div className="min-w-0">
-            <p className="truncate font-medium text-[var(--ink)]">
-              {coach.name}
-            </p>
+            <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+              <p className="truncate font-medium text-[var(--ink)]">
+                {coach.name}
+              </p>
+              {coach.icuCertified && (
+                <Badge
+                  className="shrink-0 gap-1 text-[var(--accent)]"
+                  title={t.club.icuCertified}
+                  aria-label={t.club.icuCertified}
+                >
+                  <BadgeCheck className="size-3.5" aria-hidden />
+                  ICU
+                </Badge>
+              )}
+            </div>
             {coach.role && (
               <p className="truncate text-sm text-[var(--muted)]">
                 {coach.role}

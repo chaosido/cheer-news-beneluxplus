@@ -7,6 +7,7 @@ import "server-only";
 import { Timestamp } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebaseAdmin";
 import type {
+  Coach,
   ClubClient,
   EventClient,
   OpenGymClient,
@@ -82,6 +83,17 @@ export function teamsToSummary(teams: Team[]): TeamSummary[] {
       division: t.division,
       ageGroup: t.ageGroup,
     }));
+}
+
+/**
+ * Whether a club has at least one ICU-certified coach.
+ *
+ * DERIVED, never stored — computed at read time from the club's `coaches`
+ * array so it can't drift. Backs the federation's "each club needs ≥1 ICU
+ * coach" rule (data-readiness for next season; surfaced, not enforced).
+ */
+export function clubHasIcuCoach(coaches: Coach[] | undefined): boolean {
+  return (coaches ?? []).some((c) => c.icuCertified === true);
 }
 
 export async function getClubs(): Promise<ClubClient[]> {
