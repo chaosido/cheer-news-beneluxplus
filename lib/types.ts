@@ -104,6 +104,12 @@ export interface TeamSummary {
 export interface Coach {
   name: string;
   role: string | null; // e.g. "Head Coach", "Tumbling Coach"
+  // ICU coach certification (data-readiness for the "≥1 ICU coach per club"
+  // rule that starts next season — tracked, not yet enforced). All optional so
+  // existing club docs stay valid; absent = not certified / unknown.
+  icuCertified?: boolean;
+  icuLevel?: string | null; // ICU coach credential level, free text (e.g. "Level 2")
+  icuExpiresAt?: string | null; // ISO date the cert lapses — kept for future enforcement
 }
 
 // ---- Clubs ----
@@ -229,6 +235,11 @@ export interface OpenGymBase {
   lat: number | null;
   lng: number | null;
   notes: string | null;
+  // Drop-in pricing for public open gyms. Only meaningful when
+  // `sessionType === "open_gym"` (team trainings never show a price).
+  // Optional + nullable so existing docs stay valid; absent/null = unknown.
+  price?: number | null; // EUROS as a decimal, e.g. 7.5 => €7,50; 0 = free
+  priceNote?: string | null; // free text, e.g. "gratis voor leden / €7,50 drop-in"
   origin: Origin;
   confidence: number;
   extractorVersion: number;

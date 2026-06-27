@@ -300,7 +300,7 @@ export default async function ClubProfilePage({
 
           {coaches.length > 0 && (
             <Section icon={Users} title={t.club.sectionCoaches}>
-              <CoachList coaches={coaches} />
+              <CoachList coaches={coaches} t={t} />
             </Section>
           )}
 
@@ -315,7 +315,7 @@ export default async function ClubProfilePage({
           </Section>
 
           <Section icon={DoorOpen} title={t.club.sectionOpenGyms}>
-            <OpenGymsList openGyms={openGyms} t={t} />
+            <OpenGymsList openGyms={openGyms} t={t} locale={locale} />
           </Section>
         </div>
 

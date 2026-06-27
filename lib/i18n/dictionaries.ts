@@ -245,22 +245,34 @@ export const nl = {
     otherTeam: "Overig",
     /** "Elke zaterdag" recurring-slot prefix */
     every: (weekday: string) => `Elke ${weekday.toLowerCase()}`,
+    /** Badge shown next to a coach with a valid ICU certification */
+    icuCertified: "ICU-gecertificeerd",
+    /** Open-gym price label when the session is free */
+    openGymFree: "Gratis",
   },
 
   // ---- Coaches directory ----
   coaches: {
-    metaTitle: "Gastcoaches",
+    metaTitle: "Coaches",
     metaDescription:
-      "Gast- en touring-coaches op bezoek in Nederland: zie waar en wanneer ze zijn en neem direct contact op.",
+      "Coaches van Nederlandse cheerleadingclubs en gast-/touring-coaches op bezoek: zie wie waar coacht en neem direct contact op.",
     heading: "Gastcoaches",
     introBefore:
-      "Gast- en touring-coaches op bezoek in Nederland. Zie waar en wanneer ze zijn en neem direct contact op. Zelf op bezoek?",
+      "Coaches van clubs in Nederland, plus gast- en touring-coaches op bezoek. Zelf op bezoek?",
     introLink: "Meld je verblijf aan",
     emptyTitle: "Nog geen gastcoaches",
     emptyHint:
       "Zodra een gastcoach zijn verblijf aanmeldt en het is goedgekeurd, verschijnt die hier.",
     /** "Vanaf 15 jun 2026" for an open-ended stay (coach card, long form) */
     fromDate: (date: string) => `Vanaf ${date}`,
+    /** Page H1 — now covers club coaches + visiting coaches */
+    pageHeading: "Coaches",
+    /** Section heading for the per-club coaching staff (primary section) */
+    clubCoachesHeading: "Clubcoaches",
+    /** Section heading for visiting/touring coaches (secondary section) */
+    visitingHeading: "Gastcoaches",
+    /** Club-level badge: this club has at least one ICU-certified coach */
+    clubHasIcuCoach: "Heeft ICU-coach",
   },
 
   // ---- Submit page + form ----
@@ -722,20 +734,26 @@ export const en = {
       "Weekly per-team training times will appear here as they are announced.",
     otherTeam: "Other",
     every: (weekday: string) => `Every ${weekday.toLowerCase()}`,
+    icuCertified: "ICU certified",
+    openGymFree: "Free",
   },
 
   coaches: {
-    metaTitle: "Visiting coaches",
+    metaTitle: "Coaches",
     metaDescription:
-      "Guest and touring coaches visiting the Netherlands: see where and when they are, and get in touch directly.",
+      "Coaches at Dutch cheerleading clubs plus guest/touring coaches visiting: see who coaches where, and get in touch directly.",
     heading: "Visiting coaches",
     introBefore:
-      "Guest and touring coaches visiting the Netherlands. See where and when they are, and reach out directly. Visiting yourself?",
+      "Coaches at clubs across the Netherlands, plus guest and touring coaches visiting. Visiting yourself?",
     introLink: "Submit your stay",
     emptyTitle: "No visiting coaches yet",
     emptyHint:
       "Once a guest coach submits their stay and it's approved, they'll appear here.",
     fromDate: (date: string) => `From ${date}`,
+    pageHeading: "Coaches",
+    clubCoachesHeading: "Club coaches",
+    visitingHeading: "Visiting coaches",
+    clubHasIcuCoach: "Has an ICU coach",
   },
 
   submit: {

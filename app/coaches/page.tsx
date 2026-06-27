@@ -1,10 +1,12 @@
 /**
- * Visiting coaches directory (Server Component).
+ * Coaches directory (Server Component).
  *
- * Lists guest/touring coaches who are currently in the country or arriving soon
- * (see `getPublishedVisitingCoaches`, which drops past stays), with their city,
- * dates, and contact handles so people can reach out directly. Firestore may be
- * empty/unreachable in dev, so the read is wrapped and degrades to an empty state.
+ * Two tiers: (1) the coaching staff of each club, grouped by club, as the
+ * primary section; (2) guest/touring coaches currently in the country or
+ * arriving soon (see `getPublishedVisitingCoaches`, which drops past stays),
+ * with city, dates, and contact handles so people can reach out directly.
+ * Firestore may be empty/unreachable in dev, so reads are wrapped and degrade
+ * to an empty state.
  */
 import type { Metadata } from "next";
 import {
@@ -15,10 +17,13 @@ import {
   Phone,
   MapPin,
   CalendarRange,
+  BadgeCheck,
   Users,
 } from "lucide-react";
-import { getPublishedVisitingCoaches } from "@/lib/queries";
-import type { VisitingCoachClient } from "@/lib/types";
+import { clubHasIcuCoach, getClubs, getPublishedVisitingCoaches } from "@/lib/queries";
+import type { ClubClient, VisitingCoachClient } from "@/lib/types";
+import { CoachList } from "@/components/clubs/CoachList";
+import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/home/EmptyState";
 import { dictionaryFor, getDictionary, getLocale } from "@/lib/i18n/server";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
@@ -74,19 +79,25 @@ function formatStay(
 export default async function CoachesPage() {
   const locale = await getLocale();
   const t = dictionaryFor(locale);
-  let coaches: VisitingCoachClient[] = [];
+  let clubs: ClubClient[] = [];
+  let visiting: VisitingCoachClient[] = [];
   try {
-    coaches = await getPublishedVisitingCoaches();
+    [clubs, visiting] = await Promise.all([
+      getClubs(),
+      getPublishedVisitingCoaches(),
+    ]);
   } catch (err) {
     console.error("[coaches] data load failed, rendering empty state:", err);
-    coaches = [];
   }
+
+  const clubsWithCoaches = clubs.filter((c) => (c.coaches ?? []).length > 0);
+  const isEmpty = clubsWithCoaches.length === 0 && visiting.length === 0;
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-10">
       <header className="mb-6 max-w-2xl">
         <h1 className="font-display text-3xl font-extrabold tracking-tight text-[var(--ink)] sm:text-4xl">
-          {t.coaches.heading}
+          {t.coaches.pageHeading}
         </h1>
         <p className="mt-2 text-[var(--muted)]">
           {t.coaches.introBefore}{" "}
@@ -100,18 +111,68 @@ export default async function CoachesPage() {
         </p>
       </header>
 
-      {coaches.length === 0 ? (
+      {isEmpty ? (
         <EmptyState
           icon={Users}
           title={t.coaches.emptyTitle}
           hint={t.coaches.emptyHint}
         />
       ) : (
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {coaches.map((coach) => (
-            <CoachCard key={coach.id} coach={coach} t={t} locale={locale} />
-          ))}
-        </ul>
+        <div className="flex flex-col gap-10">
+          {clubsWithCoaches.length > 0 && (
+            <section>
+              <h2 className="font-display text-xl font-bold text-[var(--ink)]">
+                {t.coaches.clubCoachesHeading}
+              </h2>
+              <div className="mt-4 flex flex-col gap-6">
+                {clubsWithCoaches.map((club) => (
+                  <div
+                    key={club.id}
+                    className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-5"
+                  >
+                    <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <a
+                        href={`/clubs/${club.slug}`}
+                        className="font-display text-lg font-bold text-[var(--ink)] hover:text-[var(--accent)]"
+                      >
+                        {club.name}
+                      </a>
+                      {clubHasIcuCoach(club.coaches) && (
+                        <Badge
+                          className="shrink-0 gap-1 text-[var(--accent)]"
+                          title={t.coaches.clubHasIcuCoach}
+                          aria-label={t.coaches.clubHasIcuCoach}
+                        >
+                          <BadgeCheck className="size-3.5" aria-hidden />
+                          ICU
+                        </Badge>
+                      )}
+                    </div>
+                    <CoachList coaches={club.coaches ?? []} t={t} />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {visiting.length > 0 && (
+            <section>
+              <h2 className="font-display text-xl font-bold text-[var(--ink)]">
+                {t.coaches.visitingHeading}
+              </h2>
+              <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {visiting.map((coach) => (
+                  <CoachCard
+                    key={coach.id}
+                    coach={coach}
+                    t={t}
+                    locale={locale}
+                  />
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
       )}
     </div>
   );
