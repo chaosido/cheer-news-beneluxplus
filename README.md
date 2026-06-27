@@ -1,6 +1,6 @@
 # Cheer News BeneluxPlus
 
-Eén open overzicht van alle cheerleading in Nederland — **clubs, wedstrijden, open gyms en
+Eén open overzicht van alle cheerleading — **clubs, wedstrijden, open gyms en
 trainingstijden** op één plek: een interactieve **kaart**, een **agenda** en een **clubgids**.
 Later uitbreidbaar naar België en het Ruhrgebied.
 

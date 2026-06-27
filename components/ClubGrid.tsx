@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { BadgeCheck, Search, SlidersHorizontal, X } from "lucide-react";
 import { ClubCard } from "@/components/ClubCard";
 import { EmptyState } from "@/components/home/EmptyState";
 import { Users } from "lucide-react";
@@ -38,6 +38,8 @@ export function ClubGrid({ clubs }: ClubGridProps) {
   const [division, setDivision] = useState<Division | "">("");
   const [age, setAge] = useState<AgeGroup | "">("");
   const [province, setProvince] = useState("");
+  // CSN-member clubs are the default base view; toggle off to show all clubs.
+  const [csnOnly, setCsnOnly] = useState(true);
 
   // Provinces present in the dataset, sorted NL-style for the dropdown.
   const provinces = useMemo(
@@ -57,6 +59,7 @@ export function ClubGrid({ clubs }: ClubGridProps) {
         const haystack = `${c.name} ${c.city}`.toLowerCase();
         if (!haystack.includes(q)) return false;
       }
+      if (csnOnly && !c.csnMember) return false;
       if (province && c.region !== province) return false;
       const summary = c.teamsSummary ?? [];
       if (level && !summary.some((t) => t.level === level)) return false;
@@ -74,7 +77,7 @@ export function ClubGrid({ clubs }: ClubGridProps) {
       if (age && !summary.some((t) => t.ageGroup === age)) return false;
       return true;
     });
-  }, [clubs, query, province, level, type, division, age]);
+  }, [clubs, query, province, level, type, division, age, csnOnly]);
 
   const hasActive =
     query !== "" ||
@@ -82,7 +85,9 @@ export function ClubGrid({ clubs }: ClubGridProps) {
     type !== "" ||
     division !== "" ||
     age !== "" ||
-    province !== "";
+    province !== "" ||
+    // CSN-only is the default; showing all clubs is the deviation.
+    !csnOnly;
 
   function reset() {
     setQuery("");
@@ -91,6 +96,7 @@ export function ClubGrid({ clubs }: ClubGridProps) {
     setDivision("");
     setAge("");
     setProvince("");
+    setCsnOnly(true);
   }
 
   return (
@@ -153,6 +159,21 @@ export function ClubGrid({ clubs }: ClubGridProps) {
           onChange={setProvince}
           options={provinces.map((p) => [p, p])}
         />
+
+        <button
+          type="button"
+          aria-pressed={csnOnly}
+          onClick={() => setCsnOnly((v) => !v)}
+          className={cn(
+            "inline-flex h-9 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors",
+            csnOnly
+              ? "border-transparent bg-[var(--accent)] text-[var(--accent-fg)]"
+              : "border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] hover:bg-[var(--surface-2)]",
+          )}
+        >
+          <BadgeCheck className="size-3.5" aria-hidden />
+          {t.clubs.csnMembersOnly}
+        </button>
 
         {hasActive && (
           <button

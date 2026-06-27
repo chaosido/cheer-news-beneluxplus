@@ -55,7 +55,8 @@ const EMPTY_FILTERS: HomeFilters = {
   province: null,
   from: null,
   to: null,
-  membersOnly: false,
+  // CSN-member clubs are the default base view; the toggle opts OUT to show all.
+  membersOnly: true,
 };
 
 export function HomeView({
@@ -117,6 +118,14 @@ export function HomeView({
     return map;
   }, [clubs]);
 
+  // Ids of CSN-member clubs, for scoping the "members only" base view. The CSN
+  // distinction applies to cheer clubs and their events only — open gyms (e.g.
+  // turn-hall venues) are neutral and always shown regardless of the toggle.
+  const csnClubIds = useMemo(
+    () => new Set(clubs.filter((c) => c.csnMember).map((c) => c.id)),
+    [clubs],
+  );
+
   // Provinces for the dropdown — union of club regions and item provinces.
   const provinces = useMemo(() => {
     const set = new Set<string>();
@@ -132,12 +141,22 @@ export function HomeView({
     return items.filter((it) => {
       if (filters.types.size > 0 && !filters.types.has(it.type)) return false;
       if (filters.province && it.province !== filters.province) return false;
+      // CSN base view: hide events tied to a non-CSN club. Open gyms are never
+      // affected (turn-hall sessions aren't a CSN matter), and club-less events
+      // (e.g. federation competitions) stay visible.
+      if (
+        filters.membersOnly &&
+        !it.isOpenGym &&
+        it.clubId &&
+        !csnClubIds.has(it.clubId)
+      )
+        return false;
       const d = dayKey(it.startsAt);
       if (filters.from && d < filters.from) return false;
       if (filters.to && d > filters.to) return false;
       return true;
     });
-  }, [items, filters]);
+  }, [items, filters, csnClubIds]);
 
   // Filter map pins to the province filter (event-type/date filters don't apply
   // to clubs/venues themselves, but the province filter does so the two panels

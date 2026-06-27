@@ -31,7 +31,7 @@ export const nl = {
     csnLogoAlt: "Cheersport Nederland",
   },
   footer: {
-    tagline: "Cheer News, een open overzicht van cheerleading in Nederland.",
+    tagline: "Cheer News, een open overzicht van cheerleading.",
     about: "Over",
     contribute: "Bijdragen",
     privacy: "Privacy",
@@ -162,8 +162,8 @@ export const nl = {
 
   // ---- Map: tooltips, popups, controls ----
   map: {
-    resetView: "Heel Nederland",
-    resetViewAria: "Toon heel Nederland",
+    resetView: "Hele kaart",
+    resetViewAria: "Toon de hele kaart",
     clusterItems: (count: number) => `${count} items`,
     openGymLocation: "Open gym locatie",
     openGym: "Open gym",
@@ -182,10 +182,10 @@ export const nl = {
   clubs: {
     metaTitle: "Clubgids",
     metaDescription:
-      "Alle cheerleadingclubs in Nederland: zoek op naam of plaats en filter op niveau, divisie en leeftijdscategorie.",
+      "Alle cheerleadingclubs: zoek op naam of plaats en filter op niveau, divisie en leeftijdscategorie.",
     heading: "Clubgids",
     intro:
-      "Vind cheerleadingclubs in heel Nederland. Zoek op naam of plaats en filter op niveau, divisie en leeftijdscategorie.",
+      "Vind cheerleadingclubs. Zoek op naam of plaats en filter op niveau, divisie en leeftijdscategorie.",
     searchPlaceholder: "Zoek op clubnaam of plaats…",
     searchAria: "Zoek clubs",
     filter: "Filter",
@@ -209,6 +209,7 @@ export const nl = {
     csnMember: "CSN-lid",
     /** tooltip/aria for the CSN member badge */
     csnMemberAria: "Lid van Cheersport Nederland",
+    csnMembersOnly: "Alleen CSN-leden",
   },
 
   // ---- Club profile ----
@@ -255,10 +256,10 @@ export const nl = {
   coaches: {
     metaTitle: "Coaches",
     metaDescription:
-      "Coaches van Nederlandse cheerleadingclubs en gast-/touring-coaches op bezoek: zie wie waar coacht en neem direct contact op.",
+      "Coaches van cheerleadingclubs en gast-/touring-coaches op bezoek: zie wie waar coacht en neem direct contact op.",
     heading: "Gastcoaches",
     introBefore:
-      "Coaches van clubs in Nederland, plus gast- en touring-coaches op bezoek. Zelf op bezoek?",
+      "Coaches van clubs, plus gast- en touring-coaches op bezoek. Zelf op bezoek?",
     introLink: "Meld je verblijf aan",
     emptyTitle: "Nog geen gastcoaches",
     emptyHint:
@@ -422,11 +423,11 @@ export const nl = {
   about: {
     metaTitle: "Over Cheer News",
     metaDescription:
-      "Cheer News brengt alle cheerleading in Nederland samen op één plek: clubs, wedstrijden, open gyms en trainingstijden op een kaart, agenda en clubgids.",
+      "Cheer News brengt alle cheerleading samen op één plek: clubs, wedstrijden, open gyms en trainingstijden op een kaart, agenda en clubgids.",
     eyebrow: "Over dit project",
-    heading: "Alle cheerleading in Nederland, op één plek",
+    heading: "Alle cheerleading, op één plek",
     introBefore:
-      "Cheer News brengt de Nederlandse cheerleadingwereld samen op één plek: clubs, wedstrijden, open gyms en trainingstijden, op een kaart, agenda en clubgids. Ik heb het gemaakt omdat die informatie nu verspreid staat over clubsites, socials en federatie-agenda's.",
+      "Cheer News brengt de cheerleadingwereld samen op één plek: clubs, wedstrijden, open gyms en trainingstijden, op een kaart, agenda en clubgids. Ik heb het gemaakt omdat die informatie nu verspreid staat over clubsites, socials en federatie-agenda's.",
     whatHeading: "Wat ik bouw",
     whatBody:
       "Informatie over cheerleading staat nu verspreid over losse clubsites, social media en federatie-agenda's. Ik breng het samen. Data wordt grotendeels automatisch verzameld en aangevuld met meldingen uit de community. Elke onzekere of gemelde toevoeging controleer ik handmatig voordat die online komt.",
@@ -435,7 +436,7 @@ export const nl = {
     chipClubs: "Clubgids",
     roadmapHeading: "Roadmap",
     roadmapIntro:
-      "Waar Cheer News naartoe groeit: van Nederland naar de bredere regio, zodat uiteindelijk de hele scene op één kaart komt.",
+      "Waar Cheer News naartoe groeit: naar de bredere regio, zodat uiteindelijk de hele scene op één kaart komt.",
     roadmap: {
       belgiumTitle: "België",
       belgiumBody:
@@ -481,7 +482,7 @@ export const nl = {
     lastUpdated: "Laatst bijgewerkt: juni 2026",
     whatHeading: "Wat dit is",
     whatBody:
-      "Cheer News is een open overzicht van cheerleading in Nederland: clubs, wedstrijden, open gyms en trainingstijden. We verzamelen en tonen publiek beschikbare informatie over clubs en evenementen.",
+      "Cheer News is een open overzicht van cheerleading: clubs, wedstrijden, open gyms en trainingstijden. We verzamelen en tonen publiek beschikbare informatie over clubs en evenementen.",
     dataHeading: "Welke gegevens",
     dataBody:
       "De getoonde clubgegevens (naam, locatie, teams, contactgegevens, social media) komen uit openbare bronnen of zijn door clubs zelf aangeleverd. We slaan geen persoonlijke accountgegevens van bezoekers op en gebruiken geen tracking-cookies voor advertenties.",
@@ -502,9 +503,9 @@ export const nl = {
 
   // ---- Root metadata ----
   meta: {
-    defaultTitle: "Cheer News: alle cheerleading in Nederland",
+    defaultTitle: "Cheer News: alle cheerleading op één plek",
     description:
-      "Eén overzicht van alle cheerleadingclubs, wedstrijden, open gyms en trainingstijden in Nederland. Kaart, kalender en clubgids.",
+      "Eén overzicht van alle cheerleadingclubs, wedstrijden, open gyms en trainingstijden. Kaart, kalender en clubgids.",
   },
 };
 
@@ -532,7 +533,7 @@ export const en = {
     csnLogoAlt: "Cheersport Netherlands",
   },
   footer: {
-    tagline: "Cheer News, an open overview of cheerleading in the Netherlands.",
+    tagline: "Cheer News, an open overview of cheerleading.",
     about: "About",
     contribute: "Contribute",
     privacy: "Privacy",
@@ -650,8 +651,8 @@ export const en = {
   },
 
   map: {
-    resetView: "All of NL",
-    resetViewAria: "Show all of the Netherlands",
+    resetView: "Whole map",
+    resetViewAria: "Show the whole map",
     clusterItems: (count: number) => `${count} items`,
     openGymLocation: "Open gym location",
     openGym: "Open gym",
@@ -666,10 +667,10 @@ export const en = {
   clubs: {
     metaTitle: "Club directory",
     metaDescription:
-      "All cheerleading clubs in the Netherlands: search by name or city and filter by level, division and age group.",
+      "All cheerleading clubs: search by name or city and filter by level, division and age group.",
     heading: "Club directory",
     intro:
-      "Find cheerleading clubs across the Netherlands. Search by name or city and filter by level, division and age group.",
+      "Find cheerleading clubs. Search by name or city and filter by level, division and age group.",
     searchPlaceholder: "Search by club name or city…",
     searchAria: "Search clubs",
     filter: "Filter",
@@ -691,6 +692,7 @@ export const en = {
     csnMember: "CSN member",
     /** tooltip/aria for the CSN member badge */
     csnMemberAria: "Member of Cheersport Netherlands",
+    csnMembersOnly: "CSN members only",
   },
 
   club: {
@@ -729,10 +731,10 @@ export const en = {
   coaches: {
     metaTitle: "Coaches",
     metaDescription:
-      "Coaches at Dutch cheerleading clubs plus guest/touring coaches visiting: see who coaches where, and get in touch directly.",
+      "Coaches at cheerleading clubs plus guest/touring coaches visiting: see who coaches where, and get in touch directly.",
     heading: "Visiting coaches",
     introBefore:
-      "Coaches at clubs across the Netherlands, plus guest and touring coaches visiting. Visiting yourself?",
+      "Coaches at clubs, plus guest and touring coaches visiting. Visiting yourself?",
     introLink: "Submit your stay",
     emptyTitle: "No visiting coaches yet",
     emptyHint:
@@ -883,11 +885,11 @@ export const en = {
   about: {
     metaTitle: "About Cheer News",
     metaDescription:
-      "Cheer News brings all cheerleading in the Netherlands together in one place: clubs, competitions, open gyms and training times on a map, agenda and club directory.",
+      "Cheer News brings all cheerleading together in one place: clubs, competitions, open gyms and training times on a map, agenda and club directory.",
     eyebrow: "About this project",
-    heading: "All cheerleading in the Netherlands, in one place",
+    heading: "All cheerleading, in one place",
     introBefore:
-      "Cheer News brings the Dutch cheerleading world together in one place: clubs, competitions, open gyms and training times, on a map, agenda and club directory. I built it because that information is currently scattered across club sites, socials and federation calendars.",
+      "Cheer News brings the cheerleading world together in one place: clubs, competitions, open gyms and training times, on a map, agenda and club directory. I built it because that information is currently scattered across club sites, socials and federation calendars.",
     whatHeading: "What I'm building",
     whatBody:
       "Information about cheerleading is currently scattered across separate club sites, social media and federation calendars. I bring it together. Data is mostly collected automatically and supplemented with reports from the community. Every uncertain or reported addition I check by hand before it goes live.",
@@ -896,7 +898,7 @@ export const en = {
     chipClubs: "Club directory",
     roadmapHeading: "Roadmap",
     roadmapIntro:
-      "Where Cheer News is heading: from the Netherlands to the wider region, so that eventually the whole scene is on one map.",
+      "Where Cheer News is heading: to the wider region, so that eventually the whole scene is on one map.",
     roadmap: {
       belgiumTitle: "Belgium",
       belgiumBody:
@@ -941,7 +943,7 @@ export const en = {
     lastUpdated: "Last updated: June 2026",
     whatHeading: "What this is",
     whatBody:
-      "Cheer News is an open overview of cheerleading in the Netherlands: clubs, competitions, open gyms and training times. We collect and show publicly available information about clubs and events.",
+      "Cheer News is an open overview of cheerleading: clubs, competitions, open gyms and training times. We collect and show publicly available information about clubs and events.",
     dataHeading: "What data",
     dataBody:
       "The club details shown (name, location, teams, contact details, social media) come from public sources or are supplied by clubs themselves. We do not store personal visitor account data and do not use tracking cookies for advertising.",
@@ -960,9 +962,9 @@ export const en = {
   },
 
   meta: {
-    defaultTitle: "Cheer News: all cheerleading in the Netherlands",
+    defaultTitle: "Cheer News: all cheerleading in one place",
     description:
-      "One overview of all cheerleading clubs, competitions, open gyms and training times in the Netherlands. Map, calendar and club directory.",
+      "One overview of all cheerleading clubs, competitions, open gyms and training times. Map, calendar and club directory.",
   },
 } satisfies Dictionary;
 
