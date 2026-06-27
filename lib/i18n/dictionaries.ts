@@ -457,10 +457,6 @@ export const nl = {
       coachesBody:
         "De bestaande coachespagina verder uitbouwen voor de coaches die al bij clubs trainen: rijkere profielen met specialisaties en bij welke club ze coachen, zodat je makkelijker de juiste coach vindt.",
       coachesWhen: "Later",
-      joinTitle: "“Ik wil meedoen”-knop",
-      joinBody:
-        "Een knop die nieuwe sporters naar de juiste club verwijst op basis van locatie en niveau, en helpt om meteen een proefles in te plannen.",
-      joinWhen: "Later",
     },
     csnHeading: "Over Cheersport Netherlands",
     csnBody1:
@@ -922,10 +918,6 @@ export const en = {
       coachesBody:
         "Building out the existing coaches page for the coaches already training at clubs: richer profiles with specialisms and which club they coach at, so you can find the right coach more easily.",
       coachesWhen: "Later",
-      joinTitle: "“I want to join” button",
-      joinBody:
-        "A button that points new athletes to the right club by location and level, and helps schedule a trial class right away.",
-      joinWhen: "Later",
     },
     csnHeading: "About Cheersport Netherlands",
     csnBody1:

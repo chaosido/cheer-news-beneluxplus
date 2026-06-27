@@ -17,7 +17,6 @@ import {
   Globe,
   ArrowUpRight,
   BookOpen,
-  UserPlus,
   Sparkles,
   Contact,
 } from "lucide-react";
@@ -66,12 +65,6 @@ export default async function AboutPage() {
       title: t.about.roadmap.coachesTitle,
       body: t.about.roadmap.coachesBody,
       when: t.about.roadmap.coachesWhen,
-    },
-    {
-      icon: UserPlus,
-      title: t.about.roadmap.joinTitle,
-      body: t.about.roadmap.joinBody,
-      when: t.about.roadmap.joinWhen,
     },
   ];
 
