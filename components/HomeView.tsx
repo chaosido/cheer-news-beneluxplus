@@ -55,6 +55,7 @@ const EMPTY_FILTERS: HomeFilters = {
   province: null,
   from: null,
   to: null,
+  membersOnly: false,
 };
 
 export function HomeView({
@@ -140,11 +141,14 @@ export function HomeView({
 
   // Filter map pins to the province filter (event-type/date filters don't apply
   // to clubs/venues themselves, but the province filter does so the two panels
-  // stay coherent).
+  // stay coherent). The "CSN members only" toggle additionally narrows clubs.
   const filteredClubs = useMemo(() => {
-    if (!filters.province) return clubs;
-    return clubs.filter((c) => c.region === filters.province);
-  }, [clubs, filters.province]);
+    return clubs.filter((c) => {
+      if (filters.province && c.region !== filters.province) return false;
+      if (filters.membersOnly && !c.csnMember) return false;
+      return true;
+    });
+  }, [clubs, filters.province, filters.membersOnly]);
 
   const filteredVenues = useMemo(() => {
     if (!filters.province) return venues;

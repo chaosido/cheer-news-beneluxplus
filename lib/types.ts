@@ -134,6 +134,9 @@ export interface ClubBase {
   clubType: ClubType;
   status: "active" | "inactive";
   locked: boolean;
+  // Federation membership. True if the club is a Cheersport Nederland (CSN)
+  // member; optional so legacy docs stay valid — consumers default to false.
+  csnMember?: boolean;
   // Richer profile fields (populated by the deep-research pass; optional so
   // existing docs without them stay valid — consumers default to [] / null).
   coaches?: Coach[];

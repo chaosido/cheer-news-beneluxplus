@@ -1,6 +1,6 @@
 "use client";
 
-import { Filter, X } from "lucide-react";
+import { BadgeCheck, Filter, X } from "lucide-react";
 import { EVENT_TYPE_COLOR } from "@/lib/eventColors";
 import type { EventType } from "@/lib/types";
 import { useI18n } from "@/lib/i18n/context";
@@ -45,7 +45,8 @@ export function Filters({
     filters.types.size > 0 ||
     filters.province !== null ||
     filters.from !== null ||
-    filters.to !== null;
+    filters.to !== null ||
+    filters.membersOnly;
 
   function reset() {
     onChange({
@@ -53,6 +54,7 @@ export function Filters({
       province: null,
       from: null,
       to: null,
+      membersOnly: false,
     });
   }
 
@@ -151,6 +153,23 @@ export function Filters({
             className="h-8 rounded-full border border-[var(--border)] bg-[var(--surface)] px-2.5 text-xs text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
           />
         </label>
+
+        <button
+          type="button"
+          aria-pressed={filters.membersOnly}
+          onClick={() =>
+            onChange({ ...filters, membersOnly: !filters.membersOnly })
+          }
+          className={cn(
+            "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors",
+            filters.membersOnly
+              ? "border-transparent bg-[var(--accent)] text-[var(--accent-fg)]"
+              : "border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] hover:bg-[var(--surface-2)]",
+          )}
+        >
+          <BadgeCheck className="size-3.5" aria-hidden />
+          {t.filters.csnMembersOnly}
+        </button>
       </div>
     </div>
   );

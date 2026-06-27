@@ -1,35 +1,36 @@
 @import "tailwindcss";
 
 /*
- * Cheer News BeneluxPlus — design tokens.
- * Energetic but restrained: warm near-white canvas, near-black ink, one bold
- * "spirit" accent (magenta-red) + a teal secondary for open-gym coding.
- * Deliberately NOT the default indigo/violet AI-starter palette.
+ * Cheer News BeneluxPlus — design tokens (Cheersport Nederland brand).
+ * Mirrors cheersport.nl: clean cool-white canvas, deep CSN navy ink, CSN blue
+ * as the primary action accent, and a warm CSN orange secondary. Brand hues
+ * derive from the official CSN logo (navy #253471, blue #3953A3, orange
+ * #F37421, red #EC1E24) and the live cheersport.nl palette/typography.
  */
 
 :root {
   /* Surfaces & ink */
-  --bg: #faf9f6;
+  --bg: #f6f7f9;
   --surface: #ffffff;
-  --surface-2: #f3f1ea;
-  --ink: #17161b;
-  --muted: #6b6973;
-  --border: #e7e4db;
+  --surface-2: #eceef3;
+  --ink: #253471; /* CSN navy — matches cheersport.nl body text */
+  --muted: #616b8c; /* navy-grey, AA on surface */
+  --border: #e0e3ea;
 
   /* Brand */
-  --accent: #ff2d6b; /* spirit magenta-red */
+  --accent: #3953a3; /* CSN blue — primary actions/links (white text 8:1) */
   --accent-fg: #ffffff;
-  --accent-soft: #ffe3ec;
-  --secondary: #0e7c7b; /* teal */
-  --secondary-soft: #d6f0ef;
+  --accent-soft: #e5e9f5;
+  --secondary: #c2410c; /* deep CSN orange — legible as text on white */
+  --secondary-soft: #fcebd9;
 
-  /* Event-type coding */
-  --type-competition: #ff2d6b;
-  --type-open_gym: #0e7c7b;
-  --type-clinic: #e8920c;
+  /* Event-type coding (functional; kept distinct, no old magenta/teal) */
+  --type-competition: #ec1e24; /* CSN red */
+  --type-open_gym: #15803d; /* green */
+  --type-clinic: #f37421; /* CSN orange */
   --type-tryout: #7c3aed;
-  --type-showcase: #2563eb;
-  --type-training: #6b6973;
+  --type-showcase: #0891b2;
+  --type-training: #64748b;
 
   --radius: 0.75rem;
   --shadow-sm: 0 1px 2px rgb(23 22 27 / 0.06), 0 1px 1px rgb(23 22 27 / 0.04);
@@ -49,8 +50,8 @@
   --color-secondary: var(--secondary);
   --color-secondary-soft: var(--secondary-soft);
 
-  --font-sans: var(--font-geist-sans);
-  --font-display: var(--font-display), var(--font-geist-sans);
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-display), var(--font-dm-sans);
   --font-mono: var(--font-geist-mono);
 
   --radius-card: var(--radius);

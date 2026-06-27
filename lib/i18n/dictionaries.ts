@@ -28,12 +28,14 @@ export const nl = {
     },
     submitCta: "Ontbrekend item melden",
     skipToContent: "Naar de inhoud",
+    csnLogoAlt: "Cheersport Nederland",
   },
   footer: {
     tagline: "Cheer News, een open overzicht van cheerleading in Nederland.",
     about: "Over",
     contribute: "Bijdragen",
     privacy: "Privacy",
+    csnLogoAlt: "Cheersport Nederland",
   },
   language: {
     /** aria-label for the language switcher group. */
@@ -155,6 +157,7 @@ export const nl = {
     allProvinces: "Alle provincies",
     from: "Van",
     to: "Tot",
+    csnMembersOnly: "Alleen CSN-leden",
   },
 
   // ---- Map: tooltips, popups, controls ----
@@ -203,6 +206,9 @@ export const nl = {
     emptyFilteredTitle: "Geen clubs gevonden",
     emptyFilteredHint: "Pas je zoekopdracht of filters aan.",
     noTeams: "Nog geen teams bekend",
+    csnMember: "CSN-lid",
+    /** tooltip/aria for the CSN member badge */
+    csnMemberAria: "Lid van Cheersport Nederland",
   },
 
   // ---- Club profile ----
@@ -535,12 +541,14 @@ export const en = {
     },
     submitCta: "Report a missing item",
     skipToContent: "Skip to content",
+    csnLogoAlt: "Cheersport Netherlands",
   },
   footer: {
     tagline: "Cheer News, an open overview of cheerleading in the Netherlands.",
     about: "About",
     contribute: "Contribute",
     privacy: "Privacy",
+    csnLogoAlt: "Cheersport Netherlands",
   },
   language: {
     label: "Language",
@@ -650,6 +658,7 @@ export const en = {
     allProvinces: "All provinces",
     from: "From",
     to: "To",
+    csnMembersOnly: "CSN members only",
   },
 
   map: {
@@ -691,6 +700,9 @@ export const en = {
     emptyFilteredTitle: "No clubs found",
     emptyFilteredHint: "Adjust your search or filters.",
     noTeams: "No teams listed yet",
+    csnMember: "CSN member",
+    /** tooltip/aria for the CSN member badge */
+    csnMemberAria: "Member of Cheersport Netherlands",
   },
 
   club: {

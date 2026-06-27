@@ -177,12 +177,14 @@ const MAP_THEME_CSS = `
 
 /** Build a teardrop pin as an inline-SVG divIcon, tinted by state. */
 function pinIcon(state: "default" | "hover" | "selected"): L.DivIcon {
+  // Mirrors the brand tokens (accent blue / secondary orange / navy ink); kept
+  // as literals because the SVG markup is injected via a Leaflet DivIcon string.
   const fill =
     state === "selected"
-      ? "#ff2d6b"
+      ? "#3953a3"
       : state === "hover"
-        ? "#0e7c7b"
-        : "#17161b";
+        ? "#c2410c"
+        : "#253471";
   const scale = state === "default" ? 1 : 1.18;
   const w = Math.round(26 * scale);
   const h = Math.round(34 * scale);
@@ -881,7 +883,7 @@ const VenueMarker = memo(function VenueMarker({
         <div className="flex min-w-52 flex-col gap-1">
           <span className="inline-flex items-center gap-1.5 font-display text-sm font-bold text-[var(--ink)]">
             <Users
-              className="size-3.5 text-[var(--type-open_gym,#0e7c7b)]"
+              className="size-3.5 text-[var(--type-open_gym,#15803d)]"
               aria-hidden
             />
             {venue.name}

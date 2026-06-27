@@ -115,6 +115,8 @@ export interface MapClub {
   instagramUrl: string | null;
   facebookUrl: string | null;
   tiktokUrl: string | null;
+  /** True if the club is a Cheersport Nederland (CSN) member. */
+  csnMember: boolean;
 }
 
 export interface HomeFilters {
@@ -126,4 +128,6 @@ export interface HomeFilters {
   from: string | null;
   /** ISO date (yyyy-MM-dd) inclusive upper bound, or null. */
   to: string | null;
+  /** When true, show only CSN-member clubs on the map. */
+  membersOnly: boolean;
 }

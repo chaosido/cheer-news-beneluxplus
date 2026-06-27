@@ -2,13 +2,13 @@ import type { EventType } from "@/lib/types";
 
 /** CSS color (matches --type-* tokens in globals.css) per event type. */
 export const EVENT_TYPE_COLOR: Record<EventType, string> = {
-  competition: "#ff2d6b",
-  open_gym: "#0e7c7b",
-  clinic: "#e8920c",
+  competition: "#ec1e24",
+  open_gym: "#15803d",
+  clinic: "#f37421",
   tryout: "#7c3aed",
-  showcase: "#2563eb",
-  training: "#6b6973",
-  other: "#6b6973",
+  showcase: "#0891b2",
+  training: "#64748b",
+  other: "#64748b",
 };
 
 /**

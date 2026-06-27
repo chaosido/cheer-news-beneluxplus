@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { AdminNavLink } from "@/components/AdminNavLink";
@@ -22,13 +23,20 @@ export async function SiteHeader() {
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2 font-display text-lg font-extrabold tracking-tight"
+          className="flex shrink-0 items-center gap-2.5 font-display text-lg font-extrabold tracking-tight"
         >
-          <span
-            className="inline-block size-3 rounded-sm bg-[var(--accent)]"
-            aria-hidden
+          <Image
+            src="/cheersport-netherlands.svg"
+            alt={t.header.csnLogoAlt}
+            width={200}
+            height={60}
+            className="h-7 w-auto"
+            unoptimized
+            priority
           />
-          Cheer<span className="text-[var(--accent)]">News</span>
+          <span className="hidden sm:inline">
+            Cheer<span className="text-[var(--accent)]">News</span>
+          </span>
         </Link>
         <nav className="flex items-center gap-1 text-sm">
           {nav.map((item) =>

@@ -53,6 +53,7 @@ import {
 import type { ClubClient, EventClient, OpenGymClient, Team } from "@/lib/types";
 import { safeUrl } from "@/lib/safeUrl";
 import { TeamBadges } from "@/components/TeamBadges";
+import { CsnMemberBadge } from "@/components/CsnMemberBadge";
 import { EventsList } from "@/components/clubs/EventsList";
 import { OpenGymsList } from "@/components/clubs/OpenGymsList";
 import { TrainingTimesList } from "@/components/clubs/TrainingTimesList";
@@ -241,6 +242,13 @@ export default async function ClubProfilePage({
             )}
             {club.foundedYear && <span>{t.club.founded(club.foundedYear)}</span>}
           </div>
+
+          {/* CSN membership — own block, kept separate for clean merges. */}
+          {club.csnMember && (
+            <div className="mt-3">
+              <CsnMemberBadge t={t} />
+            </div>
+          )}
 
           {socials.length > 0 && (
             <div className="mt-4 flex flex-wrap items-center gap-2">

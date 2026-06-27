@@ -238,6 +238,7 @@ export default async function Home() {
       instagramUrl: c.instagramUrl,
       facebookUrl: c.facebookUrl,
       tiktokUrl: c.tiktokUrl,
+      csnMember: c.csnMember ?? false,
     }));
 
   return (

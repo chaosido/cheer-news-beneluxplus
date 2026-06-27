@@ -37,7 +37,7 @@ account. There is no public-read or anon-write surface.
 ## Local development
 
 ### Using local firebase emulator
-Create and pupulate your `.env.local` file
+Create and populate your `.env.local` file
 
 
 ```
@@ -80,11 +80,11 @@ In a terminal start the emulator
 firebase emulators:start --project <projectname>
 ```
 
-In a seperate terminal start the app
+In a separate terminal start the app
 ```bash
 npm install
 # Optional - seeds some test data to local firebase emulator
-FIRESTORE_EMULATOR_HOST=localhost:8080 GCP_PROJECT_ID=cheer-overview-site npx tsx scripts/seed-emulator.ts
+FIRESTORE_EMULATOR_HOST=localhost:8080 GCP_PROJECT_ID=cheer-news-beneluxplus npx tsx scripts/seed-emulator.ts
 npm run dev
 ```
 

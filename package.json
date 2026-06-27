@@ -18,6 +18,7 @@
     "digest": "tsx --env-file=.env.local scripts/notify-digest.ts",
     "submissions": "tsx --env-file=.env.local scripts/list-submissions.ts",
     "migrate:team-levels": "tsx --env-file=.env.local scripts/migrate-team-levels.ts",
+    "migrate:csn-member": "tsx --env-file=.env.local scripts/migrate-csn-member.ts",
     "backfill:coach-icu": "tsx --env-file=.env.local scripts/backfill-coach-icu.ts",
     "set:open-gym-prices": "tsx --env-file=.env.local scripts/set-open-gym-prices.ts"
   },
