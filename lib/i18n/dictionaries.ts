@@ -445,10 +445,6 @@ export const nl = {
       germanyBody:
         "Het aangrenzende Ruhrgebied en de Duitse grensregio, waar veel clubs vlak bij Nederland zitten.",
       germanyWhen: "Later",
-      selfServeTitle: "Clubs beheren zichzelf",
-      selfServeBody:
-        "Clubeigenaren kunnen straks zelf hun clubgegevens, teams en evenementen bijwerken, direct en zonder tussenkomst van een redacteur.",
-      selfServeWhen: "Later",
       sourcesTitle: "Bronnenpagina",
       sourcesBody:
         "Eén plek voor de officiële regels: rulebooks, scoresheets en richtlijnen van de federatie, gebundeld en altijd vindbaar.",
@@ -457,10 +453,6 @@ export const nl = {
       rulesAiBody:
         "Een Google NotebookLM gevuld met de officiële cheerleadingreglementen, zodat je een vraag als “mag deze stunt in level 3?” kunt stellen en meteen antwoord krijgt, met verwijzing naar de bron.",
       rulesAiWhen: "Later",
-      teamClassTitle: "Betere teamindeling",
-      teamClassBody:
-        "Een duidelijker classificatie van teams op niveau, divisie en leeftijdsgroep, zodat je clubs en wedstrijden preciezer kunt filteren en vergelijken.",
-      teamClassWhen: "Geleverd",
       coachesTitle: "Uitgebreidere coachespagina",
       coachesBody:
         "De bestaande coachespagina verder uitbouwen voor de coaches die al bij clubs trainen: rijkere profielen met specialisaties en bij welke club ze coachen, zodat je makkelijker de juiste coach vindt.",
@@ -918,10 +910,6 @@ export const en = {
       germanyBody:
         "The neighbouring Ruhr area and German border region, where many clubs sit close to the Netherlands.",
       germanyWhen: "Later",
-      selfServeTitle: "Clubs manage themselves",
-      selfServeBody:
-        "Club owners will be able to update their own club details, teams and events directly, without an editor in between.",
-      selfServeWhen: "Later",
       sourcesTitle: "Sources page",
       sourcesBody:
         "One place for the official rules: rulebooks, scoresheets and federation guidelines, bundled and always findable.",
@@ -930,10 +918,6 @@ export const en = {
       rulesAiBody:
         "A Google NotebookLM loaded with the official cheerleading rulebooks, so you can ask a question like “is this stunt allowed in level 3?” and get an answer, with a reference back to the source.",
       rulesAiWhen: "Later",
-      teamClassTitle: "Better team classification",
-      teamClassBody:
-        "A clearer classification of teams by level, division and age group, so you can filter and compare clubs and competitions more precisely.",
-      teamClassWhen: "Shipped",
       coachesTitle: "Expanded coaches page",
       coachesBody:
         "Building out the existing coaches page for the coaches already training at clubs: richer profiles with specialisms and which club they coach at, so you can find the right coach more easily.",

@@ -16,9 +16,7 @@ import {
   Building2,
   Globe,
   ArrowUpRight,
-  UserCog,
   BookOpen,
-  Layers,
   UserPlus,
   Sparkles,
   Contact,
@@ -52,12 +50,6 @@ export default async function AboutPage() {
       when: t.about.roadmap.germanyWhen,
     },
     {
-      icon: UserCog,
-      title: t.about.roadmap.selfServeTitle,
-      body: t.about.roadmap.selfServeBody,
-      when: t.about.roadmap.selfServeWhen,
-    },
-    {
       icon: BookOpen,
       title: t.about.roadmap.sourcesTitle,
       body: t.about.roadmap.sourcesBody,
@@ -68,12 +60,6 @@ export default async function AboutPage() {
       title: t.about.roadmap.rulesAiTitle,
       body: t.about.roadmap.rulesAiBody,
       when: t.about.roadmap.rulesAiWhen,
-    },
-    {
-      icon: Layers,
-      title: t.about.roadmap.teamClassTitle,
-      body: t.about.roadmap.teamClassBody,
-      when: t.about.roadmap.teamClassWhen,
     },
     {
       icon: Contact,
