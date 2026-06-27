@@ -65,9 +65,9 @@ export function OpenGymsList({
   }
 
   return (
-    <ul className="flex flex-col divide-y divide-[var(--border)]">
+    <ul className="flex flex-col divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3">
       {rows.map((row) => (
-        <li key={row.key} className="py-3 first:pt-0 last:pb-0">
+        <li key={row.key} className="py-2.5">
           <p className="font-medium text-[var(--ink)]">{row.label}</p>
           {row.locationText && (
             <p className="mt-0.5 flex items-center gap-1 text-sm text-[var(--muted)]">

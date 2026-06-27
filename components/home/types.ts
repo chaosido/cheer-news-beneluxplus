@@ -128,6 +128,9 @@ export interface HomeFilters {
   from: string | null;
   /** ISO date (yyyy-MM-dd) inclusive upper bound, or null. */
   to: string | null;
-  /** When true, show only CSN-member clubs on the map. */
+  /**
+   * CSN-member base view (default `true`): show only CSN-member clubs and their
+   * events. Open gyms / turn-hall venues are unaffected. Set `false` to show all.
+   */
   membersOnly: boolean;
 }
