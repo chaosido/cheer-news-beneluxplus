@@ -78,6 +78,24 @@ export default async function AboutPage() {
           {t.about.heading}
         </h1>
         <p className="mt-3 text-[var(--muted)]">{t.about.introBefore}</p>
+        <p className="mt-4 text-sm text-[var(--muted)]">
+          {t.about.builtBy}{" "}
+          <a
+            href="https://github.com/chaosido/cheer-news-beneluxplus"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-[var(--ink)] underline-offset-2 hover:underline"
+          >
+            Jesse Wonnink
+          </a>
+          {" · "}
+          <a
+            href="mailto:jesse@adapta.nl"
+            className="underline-offset-2 hover:underline"
+          >
+            jesse@adapta.nl
+          </a>
+        </p>
       </header>
 
       {/* What we build */}
