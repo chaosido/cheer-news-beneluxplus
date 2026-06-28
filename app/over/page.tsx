@@ -77,9 +77,8 @@ export default async function AboutPage() {
         <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
           {t.about.heading}
         </h1>
-        <p className="mt-3 text-[var(--muted)]">{t.about.introBefore}</p>
-        <p className="mt-4 text-sm text-[var(--muted)]">
-          {t.about.builtBy}{" "}
+        <p className="mt-3 text-[var(--muted)]">
+          {t.about.introBefore} {t.about.builtBy}{" "}
           <a
             href="https://github.com/chaosido/cheer-news-beneluxplus"
             target="_blank"
@@ -87,14 +86,15 @@ export default async function AboutPage() {
             className="font-medium text-[var(--ink)] underline-offset-2 hover:underline"
           >
             Jesse Wonnink
-          </a>
-          {" · "}
+          </a>{" "}
+          (
           <a
-            href="mailto:jesse@adapta.nl"
+            href="mailto:wonnink.jesse@gmail.com"
             className="underline-offset-2 hover:underline"
           >
-            jesse@adapta.nl
+            wonnink.jesse@gmail.com
           </a>
+          ).
         </p>
       </header>
 
