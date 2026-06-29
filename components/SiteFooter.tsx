@@ -16,7 +16,20 @@ export async function SiteFooter() {
             className="h-8 w-auto shrink-0"
             unoptimized
           />
-          <p>{t.footer.tagline}</p>
+          <div>
+            <p>{t.footer.tagline}</p>
+            <p className="mt-0.5 text-xs">
+              {t.footer.builtBy}{" "}
+              <a
+                href="https://github.com/chaosido/cheer-news-beneluxplus"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-[var(--ink)] hover:underline"
+              >
+                Jesse Wonnink
+              </a>
+            </p>
+          </div>
         </div>
         <nav className="flex gap-4">
           <Link href="/over" className="hover:text-[var(--ink)]">

@@ -10,10 +10,9 @@ import type { HomeFilters } from "@/components/home/types";
 const ALL_TYPES: EventType[] = [
   "competition",
   "open_gym",
-  "clinic",
+  "workshop",
   "tryout",
   "showcase",
-  "training",
   "other",
 ];
 

@@ -35,10 +35,9 @@ const LLM_CONFIDENCE = 0.65;
 const VALID_EVENT_TYPES: ReadonlySet<EventType> = new Set<EventType>([
   "competition",
   "open_gym",
-  "clinic",
+  "workshop",
   "tryout",
   "showcase",
-  "training",
   "other",
 ]);
 
@@ -50,13 +49,17 @@ const VALID_EVENT_TYPES: ReadonlySet<EventType> = new Set<EventType>([
 function inferType(raw: unknown): EventType {
   const hay = JSON.stringify(raw ?? "").toLowerCase();
   if (/open\s*gym|vrije\s*training/.test(hay)) return "open_gym";
-  if (/clinic|workshop/.test(hay)) return "clinic";
+  // A clinic / workshop / course / masterclass is a workshop.
+  if (/clinic|workshop|course|cursus|masterclass/.test(hay)) return "workshop";
   if (/tryout|auditie/.test(hay)) return "tryout";
   if (/showcase|optreden/.test(hay)) return "showcase";
   if (/competition|kampioenschap|wedstrijd|championship|cup/.test(hay)) {
     return "competition";
   }
-  if (/training|practice/.test(hay)) return "training";
+  // Checked AFTER competition so "Competition Training Day" stays a competition.
+  // An organised one-off training/practice is itself a workshop (recurring team
+  // training lives in the open_gyms collection as SessionType.training).
+  if (/training|practice/.test(hay)) return "workshop";
   return "other";
 }
 
@@ -211,10 +214,9 @@ function buildGeminiResponseSchema(Type: typeof import("@google/genai").Type) {
           enum: [
             "competition",
             "open_gym",
-            "clinic",
+            "workshop",
             "tryout",
             "showcase",
-            "training",
             "other",
           ],
         },
@@ -308,7 +310,7 @@ function buildPrompt(text: string): string {
     "- Output ONLY events explicitly described in the page text.",
     "- `start`/`end` must be ISO-8601 with a UTC offset (assume Europe/Amsterdam, +01:00 winter / +02:00 summer if no offset is given).",
     "- Use empty string for unknown optional fields. Do not invent URLs.",
-    "- `type` must be one of: competition, open_gym, clinic, tryout, showcase, training, other.",
+    "- `type` must be one of: competition, open_gym, workshop, tryout, showcase, other. Use `workshop` for any clinic, course, masterclass or one-off training session.",
     "- If no events are present, return an empty array.",
     "<PAGE_TEXT>",
     text,

@@ -35,6 +35,7 @@ export const nl = {
     about: "Over",
     contribute: "Bijdragen",
     privacy: "Privacy",
+    builtBy: "Gemaakt door",
     csnLogoAlt: "Cheersport Nederland",
   },
   language: {
@@ -52,10 +53,9 @@ export const nl = {
   eventType: {
     competition: "Wedstrijd",
     open_gym: "Open gym",
-    clinic: "Workshop",
+    workshop: "Workshop",
     tryout: "Tryout",
     showcase: "Showcase",
-    training: "Training",
     other: "Overig",
   } satisfies Record<EventType, string>,
 
@@ -434,6 +434,7 @@ export const nl = {
     chipMap: "Kaart",
     chipAgenda: "Agenda",
     chipClubs: "Clubgids",
+    builtBy: "Gemaakt door",
     roadmapHeading: "Roadmap",
     roadmapIntro:
       "Waar Cheer News naartoe groeit: naar de bredere regio, zodat uiteindelijk de hele scene op één kaart komt.",
@@ -537,6 +538,7 @@ export const en = {
     about: "About",
     contribute: "Contribute",
     privacy: "Privacy",
+    builtBy: "Built by",
     csnLogoAlt: "Cheersport Netherlands",
   },
   language: {
@@ -551,10 +553,9 @@ export const en = {
   eventType: {
     competition: "Competition",
     open_gym: "Open gym",
-    clinic: "Workshop",
+    workshop: "Workshop",
     tryout: "Tryout",
     showcase: "Showcase",
-    training: "Training",
     other: "Other",
   },
 
@@ -896,6 +897,7 @@ export const en = {
     chipMap: "Map",
     chipAgenda: "Agenda",
     chipClubs: "Club directory",
+    builtBy: "Built by",
     roadmapHeading: "Roadmap",
     roadmapIntro:
       "Where Cheer News is heading: to the wider region, so that eventually the whole scene is on one map.",

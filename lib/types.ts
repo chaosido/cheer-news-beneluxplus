@@ -41,13 +41,15 @@ export type DanceStyle =
 export type Tier = "competition" | "prep" | "recreational";
 export type Division = "all_girl" | "coed" | "all_boy";
 export type AgeGroup = "mini" | "youth" | "junior" | "senior" | "open";
+// One-off dated happenings. Note: recurring *team training* is a separate
+// concept living in the `open_gyms` collection as SessionType.training — an
+// organised one-off session is a workshop, so there is no event "training" type.
 export type EventType =
   | "competition"
   | "open_gym"
-  | "clinic"
+  | "workshop"
   | "tryout"
   | "showcase"
-  | "training"
   | "other";
 export type PublishStatus = "published" | "pending" | "rejected";
 export type Origin = "scrape" | "submission";
