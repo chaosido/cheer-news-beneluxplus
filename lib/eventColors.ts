@@ -4,10 +4,9 @@ import type { EventType } from "@/lib/types";
 export const EVENT_TYPE_COLOR: Record<EventType, string> = {
   competition: "#ec1e24",
   open_gym: "#15803d",
-  clinic: "#f37421",
+  workshop: "#f37421",
   tryout: "#7c3aed",
   showcase: "#0891b2",
-  training: "#64748b",
   other: "#64748b",
 };
 
@@ -19,9 +18,8 @@ export const EVENT_TYPE_COLOR: Record<EventType, string> = {
 export const EVENT_TYPE_LABEL: Record<EventType, string> = {
   competition: "Wedstrijd",
   open_gym: "Open gym",
-  clinic: "Workshop",
+  workshop: "Workshop",
   tryout: "Tryout",
   showcase: "Showcase",
-  training: "Training",
   other: "Overig",
 };

@@ -19,10 +19,9 @@ import type { ExtractedEvent, EventType, ExtractionMethod } from "@/lib/types";
 const EVENT_TYPES: readonly EventType[] = [
   "competition",
   "open_gym",
-  "clinic",
+  "workshop",
   "tryout",
   "showcase",
-  "training",
   "other",
 ];
 
