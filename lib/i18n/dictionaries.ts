@@ -52,10 +52,9 @@ export const nl = {
   eventType: {
     competition: "Wedstrijd",
     open_gym: "Open gym",
-    clinic: "Workshop",
+    workshop: "Workshop",
     tryout: "Tryout",
     showcase: "Showcase",
-    training: "Training",
     other: "Overig",
   } satisfies Record<EventType, string>,
 
@@ -551,10 +550,9 @@ export const en = {
   eventType: {
     competition: "Competition",
     open_gym: "Open gym",
-    clinic: "Workshop",
+    workshop: "Workshop",
     tryout: "Tryout",
     showcase: "Showcase",
-    training: "Training",
     other: "Other",
   },
 
