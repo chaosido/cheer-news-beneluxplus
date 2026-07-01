@@ -80,7 +80,7 @@ export default async function AboutPage() {
         <p className="mt-3 text-[var(--muted)]">
           {t.about.introBefore} {t.about.builtBy}{" "}
           <a
-            href="https://github.com/chaosido/cheer-news-beneluxplus"
+            href="https://github.com/Cheersport-Netherlands/cheer-news-beneluxplus"
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium text-[var(--ink)] underline-offset-2 hover:underline"

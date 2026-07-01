@@ -38,7 +38,7 @@ export interface DigestSubmission {
  */
 const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://cheer-news-beneluxplus--cheer-news-beneluxplus.europe-west4.hosted.app"
+  "https://overview.cheersport.nl"
 ).replace(/\/$/, "");
 const ADMIN_URL = `${SITE_URL}/admin`;
 

@@ -19,8 +19,8 @@
 
 set -euo pipefail
 
-PROJECT="cheer-news-beneluxplus"
-SITE_URL="${SITE_URL:-https://cheer-news-beneluxplus--cheer-news-beneluxplus.europe-west4.hosted.app}"
+PROJECT="cheer-overview-site"
+SITE_URL="${SITE_URL:-https://overview.cheersport.nl}"
 APPHOSTING="apphosting.yaml"
 DEPLOY_BRANCH="main"
 

@@ -11,37 +11,37 @@ runConfig:
 
 env:
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: AIzaSyBfbHTHaWJ_xz7_UbzAI9YvBl81oFu15Hg
+    value: AIzaSyDXnwCkwBUlVRQOxdva40iayKrHXX79vYM
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: cheer-news-beneluxplus.firebaseapp.com
+    value: cheer-overview-site.firebaseapp.com
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: cheer-news-beneluxplus
+    value: cheer-overview-site
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: cheer-news-beneluxplus.firebasestorage.app
+    value: cheer-overview-site.firebasestorage.app
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    value: "905972192942"
+    value: "857819330314"
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    value: "1:905972192942:web:1e9e6ac1fe97db7288bf3f"
+    value: "1:857819330314:web:e0f398947fe6723094acf3"
     availability:
       - BUILD
       - RUNTIME
   - variable: GCP_PROJECT_ID
-    value: cheer-news-beneluxplus
+    value: cheer-overview-site
     availability:
       - RUNTIME
   # Disabled — Gemini not in use. Re-add to enable LLM extraction.
@@ -50,7 +50,7 @@ env:
   #   availability:
   #     - RUNTIME
   - variable: ADMIN_EMAILS
-    value: wonnink.jesse@gmail.com
+    value: jesse@cheersport.nl,arjen@cheersport.nl,wonnink.jesse@gmail.com
     availability:
       - RUNTIME
   # Content-Security-Policy rollout switch (read by proxy.ts):
