@@ -50,8 +50,45 @@ interface PriceEntry {
 }
 
 const PRICE_DATA: PriceEntry[] = [
-  // Example (remove once real data lands):
-  // { venueId: "turnhal-best", price: 7.5, priceNote: "gratis voor leden / €7,50 drop-in" },
+  // Verified 2026-06-27 against each venue's own site. See handoffs/ research run.
+  {
+    venueId: "turnz-ookmeer-amsterdam",
+    price: 11.5,
+    priceNote:
+      "Losse sessie €11,50 (2 uur) / €16,50 (3 uur); rittenkaart 11 sessies €115 (15 mnd geldig)",
+  },
+  {
+    venueId: "gymxl-vathorst-amersfoort",
+    price: 8,
+    priceNote: "€8 voor leden, €12 voor niet-leden; vooraf betalen aan de kassa (pin)",
+  },
+  {
+    venueId: "flik-flak-den-bosch",
+    price: 8.5,
+    priceNote:
+      "Los kaartje €8,50 (zelfstandige volwassenentraining 16+, per pin in de zaal); eerste proeftraining gratis",
+  },
+  // Ravens Utrecht — €7,50 "x practice" published on ravenscheerleadingutrecht.com/memberships.
+  {
+    id: "ravens-cheerleading-utrecht-og-0",
+    price: 7.5,
+    priceNote: "Open Gym €7,50 per losse training (drop-in); eerste keer gratis proeftraining. Open voor niet-leden",
+  },
+  {
+    id: "ravens-cheerleading-utrecht-og-1",
+    price: 7.5,
+    priceNote: "Open Gym €7,50 per losse training (drop-in); eerste keer gratis proeftraining. Open voor niet-leden",
+  },
+  // Price still unknown (?) for these club-run open gyms — no per-visit drop-in
+  // rate is published (checked 2026-06-27). Left out of PRICE_DATA until a real
+  // figure is confirmed with the club; do NOT guess a number.
+  //  - gymnastiekhal-best                       price: ?  (GV Best is membership-only; Wed slot likely a club renting the hall)
+  //  - hikari-og-mon / hikari-og-sun            price: ?  (only a €25/month subscription, no per-visit rate)
+  //  - university-cheerleading-amsterdam-og-2   price: ?  (RSVP, open to anyone, "free" not stated)
+  //  - e-s-t-c-twist-og-0                       price: ?  (monthly open training, no card needed, likely free but unstated)
+  //  - blue-wolves-cheerleading-og-0            price: ?  (listed under Seniors schedule, reads as an internal session)
+  // (djalita-cheerleaders-og-1..7 were mislabeled team trainings — already
+  //  reclassified to sessionType=training 2026-06-27, so they carry no price.)
 ];
 
 function matches(
