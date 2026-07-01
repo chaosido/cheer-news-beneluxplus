@@ -26,7 +26,7 @@
  * `server-only` singleton). It initializes two Admin apps directly, so there is
  * no `server-only` re-exec guard to worry about.
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import {
   cert,
   initializeApp,
@@ -42,7 +42,13 @@ import {
 const DRY_RUN = process.argv.includes("--dry-run");
 
 const SOURCE_SA = process.env.SOURCE_SA ?? "./.secrets/scraper-sa.json";
-const TARGET_SA = process.env.TARGET_SA ?? "./.secrets/csn-sa.json";
+// TARGET credentials: prefer a key file (TARGET_SA) if one exists; otherwise
+// fall back to Application Default Credentials (ADC) for TARGET_PROJECT. The CSN
+// org blocks service-account keys (constraints/iam.disableServiceAccountKeyCreation),
+// so the migration normally runs on ADC: `gcloud auth application-default login`
+// as a user with write access to the target project.
+const TARGET_SA = process.env.TARGET_SA;
+const TARGET_PROJECT = process.env.TARGET_PROJECT ?? "cheer-overview-site";
 
 // Top-level collections to copy. Subcollections are discovered and copied
 // recursively via listCollections(), so `clubs/{id}/teams` is included.
@@ -71,6 +77,18 @@ function loadApp(keyPath: string, name: string): App {
     { credential: cert(parsed), projectId: parsed.projectId },
     name,
   );
+}
+
+/**
+ * Target app: use a key file if TARGET_SA is set and exists; otherwise use ADC
+ * (no credential passed → firebase-admin resolves Application Default
+ * Credentials). Runs against TARGET_PROJECT.
+ */
+function loadTargetApp(): App {
+  if (TARGET_SA && existsSync(TARGET_SA)) {
+    return loadApp(TARGET_SA, "target");
+  }
+  return initializeApp({ projectId: TARGET_PROJECT }, "target");
 }
 
 /**
@@ -126,9 +144,9 @@ async function copyCollection(
 async function main(): Promise<void> {
   const sourceApp = loadApp(SOURCE_SA, "source");
   const sourceDb = getFirestore(sourceApp);
-  // Dry run only reads the source, so don't require the target key to exist yet
-  // (lets us validate counts before the CSN project is even provisioned).
-  const targetApp = DRY_RUN ? null : loadApp(TARGET_SA, "target");
+  // Dry run only reads the source, so don't init the target at all
+  // (lets us validate counts before target creds/ADC are even set up).
+  const targetApp = DRY_RUN ? null : loadTargetApp();
   const targetDb = targetApp
     ? getFirestore(targetApp)
     : (null as unknown as Firestore);
@@ -136,7 +154,7 @@ async function main(): Promise<void> {
   console.log(
     `[migrate:copy]${DRY_RUN ? " (dry-run)" : ""}\n` +
       `  source: ${(sourceApp.options.credential as unknown as { projectId?: string })?.projectId ?? SOURCE_SA}\n` +
-      `  target: ${targetApp ? ((targetApp.options.credential as unknown as { projectId?: string })?.projectId ?? TARGET_SA) : "(none — dry run)"}\n`,
+      `  target: ${targetApp ? (TARGET_SA && existsSync(TARGET_SA) ? TARGET_SA : `${TARGET_PROJECT} (ADC)`) : "(none — dry run)"}\n`,
   );
 
   if (DRY_RUN) {
