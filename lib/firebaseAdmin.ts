@@ -16,7 +16,7 @@ import { getAuth, type Auth } from "firebase-admin/auth";
 const projectId =
   process.env.GCP_PROJECT_ID ||
   process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
-  "cheer-news-beneluxplus";
+  "cheer-overview-site";
 
 function initAdmin(): App {
   const existing = getApps();

@@ -1,0 +1,15 @@
+# gitleaks config — keep the full default ruleset, plus targeted allowlists.
+[extend]
+useDefault = true
+
+# Firebase *Web* config values are PUBLIC by design: they ship to the browser
+# (see the apphosting.yaml header and .env.example). The Firebase Web API key is
+# not a secret — access is controlled by Firebase Security Rules + App Check, not
+# by key secrecy. gitleaks' generic gcp-api-key rule flags it as a false positive,
+# so allowlist the files that legitimately hold public config.
+[allowlist]
+description = "Public Firebase Web config (browser-shipped) is not a secret"
+paths = [
+  '''apphosting\.yaml''',
+  '''\.env\.example''',
+]

@@ -21,7 +21,7 @@ export async function SiteFooter() {
             <p className="mt-0.5 text-xs">
               {t.footer.builtBy}{" "}
               <a
-                href="https://github.com/chaosido/cheer-news-beneluxplus"
+                href="https://github.com/Cheersport-Netherlands/cheer-news-beneluxplus"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-[var(--ink)] hover:underline"

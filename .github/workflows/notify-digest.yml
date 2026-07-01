@@ -38,7 +38,7 @@ jobs:
         run: npx tsx scripts/notify-digest.ts ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }}
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          GCP_PROJECT_ID: cheer-news-beneluxplus
+          GCP_PROJECT_ID: cheer-overview-site
           ADMIN_EMAILS: ${{ secrets.ADMIN_EMAILS }}
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}

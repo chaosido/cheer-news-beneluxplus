@@ -40,7 +40,7 @@ jobs:
         run: npx tsx scripts/aggregate.ts ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }}
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          GCP_PROJECT_ID: cheer-news-beneluxplus
+          GCP_PROJECT_ID: cheer-overview-site
           # Disabled — Gemini not in use. Re-add to enable LLM extraction
           # (and set GEMINI_ENABLED=true so the extractor uses the key).
           # GEMINI_ENABLED: "true"
