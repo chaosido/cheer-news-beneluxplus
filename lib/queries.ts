@@ -120,6 +120,11 @@ export async function getClubs(): Promise<ClubClient[]> {
       .map((d) => {
         const club = docToClient<ClubClient>(d);
         club.teamsSummary = teamsToSummary(teamsByClub.get(d.id) ?? []);
+        // Coach personal data is hidden site-wide pending coach consent (GDPR):
+        // strip it at the data layer so names/roles never reach the browser
+        // (empties the /coaches page + club-profile coach sections). To re-enable,
+        // remove this line and the matching one in getClubBySlug().
+        delete club.coaches;
         return club;
       })
       // `name` is required by the type but `docToClient` does no runtime check;
@@ -139,6 +144,8 @@ export async function getClubBySlug(slug: string): Promise<ClubClient | null> {
   // Derive teamsSummary from the subcollection (single source of truth) rather
   // than the stored copy on the doc.
   club.teamsSummary = teamsToSummary(await getClubTeams(club.id));
+  // Hide coach personal data pending consent (GDPR) — see note in getClubs().
+  delete club.coaches;
   return club;
 }
 
