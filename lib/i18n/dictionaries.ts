@@ -31,7 +31,7 @@ export const nl = {
     csnLogoAlt: "Cheersport Nederland",
   },
   footer: {
-    tagline: "Cheer News, een open overzicht van cheerleading.",
+    tagline: "Cheer Overview, een open overzicht van cheerleading.",
     about: "Over",
     contribute: "Bijdragen",
     privacy: "Privacy",
@@ -278,7 +278,7 @@ export const nl = {
 
   // ---- Submit page + form ----
   submit: {
-    metaTitle: "Inzenden · Cheer News",
+    metaTitle: "Inzenden · Cheer Overview",
     metaDescription:
       "Mis je een evenement, open gym of club? Stuur het in. Wij controleren elke inzending voordat die online komt.",
     heading: "Iets inzenden",
@@ -421,13 +421,13 @@ export const nl = {
 
   // ---- About page ----
   about: {
-    metaTitle: "Over Cheer News",
+    metaTitle: "Over Cheer Overview",
     metaDescription:
-      "Cheer News brengt alle cheerleading samen op één plek: clubs, wedstrijden, open gyms en trainingstijden op een kaart, agenda en clubgids.",
+      "Cheer Overview brengt alle cheerleading samen op één plek: clubs, wedstrijden, open gyms en trainingstijden op een kaart, agenda en clubgids.",
     eyebrow: "Over dit project",
     heading: "Alle cheerleading, op één plek",
     introBefore:
-      "Cheer News brengt de cheerleadingwereld samen op één plek: clubs, wedstrijden, open gyms en trainingstijden, op een kaart, agenda en clubgids. Ik heb het gemaakt omdat die informatie nu verspreid staat over clubsites, socials en federatie-agenda's.",
+      "Cheer Overview brengt de cheerleadingwereld samen op één plek: clubs, wedstrijden, open gyms en trainingstijden, op een kaart, agenda en clubgids. Ik heb het gemaakt omdat die informatie nu verspreid staat over clubsites, socials en federatie-agenda's.",
     whatHeading: "Wat ik bouw",
     whatBody:
       "Informatie over cheerleading staat nu verspreid over losse clubsites, social media en federatie-agenda's. Ik breng het samen. Data wordt grotendeels automatisch verzameld en aangevuld met meldingen uit de community. Elke onzekere of gemelde toevoeging controleer ik handmatig voordat die online komt.",
@@ -437,7 +437,7 @@ export const nl = {
     builtBy: "Gemaakt door",
     roadmapHeading: "Roadmap",
     roadmapIntro:
-      "Waar Cheer News naartoe groeit: naar de bredere regio, zodat uiteindelijk de hele scene op één kaart komt.",
+      "Waar Cheer Overview naartoe groeit: naar de bredere regio, zodat uiteindelijk de hele scene op één kaart komt.",
     roadmap: {
       belgiumTitle: "België",
       belgiumBody:
@@ -478,12 +478,12 @@ export const nl = {
   privacy: {
     metaTitle: "Privacy",
     metaDescription:
-      "Privacyverklaring van Cheer News: welke gegevens we tonen en hoe we ermee omgaan.",
+      "Privacyverklaring van Cheer Overview: welke gegevens we tonen en hoe we ermee omgaan.",
     heading: "Privacy",
     lastUpdated: "Laatst bijgewerkt: juni 2026",
     whatHeading: "Wat dit is",
     whatBody:
-      "Cheer News is een open overzicht van cheerleading: clubs, wedstrijden, open gyms en trainingstijden. We verzamelen en tonen publiek beschikbare informatie over clubs en evenementen.",
+      "Cheer Overview is een open overzicht van cheerleading: clubs, wedstrijden, open gyms en trainingstijden. We verzamelen en tonen publiek beschikbare informatie over clubs en evenementen.",
     dataHeading: "Welke gegevens",
     dataBody:
       "De getoonde clubgegevens (naam, locatie, teams, contactgegevens, social media) komen uit openbare bronnen of zijn door clubs zelf aangeleverd. We slaan geen persoonlijke accountgegevens van bezoekers op en gebruiken geen tracking-cookies voor advertenties.",
@@ -504,7 +504,7 @@ export const nl = {
 
   // ---- Root metadata ----
   meta: {
-    defaultTitle: "Cheer News: alle cheerleading op één plek",
+    defaultTitle: "Cheer Overview: alle cheerleading op één plek",
     description:
       "Eén overzicht van alle cheerleadingclubs, wedstrijden, open gyms en trainingstijden. Kaart, kalender en clubgids.",
   },
@@ -534,7 +534,7 @@ export const en = {
     csnLogoAlt: "Cheersport Netherlands",
   },
   footer: {
-    tagline: "Cheer News, an open overview of cheerleading.",
+    tagline: "Cheer Overview, an open overview of cheerleading.",
     about: "About",
     contribute: "Contribute",
     privacy: "Privacy",
@@ -748,7 +748,7 @@ export const en = {
   },
 
   submit: {
-    metaTitle: "Submit · Cheer News",
+    metaTitle: "Submit · Cheer Overview",
     metaDescription:
       "Missing an event, open gym or club? Send it in. We review every submission before it goes live.",
     heading: "Submit something",
@@ -884,13 +884,13 @@ export const en = {
   },
 
   about: {
-    metaTitle: "About Cheer News",
+    metaTitle: "About Cheer Overview",
     metaDescription:
-      "Cheer News brings all cheerleading together in one place: clubs, competitions, open gyms and training times on a map, agenda and club directory.",
+      "Cheer Overview brings all cheerleading together in one place: clubs, competitions, open gyms and training times on a map, agenda and club directory.",
     eyebrow: "About this project",
     heading: "All cheerleading, in one place",
     introBefore:
-      "Cheer News brings the cheerleading world together in one place: clubs, competitions, open gyms and training times, on a map, agenda and club directory. I built it because that information is currently scattered across club sites, socials and federation calendars.",
+      "Cheer Overview brings the cheerleading world together in one place: clubs, competitions, open gyms and training times, on a map, agenda and club directory. I built it because that information is currently scattered across club sites, socials and federation calendars.",
     whatHeading: "What I'm building",
     whatBody:
       "Information about cheerleading is currently scattered across separate club sites, social media and federation calendars. I bring it together. Data is mostly collected automatically and supplemented with reports from the community. Every uncertain or reported addition I check by hand before it goes live.",
@@ -900,7 +900,7 @@ export const en = {
     builtBy: "Built by",
     roadmapHeading: "Roadmap",
     roadmapIntro:
-      "Where Cheer News is heading: to the wider region, so that eventually the whole scene is on one map.",
+      "Where Cheer Overview is heading: to the wider region, so that eventually the whole scene is on one map.",
     roadmap: {
       belgiumTitle: "Belgium",
       belgiumBody:
@@ -940,12 +940,12 @@ export const en = {
   privacy: {
     metaTitle: "Privacy",
     metaDescription:
-      "Cheer News privacy statement: what data we show and how we handle it.",
+      "Cheer Overview privacy statement: what data we show and how we handle it.",
     heading: "Privacy",
     lastUpdated: "Last updated: June 2026",
     whatHeading: "What this is",
     whatBody:
-      "Cheer News is an open overview of cheerleading: clubs, competitions, open gyms and training times. We collect and show publicly available information about clubs and events.",
+      "Cheer Overview is an open overview of cheerleading: clubs, competitions, open gyms and training times. We collect and show publicly available information about clubs and events.",
     dataHeading: "What data",
     dataBody:
       "The club details shown (name, location, teams, contact details, social media) come from public sources or are supplied by clubs themselves. We do not store personal visitor account data and do not use tracking cookies for advertising.",
@@ -964,7 +964,7 @@ export const en = {
   },
 
   meta: {
-    defaultTitle: "Cheer News: all cheerleading in one place",
+    defaultTitle: "Cheer Overview: all cheerleading in one place",
     description:
       "One overview of all cheerleading clubs, competitions, open gyms and training times. Map, calendar and club directory.",
   },

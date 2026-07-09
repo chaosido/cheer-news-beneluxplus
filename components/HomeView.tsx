@@ -316,7 +316,9 @@ export function HomeView({
         <section
           className={cn(
             "relative min-h-0 border-[var(--border)] md:border-r",
-            "h-[calc(100dvh-3.5rem-3rem)] md:h-[calc(100dvh-3.5rem)]",
+            // 3.5rem header + 3rem tab bar, each with a 1px bottom border —
+            // without the -2px the page is exactly 2px taller than the screen.
+            "h-[calc(100dvh-3.5rem-3rem-2px)] md:h-[calc(100dvh-3.5rem-1px)]",
             tab === "map" ? "block" : "hidden md:block",
           )}
           aria-label={t.home.mapAriaLabel}
@@ -328,7 +330,7 @@ export function HomeView({
         <section
           className={cn(
             "min-h-0 bg-[var(--bg)]",
-            "h-[calc(100dvh-3.5rem-3rem)] md:h-[calc(100dvh-3.5rem)]",
+            "h-[calc(100dvh-3.5rem-3rem-2px)] md:h-[calc(100dvh-3.5rem-1px)]",
             tab === "calendar" ? "block" : "hidden md:block",
           )}
           aria-label={t.home.agendaAriaLabel}

@@ -8,14 +8,22 @@ export async function SiteFooter() {
     <footer className="mt-auto border-t border-[var(--border)] bg-[var(--surface)]">
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <Image
-            src="/cheersport-netherlands.svg"
-            alt={t.footer.csnLogoAlt}
-            width={200}
-            height={60}
-            className="h-8 w-auto shrink-0"
-            unoptimized
-          />
+          <a
+            href="https://www.cheersport.nl/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t.footer.csnLogoAlt}
+            className="shrink-0"
+          >
+            <Image
+              src="/cheersport-netherlands.svg"
+              alt=""
+              width={200}
+              height={60}
+              className="h-8 w-auto"
+              unoptimized
+            />
+          </a>
           <div>
             <p>{t.footer.tagline}</p>
             <p className="mt-0.5 text-xs">

@@ -1,4 +1,4 @@
-# Cheer News BeneluxPlus
+# Cheer Overview
 
 Eén open overzicht van alle cheerleading — **clubs, wedstrijden, open gyms en
 trainingstijden** op één plek: een interactieve **kaart**, een **agenda** en een **clubgids**.

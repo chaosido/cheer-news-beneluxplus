@@ -1,5 +1,5 @@
 /**
- * Daily aggregation pipeline for Cheer News BeneluxPlus.
+ * Daily aggregation pipeline for Cheer Overview.
  *
  * Run with: `npm run aggregate` (tsx --env-file=.env.local scripts/aggregate.ts)
  *   --dry-run   fetch + extract + count, but write NOTHING (use for cold-start
@@ -43,7 +43,7 @@ const MAX_LLM_CALLS = Number(process.env.MAX_LLM_CALLS_PER_RUN ?? 40);
 const PUBLISH_THRESHOLD = 0.85;
 const FETCH_TIMEOUT_MS = 20_000;
 const USER_AGENT =
-  "CheerNewsBeneluxPlus/1.0 (+https://overview.cheersport.nl; jesse@cheersport.nl)";
+  "CheerOverview/1.0 (+https://overview.cheersport.nl; jesse@cheersport.nl)";
 
 interface RunStats {
   sources: number;

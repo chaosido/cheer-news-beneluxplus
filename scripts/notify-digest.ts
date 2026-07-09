@@ -1,5 +1,5 @@
 /**
- * Daily submission digest for Cheer News BeneluxPlus.
+ * Daily submission digest for Cheer Overview.
  *
  * Run with: `npm run digest` (tsx --env-file=.env.local scripts/notify-digest.ts)
  *   --dry-run   list what WOULD be emailed, but send nothing and mark nothing.

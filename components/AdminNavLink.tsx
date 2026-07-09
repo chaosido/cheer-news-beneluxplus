@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { clientAuth } from "@/lib/firebase";
@@ -40,9 +41,13 @@ export function AdminNavLink({ label }: { label: string }) {
   return (
     <Link
       href="/admin"
-      className="rounded-full px-3 py-1.5 font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+      aria-label={label}
+      // Icon-only on phones: the header row must stay narrower than the
+      // viewport (overflow makes mobile Chrome zoom the whole page out).
+      className="inline-flex items-center rounded-full p-1.5 font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)] sm:px-3 sm:py-1.5"
     >
-      {label}
+      <ShieldCheck className="size-4 sm:hidden" aria-hidden />
+      <span className="hidden sm:inline">{label}</span>
     </Link>
   );
 }

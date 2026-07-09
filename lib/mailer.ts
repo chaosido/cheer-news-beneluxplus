@@ -121,7 +121,7 @@ export async function sendSubmissionDigest(
   }
 
   const n = submissions.length;
-  const subject = `${n} nieuwe inzending${n === 1 ? "" : "en"} · Cheer News`;
+  const subject = `${n} nieuwe inzending${n === 1 ? "" : "en"} · Cheer Overview`;
 
   // --- plain text ---
   const textBlocks = submissions.map((s, i) => {
@@ -134,7 +134,7 @@ export async function sendSubmissionDigest(
     ].join("\n");
   });
   const text = [
-    `${n} nieuwe inzending${n === 1 ? "" : "en"} op Cheer News wacht${
+    `${n} nieuwe inzending${n === 1 ? "" : "en"} op Cheer Overview wacht${
       n === 1 ? "" : "en"
     } op review.`,
     ``,
@@ -161,7 +161,7 @@ export async function sendSubmissionDigest(
     ].join("");
   });
   const html = [
-    `<p>${n} nieuwe inzending${n === 1 ? "" : "en"} op Cheer News wacht${
+    `<p>${n} nieuwe inzending${n === 1 ? "" : "en"} op Cheer Overview wacht${
       n === 1 ? "" : "en"
     } op review.</p>`,
     `<ol>${htmlBlocks.join("")}</ol>`,
