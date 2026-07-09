@@ -1,5 +1,5 @@
 /**
- * Shared domain types for Cheer News.
+ * Shared domain types for Cheer Overview.
  *
  * Two layers:
  *  - Firestore document shapes use Firestore `Timestamp` for instants.

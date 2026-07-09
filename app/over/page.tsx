@@ -1,7 +1,7 @@
 /**
  * About page (Server Component).
  *
- * Static content: a first-person intro to what Cheer News is, the roadmap of
+ * Static content: a first-person intro to what Cheer Overview is, the roadmap of
  * future regional expansions, and short profiles of the two national bodies it
  * references — Cheersport Netherlands (CSN) and Team Cheerleading Nederland
  * (TCNL). No data fetching, so it's a plain Server Component. Copy comes from

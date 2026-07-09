@@ -1,6 +1,6 @@
 # Security
 
-This document explains, in plain language, how Cheer News BeneluxPlus is kept
+This document explains, in plain language, how Cheer Overview is kept
 safe and what to watch out for when changing it. It is written for maintainers
 who are **not** web-security specialists.
 
