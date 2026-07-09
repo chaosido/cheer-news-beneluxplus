@@ -3,6 +3,7 @@ import { DM_Sans, Geist_Mono, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ConditionalFooter } from "@/components/ConditionalFooter";
 import { I18nProvider } from "@/lib/i18n/context";
 import { getDictionary, getLocale } from "@/lib/i18n/server";
 
@@ -28,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: {
       default: t.meta.defaultTitle,
-      template: "%s · Cheer News",
+      template: "%s · Cheer Overview",
     },
     description: t.meta.description,
     metadataBase: new URL(
@@ -52,7 +53,9 @@ export default async function RootLayout({
         <I18nProvider locale={locale}>
           <SiteHeader />
           <main className="flex flex-1 flex-col">{children}</main>
-          <SiteFooter />
+          <ConditionalFooter>
+            <SiteFooter />
+          </ConditionalFooter>
         </I18nProvider>
       </body>
     </html>

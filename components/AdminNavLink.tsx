@@ -40,7 +40,9 @@ export function AdminNavLink({ label }: { label: string }) {
   return (
     <Link
       href="/admin"
-      className="rounded-full px-3 py-1.5 font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+      // Hidden on phones: the header row must stay narrower than the viewport
+      // (overflow makes mobile Chrome zoom out); /admin stays reachable by URL.
+      className="hidden rounded-full px-3 py-1.5 font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)] sm:inline-block"
     >
       {label}
     </Link>

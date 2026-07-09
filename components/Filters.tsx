@@ -82,8 +82,10 @@ export function Filters({
         )}
       </div>
 
-      {/* Event-type chips */}
-      <div className="flex flex-wrap gap-1.5">
+      {/* Event-type chips. One horizontally scrollable row on phones (the
+          agenda panel is viewport-bound; wrapped chip rows eat its height),
+          wrapping freely from sm up. */}
+      <div className="flex gap-1.5 overflow-x-auto sm:flex-wrap sm:overflow-x-visible">
         {ALL_TYPES.map((type) => {
           const active = filters.types.has(type);
           const color = EVENT_TYPE_COLOR[type];
@@ -94,7 +96,7 @@ export function Filters({
               aria-pressed={active}
               onClick={() => toggleType(type)}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
                 active
                   ? "border-transparent text-white"
                   : "border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] hover:bg-[var(--surface-2)]",
@@ -114,15 +116,15 @@ export function Filters({
         })}
       </div>
 
-      {/* Row: city + date range */}
-      <div className="flex flex-wrap items-center gap-2">
+      {/* Row: city + date range. Same phones-scroll / sm-wrap treatment. */}
+      <div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap sm:overflow-x-visible">
         <select
           value={filters.province ?? ""}
           onChange={(e) =>
             onChange({ ...filters, province: e.target.value || null })
           }
           aria-label={t.filters.province}
-          className="h-8 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 text-xs font-medium text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+          className="h-8 shrink-0 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 text-xs font-medium text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
         >
           <option value="">{t.filters.allProvinces}</option>
           {provinces.map((province) => (
@@ -132,7 +134,7 @@ export function Filters({
           ))}
         </select>
 
-        <label className="inline-flex items-center gap-1 text-xs text-[var(--muted)]">
+        <label className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-xs text-[var(--muted)]">
           {t.filters.from}
           <input
             type="date"
@@ -143,7 +145,7 @@ export function Filters({
             className="h-8 rounded-full border border-[var(--border)] bg-[var(--surface)] px-2.5 text-xs text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
           />
         </label>
-        <label className="inline-flex items-center gap-1 text-xs text-[var(--muted)]">
+        <label className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-xs text-[var(--muted)]">
           {t.filters.to}
           <input
             type="date"
@@ -162,7 +164,7 @@ export function Filters({
             onChange({ ...filters, membersOnly: !filters.membersOnly })
           }
           className={cn(
-            "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors",
+            "inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-xs font-medium transition-colors",
             filters.membersOnly
               ? "border-transparent bg-[var(--accent)] text-[var(--accent-fg)]"
               : "border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] hover:bg-[var(--surface-2)]",
