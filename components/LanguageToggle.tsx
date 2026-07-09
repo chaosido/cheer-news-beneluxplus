@@ -53,7 +53,7 @@ export function LanguageToggle() {
             aria-label={t.language.switchTo(fullName[loc])}
             onClick={() => setLocale(loc)}
             className={cn(
-              "rounded-full px-2 py-1 uppercase tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]",
+              "rounded-full px-1.5 py-1 uppercase tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] sm:px-2",
               active
                 ? "bg-[var(--accent)] text-[var(--accent-fg)]"
                 : "text-[var(--muted)] hover:text-[var(--ink)]",

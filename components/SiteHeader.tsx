@@ -9,7 +9,7 @@ import { getDictionary } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 const NAV_LINK_CLASS =
-  "rounded-full px-2 py-1.5 font-medium text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)] sm:px-3";
+  "rounded-full px-1.5 py-1.5 font-medium text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)] sm:px-3";
 
 export async function SiteHeader() {
   const t = await getDictionary();
@@ -57,7 +57,7 @@ export async function SiteHeader() {
         >
           Cheer <span className="text-[var(--accent)]">Overview</span>
         </Link>
-        <nav className="flex items-center gap-0.5 text-sm sm:gap-1">
+        <nav className="flex items-center gap-0.5 text-xs sm:gap-1 sm:text-sm">
           {nav.map((item) =>
             item.href === "/" ? (
               <HomeNavLink
