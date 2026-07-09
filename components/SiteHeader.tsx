@@ -23,30 +23,39 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-[1000] border-b border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-3 sm:gap-4 sm:px-4">
-        {/* Federation logo → external CSN site. Compact hexagon mark on phones,
-            full wordmark logo from sm up. */}
-        <a
-          href="https://www.cheersport.nl/"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={t.header.csnLogoAlt}
-          className="shrink-0"
+        {/* Phones: the mark IS the way back to the map/agenda home — the
+            "Kaart & agenda" pill and the wordmark are both hidden below sm,
+            so this must link home, not externally. */}
+        <Link
+          href="/"
+          aria-label={t.header.nav.home}
+          className="shrink-0 sm:hidden"
         >
           <Image
             src="/csn-mark.png"
             alt=""
             width={800}
             height={800}
-            className="h-8 w-auto sm:hidden"
+            className="h-8 w-auto"
             unoptimized
             priority
           />
+        </Link>
+        {/* sm+: federation logo links out to the CSN site; the wordmark next
+            to it goes home. */}
+        <a
+          href="https://www.cheersport.nl/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={t.header.csnLogoAlt}
+          className="hidden shrink-0 sm:block"
+        >
           <Image
             src="/cheersport-netherlands.svg"
             alt=""
             width={200}
             height={60}
-            className="hidden h-7 w-auto sm:block"
+            className="h-7 w-auto"
             unoptimized
             priority
           />
