@@ -18,6 +18,18 @@ const projectId =
   process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
   "cheer-overview-site";
 
+// Guard against the "edited the wrong database" mistake. In scripts / local dev
+// (never in the deployed server, where NODE_ENV=production) print which project
+// the Admin SDK will read/write — and shout if it's the legacy project, whose
+// data does NOT reach the live site (overview.cheersport.nl → cheer-overview-site).
+if (process.env.NODE_ENV !== "production") {
+  console.warn(
+    projectId === "cheer-news-beneluxplus"
+      ? `\n⚠️  firebaseAdmin target = OLD project "${projectId}" (legacy — NOT the live site).\n    Set GCP_PROJECT_ID=cheer-overview-site (see .env.local).\n`
+      : `[firebaseAdmin] Firestore target project: ${projectId}`,
+  );
+}
+
 function initAdmin(): App {
   const existing = getApps();
   if (existing.length) return existing[0];
