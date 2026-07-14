@@ -38,8 +38,8 @@ export function ClubGrid({ clubs }: ClubGridProps) {
   const [division, setDivision] = useState<Division | "">("");
   const [age, setAge] = useState<AgeGroup | "">("");
   const [province, setProvince] = useState("");
-  // CSN-member clubs are the default base view; toggle off to show all clubs.
-  const [csnOnly, setCsnOnly] = useState(true);
+  // Show all clubs by default; toggle on to narrow to CSN members only.
+  const [csnOnly, setCsnOnly] = useState(false);
 
   // Provinces present in the dataset, sorted NL-style for the dropdown.
   const provinces = useMemo(
@@ -86,8 +86,8 @@ export function ClubGrid({ clubs }: ClubGridProps) {
     division !== "" ||
     age !== "" ||
     province !== "" ||
-    // CSN-only is the default; showing all clubs is the deviation.
-    !csnOnly;
+    // Show-all is the default; enabling CSN-only is the deviation.
+    csnOnly;
 
   function reset() {
     setQuery("");
@@ -96,7 +96,7 @@ export function ClubGrid({ clubs }: ClubGridProps) {
     setDivision("");
     setAge("");
     setProvince("");
-    setCsnOnly(true);
+    setCsnOnly(false);
   }
 
   return (

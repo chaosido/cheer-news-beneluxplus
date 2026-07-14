@@ -45,9 +45,9 @@ export function Filters({
     filters.province !== null ||
     filters.from !== null ||
     filters.to !== null ||
-    // CSN-only is the default base; deviating from it (showing all) counts as an
-    // active filter so the reset affordance appears.
-    !filters.membersOnly;
+    // Show-all is the default base; enabling CSN-only is the deviation, so it
+    // counts as an active filter and the reset affordance appears.
+    filters.membersOnly;
 
   function reset() {
     onChange({
@@ -55,7 +55,7 @@ export function Filters({
       province: null,
       from: null,
       to: null,
-      membersOnly: true,
+      membersOnly: false,
     });
   }
 
