@@ -55,8 +55,8 @@ const EMPTY_FILTERS: HomeFilters = {
   province: null,
   from: null,
   to: null,
-  // CSN-member clubs are the default base view; the toggle opts OUT to show all.
-  membersOnly: true,
+  // Show all clubs/events by default; the toggle opts IN to CSN-members-only.
+  membersOnly: false,
 };
 
 export function HomeView({
