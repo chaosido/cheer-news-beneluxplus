@@ -21,8 +21,22 @@ jobs:
   digest:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write # OIDC token for keyless Google Cloud auth
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      # Keyless auth via Workload Identity Federation. The CSN org policy
+      # (constraints/iam.disableServiceAccountKeyCreation) forbids SA JSON
+      # keys, so CI impersonates cheer-ci@ through the GitHub OIDC provider
+      # instead. Setup runbook: tmp/fix-ci-wif.sh (sets the repo variable).
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: cheer-overview-site
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: cheer-ci@cheer-overview-site.iam.gserviceaccount.com
 
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
@@ -37,7 +51,6 @@ jobs:
       - name: Send submission digest
         run: npx tsx scripts/notify-digest.ts ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }}
         env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           GCP_PROJECT_ID: cheer-overview-site
           ADMIN_EMAILS: ${{ secrets.ADMIN_EMAILS }}
           GMAIL_USER: ${{ secrets.GMAIL_USER }}

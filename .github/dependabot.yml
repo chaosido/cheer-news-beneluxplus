@@ -22,12 +22,19 @@ updates:
       - dependencies
 
   # GitHub Actions — keeps the SHA-pinned actions current (Dependabot updates
-  # the pin and the trailing version comment together).
+  # the pin and the trailing version comment together). Grouped into ONE PR:
+  # multi-step actions like codeql-action (init + analyze) must move in
+  # lockstep — separate per-step PRs leave the two steps on different versions
+  # and CodeQL fails with a config/runner version mismatch.
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
       day: monday
+    groups:
+      github-actions:
+        patterns:
+          - "*"
     labels:
       - dependencies
       - github-actions
