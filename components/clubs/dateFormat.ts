@@ -2,8 +2,4 @@
  * Club-page date helpers. Re-exported from the shared `lib/dateFormat` module
  * so club pages and the home agenda use one formatting stack.
  */
-export {
-  formatDate,
-  formatTime,
-  formatDateTimeRange,
-} from "@/lib/dateFormat";
+export { formatDate, formatTime, formatDateTimeRange } from "@/lib/dateFormat";

@@ -30,7 +30,10 @@ export function dayKey(value: string | Date, tz: string = TZ): string {
 }
 
 /** "ma 13 jun 2026" / "Mon 13 Jun 2026" — short date in Amsterdam time. */
-export function formatDate(iso: string, locale: Locale = DEFAULT_LOCALE): string {
+export function formatDate(
+  iso: string,
+  locale: Locale = DEFAULT_LOCALE,
+): string {
   return formatInTimeZone(new Date(iso), TZ, "eee d MMM yyyy", {
     locale: dateFnsLocale(locale),
   });

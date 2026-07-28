@@ -131,7 +131,8 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
-    const collection = kind === "event" ? COLLECTIONS.events : COLLECTIONS.submissions;
+    const collection =
+      kind === "event" ? COLLECTIONS.events : COLLECTIONS.submissions;
     try {
       await adminDb
         .collection(collection)
@@ -145,7 +146,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     } catch (err) {
       console.error("[api/admin/review] decide failed:", err);
-      return NextResponse.json({ ok: false, error: "Kon niet opslaan." }, { status: 500 });
+      return NextResponse.json(
+        { ok: false, error: "Kon niet opslaan." },
+        { status: 500 },
+      );
     }
   }
 

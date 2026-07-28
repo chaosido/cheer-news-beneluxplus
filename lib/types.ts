@@ -32,12 +32,7 @@ export type PrimaryChannel = "website" | "facebook" | "instagram" | "none";
 export type Discipline = "cheer" | "performance_cheer";
 export type CheerLevel = "1" | "2" | "3" | "4" | "5" | "6" | "7";
 export type DanceStyle =
-  | "pom"
-  | "hip_hop"
-  | "jazz"
-  | "kick"
-  | "pom_doubles"
-  | "hip_hop_doubles";
+  "pom" | "hip_hop" | "jazz" | "kick" | "pom_doubles" | "hip_hop_doubles";
 export type Tier = "competition" | "prep" | "recreational";
 export type Division = "all_girl" | "coed" | "all_boy";
 export type AgeGroup = "mini" | "youth" | "junior" | "senior" | "open";
@@ -45,12 +40,7 @@ export type AgeGroup = "mini" | "youth" | "junior" | "senior" | "open";
 // concept living in the `open_gyms` collection as SessionType.training — an
 // organised one-off session is a workshop, so there is no event "training" type.
 export type EventType =
-  | "competition"
-  | "open_gym"
-  | "workshop"
-  | "tryout"
-  | "showcase"
-  | "other";
+  "competition" | "open_gym" | "workshop" | "tryout" | "showcase" | "other";
 export type PublishStatus = "published" | "pending" | "rejected";
 export type Origin = "scrape" | "submission";
 export type SourceTier = "federation" | "structured" | "club";
@@ -58,12 +48,7 @@ export type SourceType = "events" | "gyms" | "general" | "federation";
 export type FetchStrategy = "http" | "playwright";
 export type ExtractionMethod = "json-ld" | "llm";
 export type SubmissionKind =
-  | "event"
-  | "gym"
-  | "club"
-  | "coach"
-  | "correction"
-  | "feedback";
+  "event" | "gym" | "club" | "coach" | "correction" | "feedback";
 
 /** Current extraction prompt/schema version. Bump to force re-extraction past the diff gate. */
 export const EXTRACTOR_VERSION = 1;

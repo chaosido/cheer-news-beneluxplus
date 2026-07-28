@@ -27,7 +27,7 @@ browser. Instead:
   Firebase Admin SDK, which runs with trusted credentials and bypasses the rules.
 - **Writes** happen only through validated API routes.
 
-*Why it matters:* even if someone steals the public Firebase config (which is
+_Why it matters:_ even if someone steals the public Firebase config (which is
 meant to be public — see "Secrets" below), they still cannot read or change a
 single record. There is no public data surface to attack.
 
@@ -58,7 +58,7 @@ seconds**. **This limiter lives in server memory.** Two consequences:
 - It is **per-instance**: with `maxInstances: 2`, a determined user could get up
   to ~10/min by hitting both instances.
 
-*This is an accepted trade-off* for a low-traffic, login-gated niche site — the
+_This is an accepted trade-off_ for a low-traffic, login-gated niche site — the
 Google-login requirement is the real anti-abuse control. **Revisit it (move to a
 shared store like Firestore or Memorystore) if** the site grows, `maxInstances`
 rises, or you see coordinated abuse from many accounts.
@@ -71,7 +71,7 @@ User-supplied URLs (club websites, social links, event links) are checked twice:
 - **At render time** by `safeUrl()` (`lib/safeUrl.ts`), which re-rejects anything
   that isn't `http(s)` or a same-origin path.
 
-*Why it matters:* this blocks `javascript:` / `data:` URLs that would otherwise
+_Why it matters:_ this blocks `javascript:` / `data:` URLs that would otherwise
 run code when clicked (a classic XSS vector), and stops the server being tricked
 into fetching internal addresses (SSRF).
 
@@ -110,7 +110,7 @@ surface.
 - **Never make the database client-readable** to "make a page faster." Keep all
   reads on the server.
 - **Never add a `NEXT_PUBLIC_` prefix to a secret.** That prefix bakes the value
-  into the public browser bundle. `NEXT_PUBLIC_` is for values that are *already*
+  into the public browser bundle. `NEXT_PUBLIC_` is for values that are _already_
   public (the Firebase web config, the Turnstile site key).
 - **Don't switch the CSP to a strict nonce-only `style-src`.** The map (Leaflet)
   and home page use inline styles; `style-src 'self' 'unsafe-inline'` is
@@ -137,9 +137,9 @@ surface.
    and in your local `.env.local`.
 3. Redeploy.
 4. If it was committed to git, rotating is mandatory — purging git history is
-   *not* enough, because clones and forks keep the old value.
+   _not_ enough, because clones and forks keep the old value.
 
-> Note: the Firebase **web API key** (`NEXT_PUBLIC_FIREBASE_API_KEY`) is *not* a
+> Note: the Firebase **web API key** (`NEXT_PUBLIC_FIREBASE_API_KEY`) is _not_ a
 > secret — it identifies the project to Google and is meant to be public. Access
 > is controlled by Firestore rules + Auth, not by hiding this key.
 
@@ -151,10 +151,10 @@ surface.
   `Authorization: Bearer <Firebase ID token>` header, not a cookie. Browsers do
   not attach custom headers to cross-site requests automatically, so these routes
   are inherently CSRF-resistant. **If you ever add a session cookie, you must add
-  CSRF protection** — the current safety comes from *not* using cookies.
+  CSRF protection** — the current safety comes from _not_ using cookies.
 - **No open-redirect surface.** There is no user-controlled server redirect /
   `Location` header. External links use `target="_blank" rel="noopener
-  noreferrer"` and go through `safeUrl()`.
+noreferrer"` and go through `safeUrl()`.
 - **`ipHash` is best-effort, not forensic.** The submit endpoint stores a salted
   hash of the client IP derived from the `x-forwarded-for` header. On App Hosting
   that header's left-most entry is client-controlled and **spoofable**, so treat
