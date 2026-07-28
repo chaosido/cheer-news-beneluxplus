@@ -140,8 +140,14 @@ async function deleteSubcollection(parentPath: string, name: string) {
 async function wipePrevious() {
   for (const c of CLUBS) {
     await deleteSubcollection(`clubs/${c.id}`, "teams");
-    await db.doc(`clubs/${c.id}`).delete().catch(() => {});
-    await db.doc(`open_gyms/${c.id}__${c.gym.id}`).delete().catch(() => {});
+    await db
+      .doc(`clubs/${c.id}`)
+      .delete()
+      .catch(() => {});
+    await db
+      .doc(`open_gyms/${c.id}__${c.gym.id}`)
+      .delete()
+      .catch(() => {});
   }
 }
 

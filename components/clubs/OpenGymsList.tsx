@@ -85,7 +85,9 @@ export function OpenGymsList({
             </p>
           )}
           {row.priceNote && (
-            <p className="mt-0.5 text-sm text-[var(--muted)]">{row.priceNote}</p>
+            <p className="mt-0.5 text-sm text-[var(--muted)]">
+              {row.priceNote}
+            </p>
           )}
           {row.notes && (
             <p className="mt-0.5 text-sm text-[var(--muted)]">{row.notes}</p>

@@ -240,7 +240,9 @@ export default async function ClubProfilePage({
                 {club.city}
               </span>
             )}
-            {club.foundedYear && <span>{t.club.founded(club.foundedYear)}</span>}
+            {club.foundedYear && (
+              <span>{t.club.founded(club.foundedYear)}</span>
+            )}
           </div>
 
           {/* CSN membership — own block, kept separate for clean merges. */}

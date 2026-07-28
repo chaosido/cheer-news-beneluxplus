@@ -16,7 +16,14 @@
  */
 import * as React from "react";
 import type { User } from "firebase/auth";
-import { Inbox, Loader2, RefreshCw, Check, X, CircleDashed } from "lucide-react";
+import {
+  Inbox,
+  Loader2,
+  RefreshCw,
+  Check,
+  X,
+  CircleDashed,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n/context";
@@ -170,7 +177,10 @@ export function ReviewQueue({ user }: ReviewQueueProps) {
   );
 
   /** Update one card in place (optimistic). */
-  function patchCard(key: string, next: { decision?: Decision; note?: string }) {
+  function patchCard(
+    key: string,
+    next: { decision?: Decision; note?: string },
+  ) {
     setState((prev) => {
       if (prev.phase !== "ready") return prev;
       const cards = prev.cards.map((c) =>
@@ -215,7 +225,12 @@ export function ReviewQueue({ user }: ReviewQueueProps) {
     return (
       <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-8 text-center">
         <p className="text-sm text-[var(--muted)]">{state.message}</p>
-        <Button variant="secondary" size="sm" className="mt-4" onClick={refresh}>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="mt-4"
+          onClick={refresh}
+        >
           <RefreshCw className="size-4" aria-hidden /> {t.admin.retry}
         </Button>
       </div>

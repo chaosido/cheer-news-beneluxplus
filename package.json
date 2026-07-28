@@ -27,12 +27,13 @@
     "node": ">=22"
   },
   "overrides": {
-    "eslint-plugin-react": "7.37.5",
-    "eslint-plugin-react-hooks": "7.1.1",
-    "eslint-plugin-jsx-a11y": "6.10.2",
-    "@typescript-eslint/eslint-plugin": "8.61.0",
-    "@typescript-eslint/parser": "8.61.0",
-    "typescript-eslint": "8.61.0"
+    "sharp": "^0.35.0",
+    "brace-expansion": "^5.0.8",
+    "uuid": "^11.1.1",
+    "next": {
+      ".": "$next",
+      "postcss": "^8.5.18"
+    }
   },
   "dependencies": {
     "@google/genai": "^2.10.0",
@@ -53,7 +54,7 @@
     "firebase-admin": "^14.1.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.22.0",
-    "next": "16.2.9",
+    "next": "^16.2.12",
     "nodemailer": "^9.0.0",
     "react": "19.2.7",
     "react-dom": "19.2.7",
@@ -81,8 +82,5 @@
     "tsx": "^4.22.4",
     "typescript": "^6.0.3",
     "vitest": "^4.1.8"
-  },
-  "overrides": {
-    "sharp": "^0.35.0"
   }
 }

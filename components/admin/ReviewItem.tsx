@@ -203,7 +203,9 @@ export function ReviewItem(props: Props) {
               {noteStatus === "saving" && t.admin.noteSaving}
               {noteStatus === "saved" && t.admin.noteSaved}
               {noteStatus === "error" && (
-                <span className="text-[var(--accent)]">{t.admin.noteError}</span>
+                <span className="text-[var(--accent)]">
+                  {t.admin.noteError}
+                </span>
               )}
             </span>
           </div>

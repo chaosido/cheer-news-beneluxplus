@@ -30,7 +30,13 @@
  */
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Clock, MapPin, CalendarDays, ArrowRight, ExternalLink } from "lucide-react";
+import {
+  Clock,
+  MapPin,
+  CalendarDays,
+  ArrowRight,
+  ExternalLink,
+} from "lucide-react";
 import { EVENT_TYPE_COLOR } from "@/lib/eventColors";
 import { useI18n } from "@/lib/i18n/context";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
