@@ -94,7 +94,12 @@ function event(
 describe("buildAgenda multi-day events", () => {
   it("shows a multi-day event under each day it spans", () => {
     const items = [
-      event("skills", "2026-08-01T00:00:00+02:00", "2026-08-02T23:59:00+02:00", true),
+      event(
+        "skills",
+        "2026-08-01T00:00:00+02:00",
+        "2026-08-02T23:59:00+02:00",
+        true,
+      ),
     ];
     const groups = buildAgenda(items, NOW, NL_LABELS, "nl");
     expect(groups.map((g) => g.dayKey)).toEqual(["2026-08-01", "2026-08-02"]);

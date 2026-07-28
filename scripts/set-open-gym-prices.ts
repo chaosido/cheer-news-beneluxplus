@@ -60,7 +60,8 @@ const PRICE_DATA: PriceEntry[] = [
   {
     venueId: "gymxl-vathorst-amersfoort",
     price: 8,
-    priceNote: "€8 voor leden, €12 voor niet-leden; vooraf betalen aan de kassa (pin)",
+    priceNote:
+      "€8 voor leden, €12 voor niet-leden; vooraf betalen aan de kassa (pin)",
   },
   {
     venueId: "flik-flak-den-bosch",
@@ -72,12 +73,14 @@ const PRICE_DATA: PriceEntry[] = [
   {
     id: "ravens-cheerleading-utrecht-og-0",
     price: 7.5,
-    priceNote: "Open Gym €7,50 per losse training (drop-in); eerste keer gratis proeftraining. Open voor niet-leden",
+    priceNote:
+      "Open Gym €7,50 per losse training (drop-in); eerste keer gratis proeftraining. Open voor niet-leden",
   },
   {
     id: "ravens-cheerleading-utrecht-og-1",
     price: 7.5,
-    priceNote: "Open Gym €7,50 per losse training (drop-in); eerste keer gratis proeftraining. Open voor niet-leden",
+    priceNote:
+      "Open Gym €7,50 per losse training (drop-in); eerste keer gratis proeftraining. Open voor niet-leden",
   },
   // Price still unknown (?) for these club-run open gyms — no per-visit drop-in
   // rate is published (checked 2026-06-27). Left out of PRICE_DATA until a real

@@ -37,8 +37,7 @@ export interface DigestSubmission {
  * canonical URL the app uses for metadata (app/layout.tsx).
  */
 const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://overview.cheersport.nl"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://overview.cheersport.nl"
 ).replace(/\/$/, "");
 const ADMIN_URL = `${SITE_URL}/admin`;
 

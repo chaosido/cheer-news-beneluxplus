@@ -16,7 +16,9 @@ export default async function PrivacyPage() {
       <h1 className="font-display text-3xl font-extrabold tracking-tight text-[var(--ink)]">
         {t.privacy.heading}
       </h1>
-      <p className="mt-2 text-sm text-[var(--muted)]">{t.privacy.lastUpdated}</p>
+      <p className="mt-2 text-sm text-[var(--muted)]">
+        {t.privacy.lastUpdated}
+      </p>
 
       <div className="mt-8 flex flex-col gap-8 text-[var(--ink)]">
         <section className="flex flex-col gap-2">

@@ -126,9 +126,7 @@ export default async function Home() {
         // Must match the MapVenue id below (`venue:${vid}`) so clicking this row
         // can find and reveal the venue's pin — same prefix on both sides.
         venueId: gym.clubId ? null : `venue:${gym.venueId ?? gym.id}`,
-        title: venueName
-          ? `Open gym · ${venueName}`
-          : t.eventType.open_gym,
+        title: venueName ? `Open gym · ${venueName}` : t.eventType.open_gym,
         type: "open_gym" as const,
         allDay: false,
         startsAt: occ.startsAt,

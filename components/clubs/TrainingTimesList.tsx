@@ -20,7 +20,10 @@ interface TrainingGroup {
 }
 
 /** Group recurring training docs by `teamLabel` into weekly schedule rows. */
-function buildGroups(trainings: OpenGymClient[], dict: Dictionary): TrainingGroup[] {
+function buildGroups(
+  trainings: OpenGymClient[],
+  dict: Dictionary,
+): TrainingGroup[] {
   const byLabel = new Map<string, TrainingGroup>();
 
   for (const t of trainings) {
