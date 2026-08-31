@@ -20,7 +20,11 @@ import {
   BadgeCheck,
   Users,
 } from "lucide-react";
-import { clubHasIcuCoach, getClubs, getPublishedVisitingCoaches } from "@/lib/queries";
+import {
+  clubHasIcuCoach,
+  getClubs,
+  getPublishedVisitingCoaches,
+} from "@/lib/queries";
 import type { ClubClient, VisitingCoachClient } from "@/lib/types";
 import { CoachList } from "@/components/clubs/CoachList";
 import { Badge } from "@/components/ui/Badge";

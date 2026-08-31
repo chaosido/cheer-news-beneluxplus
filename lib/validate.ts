@@ -80,8 +80,7 @@ export const extractedEventSchema = z.object({
 });
 
 export type ValidationResult =
-  | { ok: true; value: ExtractedEvent }
-  | { ok: false; errors: string[] };
+  { ok: true; value: ExtractedEvent } | { ok: false; errors: string[] };
 
 // ---- helpers ----
 

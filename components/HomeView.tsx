@@ -191,7 +191,11 @@ export function HomeView({
   // Ids of agenda items that have their OWN map pin (located events + coaches),
   // so the Calendar knows which club-less rows are clickable-to-zoom.
   const pinnableItemIds = useMemo(
-    () => new Set<string>([...events.map((e) => e.id), ...coaches.map((c) => c.id)]),
+    () =>
+      new Set<string>([
+        ...events.map((e) => e.id),
+        ...coaches.map((c) => c.id),
+      ]),
     [events, coaches],
   );
 

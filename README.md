@@ -37,8 +37,8 @@ account. There is no public-read or anon-write surface.
 ## Local development
 
 ### Using local firebase emulator
-Create and populate your `.env.local` file
 
+Create and populate your `.env.local` file
 
 ```
 GCP_PROJECT_ID=<PROJECT_ID>
@@ -58,8 +58,8 @@ NEXT_PUBLIC_FIREBASE_APP_ID=demo
 IP_HASH_SALT=local-dev-salt
 ```
 
-
 Edit your `firebase.json` as below
+
 ```json
 {
   "firestore": {
@@ -67,20 +67,22 @@ Edit your `firebase.json` as below
     "indexes": "firestore.indexes.json"
   },
   "emulators": {
-    "auth":      { "port": 9099 },
+    "auth": { "port": 9099 },
     "firestore": { "port": 8080 },
-    "ui":        { "enabled": true, "port": 4000 },
+    "ui": { "enabled": true, "port": 4000 },
     "singleProjectMode": true
   }
 }
 ```
 
 In a terminal start the emulator
+
 ```bash
 firebase emulators:start --project <projectname>
 ```
 
 In a separate terminal start the app
+
 ```bash
 npm install
 # Optional - seeds some test data to local firebase emulator

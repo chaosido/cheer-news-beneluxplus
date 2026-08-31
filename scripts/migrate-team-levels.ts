@@ -69,7 +69,12 @@ function migrateLevel(old: unknown): MigratedClassification | null {
         tier: "competition",
       };
     case "prep":
-      return { discipline: "cheer", level: null, danceStyle: null, tier: "prep" };
+      return {
+        discipline: "cheer",
+        level: null,
+        danceStyle: null,
+        tier: "prep",
+      };
     case "recreational":
       return {
         discipline: "cheer",
@@ -173,7 +178,8 @@ async function main() {
   console.log(
     `\n${DRY_RUN ? "[DRY RUN] " : ""}Done. clubs=${stats.clubs} migrated=${stats.teamsMigrated} alreadyMigrated=${stats.teamsAlreadyMigrated} unknown=${stats.teamsUnknown} summariesRewritten=${stats.summariesRewritten}`,
   );
-  if (DRY_RUN) console.log("No writes performed. Re-run without --dry-run to apply.");
+  if (DRY_RUN)
+    console.log("No writes performed. Re-run without --dry-run to apply.");
 }
 
 main().catch((err) => {
