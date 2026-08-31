@@ -161,22 +161,49 @@ export async function getClubTeams(clubId: string): Promise<Team[]> {
 
 // ---- Events ----
 
-/** Published events from now (or `from`) forward, ordered by start. */
+/**
+ * How far back to look for events that have STARTED but not yet FINISHED.
+ *
+ * A naive `startsAt >= now` filter drops a multi-day event the moment it
+ * begins — a two-week open-lesson block or a two-day camp would vanish on day
+ * one while still running. Firestore cannot express "endsAt >= now OR (endsAt
+ * is null AND startsAt >= now)" in a single query, so we widen the startsAt
+ * window by this much and finish the job in memory. Comfortably longer than any
+ * real event; the extra documents scanned are negligible at this collection's
+ * size.
+ */
+const ONGOING_LOOKBACK_DAYS = 60;
+
+/**
+ * Published events that have not finished yet, ordered by start.
+ *
+ * Includes events already under way — an event counts as current until its
+ * `endsAt` passes, or its `startsAt` when it records no end.
+ */
 export async function getPublishedEvents(opts?: {
   clubId?: string;
   from?: Date;
   limit?: number;
 }): Promise<EventClient[]> {
   const from = opts?.from ?? new Date();
+  const windowStart = new Date(
+    from.getTime() - ONGOING_LOOKBACK_DAYS * 24 * 60 * 60 * 1000,
+  );
   let q: FirebaseFirestore.Query = adminDb
     .collection(COLLECTIONS.events)
     .where("status", "==", "published")
-    .where("startsAt", ">=", Timestamp.fromDate(from));
+    .where("startsAt", ">=", Timestamp.fromDate(windowStart));
   if (opts?.clubId) q = q.where("clubId", "==", opts.clubId);
   q = q.orderBy("startsAt", "asc");
-  if (opts?.limit) q = q.limit(opts.limit);
+  // NOTE: the limit is applied AFTER filtering, not in the query — limiting
+  // first would spend the budget on events the filter is about to drop.
   const snap = await q.get();
-  return snap.docs.map((d) => docToClient<EventClient>(d));
+  const events = snap.docs
+    .map((d) => docToClient<EventClient>(d))
+    // Keep an event while it is still running: judge it by its end, falling
+    // back to its start when no end is recorded.
+    .filter((e) => new Date(e.endsAt ?? e.startsAt) >= from);
+  return opts?.limit ? events.slice(0, opts.limit) : events;
 }
 
 // ---- Open gyms ----

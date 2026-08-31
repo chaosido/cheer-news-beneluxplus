@@ -21,7 +21,9 @@
     "migrate:csn-member": "tsx --env-file=.env.local scripts/migrate-csn-member.ts",
     "migrate:copy": "tsx scripts/migrate-copy-firestore.ts",
     "backfill:coach-icu": "tsx --env-file=.env.local scripts/backfill-coach-icu.ts",
-    "set:open-gym-prices": "tsx --env-file=.env.local scripts/set-open-gym-prices.ts"
+    "set:open-gym-prices": "tsx --env-file=.env.local scripts/set-open-gym-prices.ts",
+    "seed:hikari": "tsx --env-file=.env.local scripts/seed-hikari-schedule.ts",
+    "fix:csn": "tsx --env-file=.env.local scripts/fix-csn-season.ts"
   },
   "engines": {
     "node": ">=22"
