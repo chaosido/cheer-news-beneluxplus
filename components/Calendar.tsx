@@ -347,10 +347,14 @@ function AgendaRowItem({
     <li
       onMouseEnter={() => {
         onHover(item.clubId);
-        // A venue open-gym row drives the venue channel; any other club-less row
-        // (located event/coach) drives the item channel. Club rows do neither.
+        // A venue open-gym row drives the venue channel; a club-less located row
+        // (event/coach) drives the item channel. A CLUB row drives neither: its
+        // club pin is the thing to highlight, and it has no candidate pin of its
+        // own. The `else` here used to fire for club rows too, which is why a
+        // club-hosted event revealed a pin where an open gym at the same address
+        // revealed nothing.
         if (item.venueId) onHoverVenue?.(item.venueId);
-        else onHoverItem?.(item.id);
+        else if (!item.clubId) onHoverItem?.(item.id);
       }}
       onMouseLeave={() => {
         onHover(null);

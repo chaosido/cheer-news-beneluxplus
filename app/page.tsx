@@ -81,16 +81,28 @@ export default async function Home() {
 
     // Located events → hover-reveal map pins. The map shows NO persistent event
     // pins (they cluttered the map — e.g. a club's off-site showcase sitting as
-    // its own diamond). Instead, every located event is a *candidate* pin keyed
-    // by the same `event:{id}` id as its CalendarItem; the pin only appears when
-    // its agenda row is hovered (see HomeView `hoveredItemId` → Map
-    // `activeEventId`). Club-hosted and independent events alike are included so
-    // hovering any event row reveals where it actually is.
+    // its own diamond). Instead, a located event is a *candidate* pin keyed by
+    // the same `event:{id}` id as its CalendarItem; the pin only appears when its
+    // agenda row is hovered (see HomeView `hoveredItemId` → Map `activeEventId`).
+    //
+    // An event held AT its own club gets no candidate pin. The club already has
+    // a persistent pin in that spot, and hovering the row highlights it via the
+    // club channel — adding a second pin underneath meant a club-hosted event
+    // behaved differently from an open gym at the same address, which has no
+    // candidate pin at all. Zoomed out, the extra pin surfaced under the cluster
+    // marker instead of next to it. Events elsewhere keep their pin: that is the
+    // case the reveal exists for.
     mapEvents = events
       .filter(
         (e): e is typeof e & { lat: number; lng: number } =>
           e.lat != null && e.lng != null,
       )
+      // Club-hosted events are excluded: the club already has a persistent pin,
+      // and the row highlights it through the club channel. Including them meant
+      // an event at a club behaved differently from an open gym at the same
+      // address, which never had a candidate pin — and zoomed out the extra pin
+      // surfaced beneath the cluster marker rather than beside it.
+      .filter((e) => e.clubId == null)
       .map((e) => {
         const club = e.clubId ? clubsById.get(e.clubId) : undefined;
         return {
