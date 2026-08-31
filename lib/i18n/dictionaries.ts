@@ -475,6 +475,15 @@ export const nl = {
   },
 
   // ---- Privacy page ----
+  // ---- Analytics consent ----
+  consent: {
+    title: "Cookiemelding",
+    body: "We gebruiken statistieken om te zien hoe de site gebruikt wordt. Alleen met jouw toestemming, en nooit voor advertenties.",
+    privacyLink: "Lees onze privacyverklaring",
+    accept: "Akkoord",
+    decline: "Weigeren",
+  },
+
   privacy: {
     metaTitle: "Privacy",
     metaDescription:
@@ -486,7 +495,10 @@ export const nl = {
       "Cheer Overview is een open overzicht van cheerleading: clubs, wedstrijden, open gyms en trainingstijden. We verzamelen en tonen publiek beschikbare informatie over clubs en evenementen.",
     dataHeading: "Welke gegevens",
     dataBody:
-      "De getoonde clubgegevens (naam, locatie, teams, contactgegevens, social media) komen uit openbare bronnen of zijn door clubs zelf aangeleverd. We slaan geen persoonlijke accountgegevens van bezoekers op en gebruiken geen tracking-cookies voor advertenties.",
+      "De getoonde clubgegevens (naam, locatie, teams, contactgegevens, social media) komen uit openbare bronnen of zijn door clubs zelf aangeleverd. We slaan geen persoonlijke accountgegevens van bezoekers op en gebruiken nooit gegevens voor advertenties.",
+    analyticsHeading: "Statistieken",
+    analyticsBody:
+      "Als je daar toestemming voor geeft, gebruiken we Google Analytics om te zien hoe de site gebruikt wordt: welke pagina's bezocht worden en hoeveel bezoekers er zijn. Je IP-adres wordt daarbij ingekort. Zonder jouw toestemming wordt er niets geladen en niets gemeten. Wil je je keuze wijzigen? Wis de opslag van deze site in je browser; dan vragen we het opnieuw.",
     contributeHeading: "Bijdragen",
     contributeBody:
       "Wanneer je via het bijdrageformulier informatie aanlevert, gebruiken we die uitsluitend om het overzicht aan te vullen en te controleren.",
@@ -937,6 +949,15 @@ export const en = {
     ctaButton: "Report a missing item",
   },
 
+  // ---- Analytics consent ----
+  consent: {
+    title: "Cookie notice",
+    body: "We use analytics to see how the site is used. Only with your consent, and never for advertising.",
+    privacyLink: "Read our privacy statement",
+    accept: "Accept",
+    decline: "Decline",
+  },
+
   privacy: {
     metaTitle: "Privacy",
     metaDescription:
@@ -949,6 +970,9 @@ export const en = {
     dataHeading: "What data",
     dataBody:
       "The club details shown (name, location, teams, contact details, social media) come from public sources or are supplied by clubs themselves. We do not store personal visitor account data and do not use tracking cookies for advertising.",
+    analyticsHeading: "Analytics",
+    analyticsBody:
+      "If you consent, we use Google Analytics to see how the site is used: which pages are visited and how many visitors there are. Your IP address is truncated. Without your consent nothing is loaded and nothing is measured. Want to change your choice? Clear this site's storage in your browser and we'll ask again.",
     contributeHeading: "Contributing",
     contributeBody:
       "When you supply information via the contribution form, we use it only to complete and verify the overview.",

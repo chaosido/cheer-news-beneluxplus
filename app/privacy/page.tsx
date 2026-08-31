@@ -37,6 +37,13 @@ export default async function PrivacyPage() {
 
         <section className="flex flex-col gap-2">
           <h2 className="font-display text-lg font-bold">
+            {t.privacy.analyticsHeading}
+          </h2>
+          <p className="text-[var(--muted)]">{t.privacy.analyticsBody}</p>
+        </section>
+
+        <section className="flex flex-col gap-2">
+          <h2 className="font-display text-lg font-bold">
             {t.privacy.contributeHeading}
           </h2>
           <p className="text-[var(--muted)]">{t.privacy.contributeBody}</p>

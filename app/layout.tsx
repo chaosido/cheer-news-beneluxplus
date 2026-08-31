@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ConditionalFooter } from "@/components/ConditionalFooter";
 import { I18nProvider } from "@/lib/i18n/context";
+import { AnalyticsConsent } from "@/components/AnalyticsConsent";
 import { getDictionary, getLocale } from "@/lib/i18n/server";
 
 // CSN body typeface (cheersport.nl uses DM Sans).
@@ -56,6 +57,7 @@ export default async function RootLayout({
           <ConditionalFooter>
             <SiteFooter />
           </ConditionalFooter>
+          <AnalyticsConsent />
         </I18nProvider>
       </body>
     </html>

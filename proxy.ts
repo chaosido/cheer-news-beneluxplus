@@ -52,11 +52,11 @@ function makeNonce(): string {
 function buildCsp(nonce: string, isDev: boolean): string {
   const directives = [
     `default-src 'self'`,
-    `script-src 'self' 'nonce-${nonce}' https://challenges.cloudflare.com${isDev ? " 'unsafe-eval'" : ""}`,
+    `script-src 'self' 'nonce-${nonce}' https://challenges.cloudflare.com https://www.googletagmanager.com${isDev ? " 'unsafe-eval'" : ""}`,
     `style-src 'self' 'unsafe-inline'`,
-    `img-src 'self' data: blob: https://*.tile.openstreetmap.org https://storage.googleapis.com https://firebasestorage.googleapis.com`,
+    `img-src 'self' data: blob: https://*.tile.openstreetmap.org https://storage.googleapis.com https://firebasestorage.googleapis.com https://*.google-analytics.com https://www.googletagmanager.com`,
     `font-src 'self'`,
-    `connect-src 'self' https://*.googleapis.com https://*.firebaseapp.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com`,
+    `connect-src 'self' https://*.googleapis.com https://*.firebaseapp.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com`,
     `frame-src https://challenges.cloudflare.com https://*.firebaseapp.com https://accounts.google.com`,
     `object-src 'none'`,
     `base-uri 'self'`,
