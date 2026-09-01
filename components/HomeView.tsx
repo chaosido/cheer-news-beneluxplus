@@ -176,8 +176,8 @@ export function HomeView({
   // Event pins are not pre-filtered for the map: the one materialised pin is
   // whichever anchor is active, and that anchor always comes from a currently
   // visible (filtered) agenda row — so the reveal is inherently consistent with
-  // the active filters. `pinnableItemIds` used to answer "does this row have a
-  // pin"; `item.anchor != null` answers it without shipping a Set to the client.
+  // the active filters. "Does this row have a pin" is `item.anchor != null`, so
+  // no set of pinnable ids has to be computed here and shipped to the client.
 
   // Clicking the already-selected anchor clears it. One sticky pick at a time
   // falls out of there being one slot, rather than three callbacks each clearing

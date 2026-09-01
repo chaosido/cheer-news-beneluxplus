@@ -9,18 +9,26 @@
  * building markers from inline SVG `divIcon`s, which also lets us tint the
  * selected/hovered pin with the spirit accent.
  *
- * OVERLAPPING PINS — clustering + click-to-zoom:
- *   All pins (clubs, venues, events, coaches) live in one `<MarkerClusterGroup>`.
- *   Nearby pins collapse into an accent count badge (the "pink circle"), and the
- *   clusters break apart automatically as you zoom in. Clicking a cluster zooms
- *   to its bounds so the members become individual, reliably-clickable pins;
- *   only genuinely coincident pins spiderfy (at max zoom). We avoid in-place
- *   spiderfy because the transient spider collapses on any hover-driven rerender.
+ * OVERLAPPING PINS — clustering + click-to-spiderfy:
+ *   CLUB and VENUE pins live in one `<MarkerClusterGroup>`; nearby ones collapse
+ *   into an accent count badge (the "pink circle") and break apart as you zoom
+ *   in. EVENT and COACH pins render outside the group — an event pin is
+ *   materialised one at a time, and a lone pin inside the group would render as
+ *   a count badge of 1.
  *
- * Hover/select sync: hovering a pin calls `onHover`, clicking selects via
- * `onSelect`; the externally-controlled `hoveredClubId`/`selectedClubId` props
- * restyle the matching marker. Selecting a club (here or from the agenda) flies
- * the camera to that pin's spread position; hover never moves the camera.
+ *   Clicking a cluster spiderfies it IN PLACE and the spider stays open
+ *   (`zoomToBoundsOnClick={false}` + `spiderfyOnEveryZoom`), so members can be
+ *   clicked and hovered without a zoom change. That is only safe because the
+ *   cluster subtree is memoized on data alone: react-leaflet-cluster rebuilds
+ *   every layer when its children change, which used to collapse the spider on
+ *   the next hover-driven rerender.
+ *
+ * Hover/select sync runs on ONE anchor model (see components/home/types.ts):
+ *   hovering a pin reports its `Anchor` via `onHoverAnchor`, clicking via
+ *   `onSelectAnchor`, and the controlled `hoveredAnchor`/`selectedAnchor` props
+ *   restyle the matching marker. A selection outranks a hover. Selecting a
+ *   clustered pin reveals it first (`zoomToShowLayer`) and then PANS; selecting
+ *   an event pin flies in to city zoom. Hover never moves the camera.
  */
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -597,8 +605,8 @@ export default function Map({
     >;
   }, []);
 
-  // Cluster group + per-club marker handles, so FocusHighlight can reveal a
-  // club's pin (zoomToShowLayer) when it's selected from the agenda.
+  // Cluster group + per-club marker handles, so MapFocus can reveal a club's
+  // pin (zoomToShowLayer) when it's selected from the agenda.
   const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const markerRefs = useRef<globalThis.Map<string, L.Marker>>(
     new globalThis.Map(),
@@ -614,9 +622,8 @@ export default function Map({
   const handleHoverAnchor = onHoverAnchor ?? noop;
   const handleSelectAnchor = onSelectAnchor ?? noop;
 
-  // Just store the cluster group ref (FocusHighlight uses it to reveal a buried
-  // pin). Cluster CLICKS use the library's default zoom-to-bounds — see the
-  // MarkerClusterGroup props below for why we no longer spiderfy in place.
+  // Just store the cluster group ref (MapFocus uses it to reveal a buried pin).
+  // Cluster CLICKS spiderfy in place — see the MarkerClusterGroup props below.
   const setClusterGroup = useCallback((group: L.MarkerClusterGroup | null) => {
     clusterRef.current = group;
   }, []);

@@ -16,17 +16,20 @@
  * Open-gym occurrences for the same club on the same day are condensed into one
  * row (with an "×N" count) so the handful of one-off events stay prominent.
  *
- * Hover/select sync: each row reports its `clubId` via `onHover` on mouse enter
- * (highlights the club's rows + tints its pin — no map movement); when a club is
- * focused (here or via a map pin), its rows get an accent ring and the others
- * dim. Clicking the row BODY promotes to a sticky selection (`onSelect`), which
- * makes the map zoom to that club's pin — it does NOT navigate. A separate
- * trailing link button is the only thing that navigates, to the club/coach/event
- * page (internal → next/link, external → new tab).
+ * Hover/select sync runs on ONE anchor model (see components/home/types.ts):
+ * each row reports the `Anchor` it points at — the club, venue or event pin
+ * standing for its place — via `onHoverAnchor` on mouse enter. Every row sharing
+ * the focused anchor gets an accent ring and the rest dim, so all of a club's
+ * occurrences light up together rather than just the row under the cursor; hover
+ * never moves the map. Clicking the row BODY promotes to a sticky selection
+ * (`onSelectAnchor`), which reveals that pin and centres on it — it does NOT
+ * navigate. A separate trailing link button is the only thing that navigates, to
+ * the club/coach/event page (internal → next/link, external → new tab).
  *
- * Props are unchanged except `view` is dropped (no longer needed — the same
- * list serves the desktop right pane and the mobile "Agenda" tab) and an
- * optional `clubNames` map is accepted to render a clean club line.
+ * A row whose item has no anchor (nothing on the map to point at) stays
+ * non-interactive. The `view` prop is gone — the same list serves the desktop
+ * right pane and the mobile "Agenda" tab — and an optional `clubNames` map is
+ * accepted to render a clean club line.
  */
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -193,8 +196,8 @@ function AgendaRowItem({
     (item.isOpenGym ? clubNameFromTitle(item.title) : null);
 
   // The row body focuses its anchor on the map. A row with no anchor has nothing
-  // to point at and stays non-interactive — the question `pinnableItemIds` used
-  // to answer by shipping a Set to the client. The trailing link (if the item
+  // to point at and stays non-interactive, which the anchor answers directly —
+  // no set of pinnable ids has to be shipped. The trailing link (if the item
   // has a url) is the ONLY thing that navigates away; splitting them lets a
   // click reveal the pin without leaving the page, and keeps the <a> out of the
   // <button> (invalid).

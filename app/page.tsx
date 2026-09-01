@@ -86,7 +86,7 @@ export default async function Home() {
     // pins (they cluttered the map — e.g. a club's off-site showcase sitting as
     // its own diamond). Instead, a located event is a *candidate* pin keyed by
     // the same `event:{id}` id as its CalendarItem; the pin only appears when its
-    // agenda row is hovered (see HomeView `hoveredItemId` → Map `activeEventId`).
+    // agenda row is the active anchor (see `anchorForEvent` in lib/anchors.ts).
     //
     // An event held AT its own club gets no candidate pin. The club already has
     // a persistent pin in that spot, and hovering the row highlights it via the
