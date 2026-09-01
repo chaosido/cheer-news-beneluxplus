@@ -31,6 +31,11 @@ function gym(
     city: null,
     province: null,
     isOpenGym: true,
+    anchor: owner.clubId
+      ? { kind: "club", id: owner.clubId }
+      : owner.venueId
+        ? { kind: "venue", id: owner.venueId }
+        : null,
   };
 }
 
@@ -88,6 +93,7 @@ function event(
     city: null,
     province: null,
     isOpenGym: false,
+    anchor: null,
   };
 }
 
@@ -131,5 +137,64 @@ describe("buildAgenda multi-day events", () => {
     expect(groups).toHaveLength(2);
     expect(groups[0].rows[0].timeLabel).toBe("10:00");
     expect(groups[1].rows[0].timeLabel).toBe("tot 16:00");
+  });
+});
+
+describe("buildAgenda: an event already under way", () => {
+  /** Build a multi-day all-day event, like DANSJA's two-week open-lesson block. */
+  function span(id: string, startsAt: string, endsAt: string): CalendarItem {
+    return {
+      id,
+      clubId: "dansja-cheerleading",
+      venueId: null,
+      title: "Gratis open lesweken",
+      type: "open_gym",
+      allDay: true,
+      startsAt,
+      endsAt,
+      url: null,
+      locationText: null,
+      city: null,
+      province: null,
+      isOpenGym: false,
+      anchor: { kind: "club", id: "dansja-cheerleading" },
+    };
+  }
+
+  // Runs 31 Aug -> 13 Sep; "now" is the 5th, so five days have already elapsed.
+  const RUNNING = span(
+    "event:dansja-lesweken",
+    "2026-08-31T00:00:00+02:00",
+    "2026-09-13T23:59:00+02:00",
+  );
+  const SEPT_5 = new Date("2026-09-05T12:00:00+02:00");
+
+  it("emits no day group before today", () => {
+    const groups = buildAgenda([RUNNING], SEPT_5, NL_LABELS, "nl");
+    const past = groups.filter((g) => g.dayKey < "2026-09-05");
+    expect(past).toEqual([]);
+  });
+
+  it("still shows the event today and on every remaining day", () => {
+    const groups = buildAgenda([RUNNING], SEPT_5, NL_LABELS, "nl");
+    expect(groups[0].dayKey).toBe("2026-09-05");
+    expect(groups.at(-1)!.dayKey).toBe("2026-09-13");
+    // 5 Sept through 13 Sept inclusive.
+    expect(groups).toHaveLength(9);
+  });
+
+  it("labels the first remaining group as today, not as the start date", () => {
+    const groups = buildAgenda([RUNNING], SEPT_5, NL_LABELS, "nl");
+    expect(groups[0].label).toBe(nl.agenda.today);
+  });
+
+  it("leaves a wholly-future span untouched", () => {
+    const future = span(
+      "event:future",
+      "2026-09-26T00:00:00+02:00",
+      "2026-09-27T23:59:00+02:00",
+    );
+    const groups = buildAgenda([future], SEPT_5, NL_LABELS, "nl");
+    expect(groups.map((g) => g.dayKey)).toEqual(["2026-09-26", "2026-09-27"]);
   });
 });

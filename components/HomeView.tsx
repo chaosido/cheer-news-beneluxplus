@@ -4,17 +4,23 @@
  * Front-page orchestrator (Client Component).
  *
  * Owns ALL interaction state shared between the map and the calendar:
- *  - `filters`              — client-side filtering over the in-memory dataset.
- *  - `hoveredClubId`        — transient hover highlight (map ⇄ agenda).
- *  - `selectedClubId`       — sticky selection (click a pin or an agenda entry).
- *  - `tab`                  — mobile-only Kaart/Agenda switch.
+ *  - `filters`         — client-side filtering over the in-memory dataset.
+ *  - `hoveredAnchor`   — transient highlight (map ⇄ agenda).
+ *  - `selectedAnchor`  — sticky selection (click a pin or an agenda entry).
+ *  - `tab`             — mobile-only Kaart/Agenda switch.
  *
  * SIGNATURE INTERACTION — pin ⇄ agenda sync:
- *   Both <Map> and <Calendar> receive `hoveredClubId`/`selectedClubId` plus
- *   `onHover`/`onSelect`. Hovering a pin sets `hoveredClubId`, which the
- *   calendar uses to ring that club's events and dim the rest; hovering an
- *   agenda entry reports its `clubId` back, which the map uses to enlarge/tint
- *   the matching pin and pan to it. Clicks promote to a sticky selection.
+ *   Both <Map> and <Calendar> speak in ANCHORS: `{ kind, id }` naming the pin a
+ *   row points at (see components/home/types.ts). Hovering either side sets
+ *   `hoveredAnchor`; the calendar rings the rows sharing it and dims the rest,
+ *   and the map highlights the matching pin. Clicks promote to a sticky
+ *   selection, which outranks hover on both sides.
+ *
+ *   This used to be SIX state slots — hovered/selected × club/venue/item — each
+ *   with its own callbacks and its own precedence rule. They answered one
+ *   question ("which pin is the user pointing at") and could contradict each
+ *   other: a club selection plus a venue hover dimmed every row in the agenda,
+ *   including the selected club's own. One anchor pair makes that unrepresentable.
  *
  * The map is dynamically imported with `{ ssr: false }` because Leaflet needs
  * `window`.
@@ -29,7 +35,9 @@ import { EmptyState } from "@/components/home/EmptyState";
 import { useI18n } from "@/lib/i18n/context";
 import { cn } from "@/lib/utils";
 import { dayKey } from "@/lib/dateFormat";
+import { sameAnchor } from "@/components/home/types";
 import type {
+  Anchor,
   CalendarItem,
   MapClub,
   MapVenue,
@@ -74,22 +82,8 @@ export function HomeView({
 }) {
   const { t } = useI18n();
   const [filters, setFilters] = useState<HomeFilters>(EMPTY_FILTERS);
-  const [hoveredClubId, setHoveredClubId] = useState<string | null>(null);
-  const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
-  // The agenda row currently hovered, keyed by CalendarItem id (`event:{id}` /
-  // `gym:{id}:{i}`). Events have NO persistent map pin; hovering their row
-  // reveals a single pin on the map (matched by id in <Map>). Independent of the
-  // club-keyed highlight above, since an event is its own location, not a club's.
-  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
-  // Sticky pick of a club-less item with its own pin (e.g. an event at a venue).
-  // Clicking such a row zooms the map to its pin and keeps it shown. Mutually
-  // exclusive with `selectedClubId` — selecting one clears the other.
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  // Club-independent open-gym venues live INSIDE the map cluster (like clubs),
-  // so they get their own hover/select channel: hovering/clicking a venue open-
-  // gym row reveals (spiders open) and highlights its buried pin via <MapFocus>.
-  const [hoveredVenueId, setHoveredVenueId] = useState<string | null>(null);
-  const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null);
+  const [hoveredAnchor, setHoveredAnchor] = useState<Anchor | null>(null);
+  const [selectedAnchor, setSelectedAnchor] = useState<Anchor | null>(null);
   const [tab, setTab] = useState<"map" | "calendar">("map");
   // Bumped to tell <Map> to recenter on the whole country.
   const [resetSignal, setResetSignal] = useState(0);
@@ -98,12 +92,8 @@ export function HomeView({
   // RESET_HOME_EVENT: clear selection/hover/province focus and recenter the map.
   useEffect(() => {
     function onReset() {
-      setSelectedClubId(null);
-      setHoveredClubId(null);
-      setHoveredItemId(null);
-      setSelectedItemId(null);
-      setHoveredVenueId(null);
-      setSelectedVenueId(null);
+      setSelectedAnchor(null);
+      setHoveredAnchor(null);
       setFilters((f) => ({ ...f, province: null }));
       setResetSignal((n) => n + 1);
     }
@@ -183,47 +173,19 @@ export function HomeView({
     );
   }, [coaches, filters.province]);
 
-  // Events have no persistent pins, so they aren't pre-filtered for the map: the
-  // single revealed pin is matched by `hoveredItemId` below, and that id always
-  // comes from a currently-visible (filtered) agenda row — so reveal is
-  // inherently consistent with the active filters, no Set membership needed.
+  // Event pins are not pre-filtered for the map: the one materialised pin is
+  // whichever anchor is active, and that anchor always comes from a currently
+  // visible (filtered) agenda row — so the reveal is inherently consistent with
+  // the active filters. `pinnableItemIds` used to answer "does this row have a
+  // pin"; `item.anchor != null` answers it without shipping a Set to the client.
 
-  // Ids of agenda items that have their OWN map pin (located events + coaches),
-  // so the Calendar knows which club-less rows are clickable-to-zoom.
-  const pinnableItemIds = useMemo(
-    () =>
-      new Set<string>([
-        ...events.map((e) => e.id),
-        ...coaches.map((c) => c.id),
-      ]),
-    [events, coaches],
-  );
-
-  // Toggle selection off when clicking the already-selected club. Only one
-  // sticky pick at a time, so selecting a club clears any item/venue selection.
-  // `useCallback` keeps these referentially stable — the Map memoizes its whole
-  // cluster subtree on these callbacks, and a new identity each render would
+  // Clicking the already-selected anchor clears it. One sticky pick at a time
+  // falls out of there being one slot, rather than three callbacks each clearing
+  // the other two. `useCallback` keeps this referentially stable — the Map
+  // memoizes its cluster subtree on it, and a new identity each render would
   // rebuild the cluster and collapse any open spider.
-  const handleSelect = useCallback((id: string | null) => {
-    setSelectedClubId((prev) => (prev === id ? null : id));
-    setSelectedItemId(null);
-    setSelectedVenueId(null);
-  }, []);
-
-  // Select a club-less item (its own pin) → the map zooms to it. Toggles off on
-  // re-click, and clears any club/venue selection.
-  const handleSelectItem = useCallback((id: string | null) => {
-    setSelectedItemId((prev) => (prev === id ? null : id));
-    setSelectedClubId(null);
-    setSelectedVenueId(null);
-  }, []);
-
-  // Select a club-independent open-gym venue → <MapFocus> spiders its cluster
-  // open and opens its popup. Toggles off on re-click; clears club/item picks.
-  const handleSelectVenue = useCallback((id: string | null) => {
-    setSelectedVenueId((prev) => (prev === id ? null : id));
-    setSelectedClubId(null);
-    setSelectedItemId(null);
+  const handleSelectAnchor = useCallback((next: Anchor | null) => {
+    setSelectedAnchor((prev) => (sameAnchor(prev, next) ? null : next));
   }, []);
 
   const hasClubs = clubs.length > 0;
@@ -239,16 +201,10 @@ export function HomeView({
         venues={filteredVenues}
         events={events}
         coaches={filteredCoaches}
-        hoveredEventId={hoveredItemId}
-        selectedEventId={selectedItemId}
-        hoveredClubId={hoveredClubId}
-        selectedClubId={selectedClubId}
-        onHover={setHoveredClubId}
-        onSelect={handleSelect}
-        hoveredVenueId={hoveredVenueId}
-        selectedVenueId={selectedVenueId}
-        onHoverVenue={setHoveredVenueId}
-        onSelectVenue={handleSelectVenue}
+        hoveredAnchor={hoveredAnchor}
+        selectedAnchor={selectedAnchor}
+        onHoverAnchor={setHoveredAnchor}
+        onSelectAnchor={handleSelectAnchor}
         resetSignal={resetSignal}
       />
     ) : (
@@ -271,18 +227,10 @@ export function HomeView({
         <Calendar
           items={filteredItems}
           clubNames={clubNames}
-          hoveredClubId={hoveredClubId}
-          selectedClubId={selectedClubId}
-          onHover={setHoveredClubId}
-          onSelect={handleSelect}
-          onHoverItem={setHoveredItemId}
-          selectedItemId={selectedItemId}
-          onSelectItem={handleSelectItem}
-          pinnableItemIds={pinnableItemIds}
-          hoveredVenueId={hoveredVenueId}
-          selectedVenueId={selectedVenueId}
-          onHoverVenue={setHoveredVenueId}
-          onSelectVenue={handleSelectVenue}
+          hoveredAnchor={hoveredAnchor}
+          selectedAnchor={selectedAnchor}
+          onHoverAnchor={setHoveredAnchor}
+          onSelectAnchor={handleSelectAnchor}
         />
       </div>
     </div>
