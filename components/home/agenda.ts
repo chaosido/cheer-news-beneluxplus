@@ -226,8 +226,15 @@ export function buildAgenda(
     // Events appear under every day they span, so a multi-day event (e.g. a
     // two-day "Skills Days") shows under each day's header rather than as a
     // single range row on day one.
+    //
+    // Days already past are skipped. An event stays in the dataset while it is
+    // still running (see getPublishedEvents), so a two-week block that began
+    // last Monday would otherwise emit headers for every elapsed day and sort
+    // them ABOVE "Vandaag". The span keeps its shape for the time labels — only
+    // the group emission is bounded.
     const span = spannedDayKeys(item);
     for (const dKey of span) {
+      if (dKey < todayKey) continue;
       groupFor(dKey).rows.push({
         key: span.length > 1 ? `${item.id}:${dKey}` : item.id,
         item,

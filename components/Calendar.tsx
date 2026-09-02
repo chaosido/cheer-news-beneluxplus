@@ -16,17 +16,20 @@
  * Open-gym occurrences for the same club on the same day are condensed into one
  * row (with an "×N" count) so the handful of one-off events stay prominent.
  *
- * Hover/select sync: each row reports its `clubId` via `onHover` on mouse enter
- * (highlights the club's rows + tints its pin — no map movement); when a club is
- * focused (here or via a map pin), its rows get an accent ring and the others
- * dim. Clicking the row BODY promotes to a sticky selection (`onSelect`), which
- * makes the map zoom to that club's pin — it does NOT navigate. A separate
- * trailing link button is the only thing that navigates, to the club/coach/event
- * page (internal → next/link, external → new tab).
+ * Hover/select sync runs on ONE anchor model (see components/home/types.ts):
+ * each row reports the `Anchor` it points at — the club, venue or event pin
+ * standing for its place — via `onHoverAnchor` on mouse enter. Every row sharing
+ * the focused anchor gets an accent ring and the rest dim, so all of a club's
+ * occurrences light up together rather than just the row under the cursor; hover
+ * never moves the map. Clicking the row BODY promotes to a sticky selection
+ * (`onSelectAnchor`), which reveals that pin and centres on it — it does NOT
+ * navigate. A separate trailing link button is the only thing that navigates, to
+ * the club/coach/event page (internal → next/link, external → new tab).
  *
- * Props are unchanged except `view` is dropped (no longer needed — the same
- * list serves the desktop right pane and the mobile "Agenda" tab) and an
- * optional `clubNames` map is accepted to render a clean club line.
+ * A row whose item has no anchor (nothing on the map to point at) stays
+ * non-interactive. The `view` prop is gone — the same list serves the desktop
+ * right pane and the mobile "Agenda" tab — and an optional `clubNames` map is
+ * accepted to render a clean club line.
  */
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -41,45 +44,22 @@ import { EVENT_TYPE_COLOR } from "@/lib/eventColors";
 import { useI18n } from "@/lib/i18n/context";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { cn } from "@/lib/utils";
-import type { CalendarItem } from "@/components/home/types";
+import { sameAnchor } from "@/components/home/types";
+import type { Anchor, CalendarItem } from "@/components/home/types";
 import { buildAgenda, type AgendaRow } from "@/components/home/agenda";
 
 interface CalendarProps {
   items: CalendarItem[];
-  hoveredClubId: string | null;
-  selectedClubId: string | null;
-  onHover: (id: string | null) => void;
-  onSelect: (id: string | null) => void;
   /**
-   * Reports the hovered row's CalendarItem id (`event:{id}` / `gym:...`), or
-   * null on leave. The map uses this to reveal an event's location pin on hover
-   * (events have no persistent pin). Independent of the club-keyed `onHover`.
+   * The pin the user is pointing at, and the one they have stuck. Every row
+   * carries the anchor it points at (`item.anchor`), so hovering, dimming,
+   * focusing and clicking are all one comparison against these two — no
+   * separate club/venue/item channels, and no way for them to disagree.
    */
-  onHoverItem?: (id: string | null) => void;
-  /**
-   * Selecting a club-less item (its own pin, e.g. an event at a venue). Clicking
-   * such a row zooms the map to that pin — the item-level analogue of `onSelect`,
-   * which only handles club-owned rows. `selectedItemId` reflects the current
-   * sticky pick so the row renders focused.
-   */
-  selectedItemId?: string | null;
-  onSelectItem?: (id: string | null) => void;
-  /**
-   * Ids of items that have their own map pin (located events/coaches). Only
-   * these club-less rows are made clickable — a row with no pin can't be zoomed
-   * to, so it stays non-interactive.
-   */
-  pinnableItemIds?: Set<string>;
-  /**
-   * Venue channel for club-independent open-gym rows (`item.venueId`). Mirrors
-   * the club channel: hovering/clicking such a row reveals + highlights the
-   * venue's pin on the map (which lives inside the cluster, like a club's). All
-   * rows sharing a venue light up together, just like a club's rows do.
-   */
-  hoveredVenueId?: string | null;
-  selectedVenueId?: string | null;
-  onHoverVenue?: (id: string | null) => void;
-  onSelectVenue?: (id: string | null) => void;
+  hoveredAnchor: Anchor | null;
+  selectedAnchor: Anchor | null;
+  onHoverAnchor: (anchor: Anchor | null) => void;
+  onSelectAnchor: (anchor: Anchor | null) => void;
   /** clubId → display name, for the club line (events may not embed it). */
   clubNames?: Record<string, string>;
 }
@@ -96,18 +76,10 @@ function displayTitle(item: CalendarItem, t: Dictionary): string {
 
 export function Calendar({
   items,
-  hoveredClubId,
-  selectedClubId,
-  onHover,
-  onSelect,
-  onHoverItem,
-  selectedItemId,
-  onSelectItem,
-  pinnableItemIds,
-  hoveredVenueId,
-  selectedVenueId,
-  onHoverVenue,
-  onSelectVenue,
+  hoveredAnchor,
+  selectedAnchor,
+  onHoverAnchor,
+  onSelectAnchor,
   clubNames,
 }: CalendarProps) {
   const { t, locale } = useI18n();
@@ -132,9 +104,9 @@ export function Calendar({
     [items, now, t, locale],
   );
 
-  const focusId = selectedClubId ?? hoveredClubId;
-  // Venue analogue of `focusId`: a selected venue wins over a hovered one.
-  const venueFocusId = selectedVenueId ?? hoveredVenueId ?? null;
+  // A sticky selection outranks a transient hover — the same precedence the map
+  // uses, now stated once instead of three times with one of them inverted.
+  const focus = selectedAnchor ?? hoveredAnchor;
 
   if (groups.length === 0) {
     return (
@@ -171,18 +143,11 @@ export function Calendar({
                 <AgendaRowItem
                   key={row.key}
                   row={row}
-                  focusId={focusId}
+                  focus={focus}
                   clubNames={clubNames}
                   t={t}
-                  onHover={onHover}
-                  onSelect={onSelect}
-                  onHoverItem={onHoverItem}
-                  selectedItemId={selectedItemId}
-                  onSelectItem={onSelectItem}
-                  pinnable={pinnableItemIds?.has(row.item.id) ?? false}
-                  venueFocusId={venueFocusId}
-                  onHoverVenue={onHoverVenue}
-                  onSelectVenue={onSelectVenue}
+                  onHoverAnchor={onHoverAnchor}
+                  onSelectAnchor={onSelectAnchor}
                 />
               ))}
             </ul>
@@ -203,67 +168,41 @@ function linkLabel(url: string, t: Dictionary): string {
 
 function AgendaRowItem({
   row,
-  focusId,
+  focus,
   clubNames,
   t,
-  onHover,
-  onSelect,
-  onHoverItem,
-  selectedItemId,
-  onSelectItem,
-  pinnable,
-  venueFocusId,
-  onHoverVenue,
-  onSelectVenue,
+  onHoverAnchor,
+  onSelectAnchor,
 }: {
   row: AgendaRow;
-  focusId: string | null;
+  /** The anchor currently in focus: the selection if any, else the hover. */
+  focus: Anchor | null;
   clubNames?: Record<string, string>;
   t: Dictionary;
-  onHover: (id: string | null) => void;
-  onSelect: (id: string | null) => void;
-  onHoverItem?: (id: string | null) => void;
-  selectedItemId?: string | null;
-  onSelectItem?: (id: string | null) => void;
-  /** This item has its own map pin (club-less located event/coach). */
-  pinnable?: boolean;
-  /** The venue currently focused (selected ?? hovered), for venue open-gym rows. */
-  venueFocusId?: string | null;
-  onHoverVenue?: (id: string | null) => void;
-  onSelectVenue?: (id: string | null) => void;
+  onHoverAnchor: (anchor: Anchor | null) => void;
+  onSelectAnchor: (anchor: Anchor | null) => void;
 }) {
   const { item } = row;
   const color = EVENT_TYPE_COLOR[item.type];
-  // Highlight is keyed by club: focusing a club (via a pin or any of its agenda
-  // rows) highlights EVERY row that belongs to it — so all of a club's open-gym
-  // occurrences light up together, not just the hovered/clicked one. A club-less
-  // pin row is its own thing, so it highlights only when it's the selected item.
-  // A club focus dims rows of other clubs; a venue focus dims rows of other
-  // venues. (Club and venue focus are mutually exclusive — at most one is set.)
-  const dimmed =
-    (focusId != null && item.clubId !== focusId) ||
-    (venueFocusId != null && item.venueId !== venueFocusId);
-  const focused =
-    (focusId != null && item.clubId === focusId) ||
-    (venueFocusId != null && item.venueId === venueFocusId) ||
-    (selectedItemId != null && selectedItemId === item.id);
+  // Highlight is keyed by ANCHOR: focusing a pin — from the map or from any row
+  // pointing at it — highlights every row sharing it, so all of a club's open-gym
+  // occurrences light up together rather than just the one under the cursor.
+  // Exactly one of these can be true, because both ask the same question.
+  const focused = sameAnchor(item.anchor, focus);
+  const dimmed = focus != null && !focused;
 
   const clubName =
     (item.clubId && clubNames?.[item.clubId]) ||
     (item.isOpenGym ? clubNameFromTitle(item.title) : null);
 
-  // The row body focuses the item on the map → it zooms in. Club-owned rows
-  // focus the club (onSelect); a club-less row with its own pin focuses that pin
-  // (onSelectItem). The trailing link (if the item has a url) is the ONLY thing
-  // that navigates away; splitting them lets a click reveal the pin without
-  // leaving the page, and keeps the <a> out of the <button> (invalid).
-  const canFocus =
-    Boolean(item.clubId) || Boolean(item.venueId) || Boolean(pinnable);
-  const focusItem = () => {
-    if (item.clubId) onSelect(item.clubId);
-    else if (item.venueId) onSelectVenue?.(item.venueId);
-    else onSelectItem?.(item.id);
-  };
+  // The row body focuses its anchor on the map. A row with no anchor has nothing
+  // to point at and stays non-interactive, which the anchor answers directly —
+  // no set of pinnable ids has to be shipped. The trailing link (if the item
+  // has a url) is the ONLY thing that navigates away; splitting them lets a
+  // click reveal the pin without leaving the page, and keeps the <a> out of the
+  // <button> (invalid).
+  const canFocus = item.anchor != null;
+  const focusItem = () => onSelectAnchor(item.anchor);
   const linkHref = item.url;
   const linkIsInternal = linkHref?.startsWith("/") ?? false;
 
@@ -345,22 +284,11 @@ function AgendaRowItem({
 
   return (
     <li
-      onMouseEnter={() => {
-        onHover(item.clubId);
-        // A venue open-gym row drives the venue channel; a club-less located row
-        // (event/coach) drives the item channel. A CLUB row drives neither: its
-        // club pin is the thing to highlight, and it has no candidate pin of its
-        // own. The `else` here used to fire for club rows too, which is why a
-        // club-hosted event revealed a pin where an open gym at the same address
-        // revealed nothing.
-        if (item.venueId) onHoverVenue?.(item.venueId);
-        else if (!item.clubId) onHoverItem?.(item.id);
-      }}
-      onMouseLeave={() => {
-        onHover(null);
-        onHoverVenue?.(null);
-        onHoverItem?.(null);
-      }}
+      // One channel: point at the row's anchor, or at nothing. What used to be
+      // three conditional calls (and a fourth that fired for the wrong rows) is
+      // now the same statement for every row type.
+      onMouseEnter={() => onHoverAnchor(item.anchor)}
+      onMouseLeave={() => onHoverAnchor(null)}
       className={rowClass}
     >
       {canFocus ? (
