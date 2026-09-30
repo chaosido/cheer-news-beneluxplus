@@ -1,0 +1,1167 @@
+{
+ "teams": [
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "docId": "ee6B90aXdowOXlKruOHB",
+   "fields": {
+    "name": "Nova"
+   },
+   "source": "https://www.hikaricheer.nl/nova",
+   "evidence": "Menu 'Peewee - Nova'; page: 'Peewee Team Nova, Development team, Tussen 7 en 11 jaar, Level 0 - 1, Vrijdagen: 17.30 - 18.30', contributie seizoen 2026/2027. Same slot as Mighty Sabers (tr-0). /lidmaatschap lists Mighty Sabers (peewee) as a recreatieteam, so the tier is recreational, not competition. Level stays '1' (source says L0-1).",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "docId": "wbmLn6fmdWkPRtKCEpwo",
+   "fields": {
+    "name": "Nebula"
+   },
+   "source": "https://www.hikaricheer.nl/nebula",
+   "evidence": "'Junior Team Nebula, Development team, Tussen 10 en 18 jaar, Level 2 ... Word lid van de Light Sabers ...' (leftover old name confirms the rename); Vrijdagen 18.15-19.45 = tr-1. /lidmaatschap: Light Sabers (junioren) = recreatieteam.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "docId": "FMQ6nQnvzyA92eaqB11F",
+   "fields": {
+    "name": "Eclipse"
+   },
+   "source": "https://www.hikaricheer.nl/eclipse",
+   "evidence": "'Junior Team Eclipse, Wedstrijdteam, Tussen 8 en 18 jaar, Level 2; Woensdagen 17.30-19.30, Vrijdagen 18.15-19.45', same as the Sabers slots tr-2/tr-3; prize history continues the Sabers' L2 results.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "docId": "SK3cXO5AWmhjz5Ko3a9Y",
+   "fields": {
+    "name": "Blaze"
+   },
+   "source": "https://www.hikaricheer.nl/blaze",
+   "evidence": "'Volwassenen Team Blaze, Wedstrijdteam, Vanaf 16 jaar, Level 4 - Coed'; prizes 'Seizoen 25/26 - Level 4 ... Dutch national championship: 1e' (the Rivals' record); Zondagen 10.00-14.00 = tr-5. Level 4, coed, senior and competition all confirmed.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "docId": "yhlToRj2VzUyDJiqFBm7",
+   "fields": {
+    "name": "Halo"
+   },
+   "source": "https://www.hikaricheer.nl/halo",
+   "evidence": "'Volwassenen Team Halo, Development team, Vanaf 16 jaar, All Level ... Word lid van de Nomads ...'; Vrijdagen 19.30-22.00 = tr-6. Recreational, level null confirmed.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "um-cheerleading",
+   "action": "deactivate",
+   "docId": "O9RAysSMhMZ2aInAIi1H",
+   "fields": {
+    "status": "inactive"
+   },
+   "source": "https://www.maastrichtuniversitycheerleading.com/f-a-qs/",
+   "evidence": "FAQ: 'What happened to the Royals team? Royals merged into Legends for the 2026/27 season.' Legends page: 'Legends and Royals merge into one combined team for 2026/27.'",
+   "confidence": "high"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "update",
+   "docId": "7ab1INFk1so9Kdcx4iRz",
+   "fields": {
+    "name": "Blushhearts",
+    "ageGroup": "junior"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "'Inclusive Blushhearts — Categorie: U16 level 2 — Leeftijden: 2010-2015 — dinsdag, donderdag 18:30-20:00 — Try outs: ja'. Level 2 confirmed; U16 maps to junior.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "update",
+   "docId": "FEWX3Udb5uoUJkLIxGPv",
+   "fields": {
+    "name": "Pinkhearts",
+    "discipline": "performance_cheer",
+    "level": null,
+    "danceStyle": "pom",
+    "tier": "prep"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "'Inclusive Pinkhearts — Categorie: U12 POM — Leeftijden: 2012-2020 — Woensdag 16:00-17:00 — Try outs: nee'; listed under 'Nieuw! POM U12 ... kennis willen maken met pomdance'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "update",
+   "docId": "prrVbRC1qrkKhfMrHImT",
+   "fields": {
+    "name": "Minthearts",
+    "level": "1",
+    "notes": "U6 level 0 (beginner), mapped to L1"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "'Inclusive Minthearts — Categorie: U6 level 0 — Leeftijden: 2020-2022 — Woensdag 15:00-16:00 — Try outs: nee'.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "add",
+   "docId": null,
+   "fields": {
+    "name": "Limehearts",
+    "discipline": "cheer",
+    "level": "1",
+    "danceStyle": null,
+    "tier": "prep",
+    "division": "all_girl",
+    "ageGroup": "mini",
+    "notes": "U12 level 0 (beginner), mapped to L1; division not stated on source",
+    "status": "active"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "'Inclusive Limehearts — Categorie: U12 level 0 — Leeftijden: 2014-2019 — Woensdag 17:00-18:00 — Try outs: nee'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "add",
+   "docId": null,
+   "fields": {
+    "name": "Peachhearts",
+    "discipline": "cheer",
+    "level": "1",
+    "danceStyle": null,
+    "tier": "competition",
+    "division": "all_girl",
+    "ageGroup": "mini",
+    "notes": "U12 level 1; division not stated on source",
+    "status": "active"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "'Inclusive Peachhearts — Categorie: U12 level 1 — Leeftijden: 2014-2019 — 2x per week, Dinsdag, woensdag 17:30-18:30(d), 18:00-19:00(w) — Try outs: ja'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "add",
+   "docId": null,
+   "fields": {
+    "name": "Greenhearts",
+    "discipline": "cheer",
+    "level": "2",
+    "danceStyle": null,
+    "tier": "competition",
+    "division": "all_girl",
+    "ageGroup": "open",
+    "notes": "Intl. open level 2; weekend team (5 weekends/year) aiming at ECC and a Summit bid; division not stated on source",
+    "status": "active"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "'Inclusive Greenhearts — Categorie: Intl. open level 2 — Leeftijden: 2011- eerder — 5 weekenden per jaar — Try outs: ja'; 'richt zich komend seizoen op deelname aan ECC'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "add",
+   "docId": null,
+   "fields": {
+    "name": "Meadowhearts",
+    "discipline": "cheer",
+    "level": "3",
+    "danceStyle": null,
+    "tier": "prep",
+    "division": "all_girl",
+    "ageGroup": "senior",
+    "notes": "Senior stuntgroepen level 3/4, no mandatory attendance; may compete as stunt groups; division not stated on source",
+    "status": "active"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "'Inclusive Meadowhearts — Categorie: Senior stunt level 3/4 — Leeftijden: 2009- eerder — dinsdag, donderdag 20:00-21:30 — Try outs: nee'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "add",
+   "docId": null,
+   "fields": {
+    "name": "Jadehearts",
+    "discipline": "cheer",
+    "level": null,
+    "danceStyle": null,
+    "tier": "recreational",
+    "division": "all_girl",
+    "ageGroup": "open",
+    "notes": "Sideline cheer; division not stated on source",
+    "status": "active"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "'Inclusive Jadehearts — Categorie: sideline cheer — Leeftijden: 2011- eerder — woensdag 19:00-20:00'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "add",
+   "docId": null,
+   "fields": {
+    "name": "Hunterhearts",
+    "discipline": "cheer",
+    "level": "1",
+    "danceStyle": null,
+    "tier": "recreational",
+    "division": "coed",
+    "ageGroup": "open",
+    "notes": "Masters level 1 for parents; trains 1x per month (Sunday 13:00-14:30)",
+    "status": "active"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "'Inclusive Hunterhearts — Categorie: Masters level 1 — Leeftijden: 1996- eerder — 1x per maand — zondag 13:00-14:30'; 'Speciaal voor alle papa's en mama's'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inferno-athletics",
+   "action": "update",
+   "docId": "JQfmobkPeC3zNaNUsK12",
+   "fields": {
+    "name": "Flames",
+    "ageGroup": "youth"
+   },
+   "source": "https://infernoathletics.nl/teams",
+   "evidence": "Teams page: 'Flames — 9-15 jaar (geboren 2018-2011) — 2x per week Maandag: 19:00-20:30 Zaterdag: 10:00-12:00'. This is the club's competitive team; the generic club-named doc most likely represents it. Level 2 not verified.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inferno-athletics",
+   "action": "add",
+   "docId": null,
+   "fields": {
+    "name": "Sparks",
+    "discipline": "cheer",
+    "level": "1",
+    "danceStyle": null,
+    "tier": "prep",
+    "division": "coed",
+    "ageGroup": "mini",
+    "notes": "Beginners, ages 5-8 (born 2018-2022); level 0/beginner mapped to L1; division not stated",
+    "status": "active"
+   },
+   "source": "https://infernoathletics.nl/teams",
+   "evidence": "'Sparks — 5-8 jaar (geboren 2022-2018) — Beginner — 1x per week Zaterdag 12:00-13:00'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inferno-athletics",
+   "action": "add",
+   "docId": null,
+   "fields": {
+    "name": "Flare",
+    "discipline": "cheer",
+    "level": null,
+    "danceStyle": null,
+    "tier": "recreational",
+    "division": "coed",
+    "ageGroup": "senior",
+    "notes": "16+ skill training for group and partner stunts; attendance optional/drop-in; level not stated",
+    "status": "active"
+   },
+   "source": "https://infernoathletics.nl/teams",
+   "evidence": "'Flare — 16+ jaar (geboren 2011 en eerder) — 1x per week Maandag 20:30-22:30' ; over-page: 'Doel: Skill trainingen voor groep- en partnerstunts', attendance optional.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "partisans-athletics",
+   "action": "update",
+   "docId": "gjaJNQNIGRGVKgzHFm5e",
+   "fields": {
+    "name": "Little Athletics",
+    "ageGroup": "mini"
+   },
+   "source": "https://www.cheerleadersboxmeer.com/teams/little-athletics/",
+   "evidence": "'LITTLE ATHLETICS | PRIMARY CHEER — Leeftijd/Geboortejaar 2016 - 2019'. Ages ~7-10, so mini. Named Little (not Mini) Athletics.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "partisans-athletics",
+   "action": "update",
+   "docId": "IGCsd5Stheb4BxAg3S6a",
+   "fields": {
+    "ageGroup": "youth"
+   },
+   "source": "https://www.cheerleadersboxmeer.com/teams/athletics-elite/",
+   "evidence": "'ATHLETICS ELITE | YOUTH — Leeftijd/Geboortejaar 2012 - 2015'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "partisans-athletics",
+   "action": "add",
+   "docId": null,
+   "fields": {
+    "name": "Veteranen - Recreanten",
+    "discipline": "cheer",
+    "level": null,
+    "danceStyle": null,
+    "tier": "recreational",
+    "division": "coed",
+    "ageGroup": "open",
+    "notes": "Veterans/recreational group for former cheerleaders; no schedule published",
+    "status": "active"
+   },
+   "source": "https://www.cheerleadersboxmeer.com/teams/veteranen/",
+   "evidence": "'VETERANEN - RECREANTEN — Word lid van onze bruisende cheerlead veteranen/recreaten club! Ben jij een oud-cheerleader...'",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "united-cheers",
+   "action": "update",
+   "docId": "uDYyOPdv0vxoF1qP0k0F",
+   "fields": {
+    "level": "3",
+    "division": "all_girl"
+   },
+   "source": "https://unitedcheers.nl/",
+   "evidence": "Homepage: 'Onze teams komen momenteel uit in de volgende divisies: – UC Jaguars: Open Team All Girl Median (L3)'. Jaguars page: NK 2025 silver in level 3. Girls-only team ('groep meiden 12 t/m 15 jaar').",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "united-cheers",
+   "action": "update",
+   "docId": "uGiZi3L1KtszsUcpgQI5",
+   "fields": {
+    "name": "UCC Stunt"
+   },
+   "source": "https://unitedcheers.nl/",
+   "evidence": "Homepage: 'UCC Stunt: Senior Team All Girl Median (L3) + Groupstunt All Girl Advanced (L4)'. The senior page calls the cheer team 'UCC Stunt' and the DB training slot already uses the label 'UCC Stunt'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "united-cheers",
+   "action": "add",
+   "docId": null,
+   "fields": {
+    "name": "UCC Pom",
+    "discipline": "performance_cheer",
+    "level": null,
+    "danceStyle": "pom",
+    "tier": "competition",
+    "division": "all_girl",
+    "ageGroup": "senior",
+    "status": "active",
+    "notes": "Represented NL at the ICU Worlds 2026 (Senior Pom)"
+   },
+   "source": "https://unitedcheers.nl/",
+   "evidence": "Homepage: 'UCC Pom: Performance Cheer Senior Team Pom' ... 'Ons Senior Pom team mag in 2026 voor de tweede keer op rij Nederland gaan vertegenwoordigen op het WK'. Senior page: 'Performance Cheer: UCC Pom, maandag 19:00 – 21:00'. The team is all girls ('meiden vanaf 15 jaar').",
+   "confidence": "high"
+  },
+  {
+   "clubId": "united-cheers",
+   "action": "update",
+   "docId": "Zz4XvYYtZR35DbGv6exd",
+   "fields": {
+    "ageGroup": "mini"
+   },
+   "source": "https://unitedcheers.nl/panthers",
+   "evidence": "Panthers: 'team voor meiden van 7 t/m 11 jaar'. Homepage: 'UC Panthers: Primary Team Novice (L1)'. The ages 7-11 and the 'Primary' division fit mini, not youth.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "dutch-lions-cheerleading",
+   "action": "update",
+   "docId": "LVJzmhmyfgpFdj1FcJ8n",
+   "fields": {
+    "ageGroup": "mini"
+   },
+   "source": "https://dutchlions-cheerleading.nl/Membership",
+   "evidence": "'Lion Cubs, leeftijd tussen 7 en 11 jaar'. The page URL slug is 'lion-cubs-peewee'. Ages 7-11 are mini (ICU Mini ≤11), not youth.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "dynamite-cheer-academy-amstelveen",
+   "action": "update",
+   "docId": "Rg4e7gyBNl7QxGGTjeE6",
+   "fields": {
+    "tier": "competition"
+   },
+   "source": "https://www.dynamitecheeracademyamstelveen.nl/teams/team-glitterbombs-12-jaar-en-ouder",
+   "evidence": "Glitterbombs (12 jaar en ouder): 'Zij doen mee aan wedstrijden in binnen en buitenland'. Level not stated.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "ravens-cheerleading-utrecht",
+   "action": "update",
+   "docId": "qdFKQgm6oATdhwUxGuBZ",
+   "fields": {
+    "level": "4"
+   },
+   "source": "https://www.ravenscheerleadingutrecht.com/",
+   "evidence": "Homepage: Ravens is a 'Level 4 Coed Competition team' with 'Level 3 and Level 4 stunt groups'. Join-us page: 'LEVEL 4 (Competition)' with 'Minimum age requirement 18 years old'.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "invicta-tilburg-cheer",
+   "action": "add",
+   "docId": null,
+   "fields": {
+    "name": "Inferno",
+    "discipline": "cheer",
+    "level": null,
+    "danceStyle": null,
+    "tier": "competition",
+    "division": "coed",
+    "ageGroup": "open",
+    "notes": "Competition team (selected athletes); trains Saturdays 10:00-12:00. Level not published.",
+    "status": "active"
+   },
+   "source": "https://invictacheer.nl",
+   "evidence": "Calendar: 'Inferno try outs!' on 2026-09-27 and 'Competition training (10 - 12hrs)' on 2026-10-04; text: '*The competition team is reserved for athletes selected to be part of the team and will train regularly to compete in competitions this season.' Division coed/open is assumed from the existing student-team entry.",
+   "confidence": "medium"
+  }
+ ],
+ "sessions": [
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "id": "hikari-cheerleading-tr-0",
+   "fields": {
+    "teamLabel": "Nova"
+   },
+   "source": "https://www.hikaricheer.nl/nova",
+   "evidence": "Nova: 'Vrijdagen: 17.30 - 18.30' (times unchanged)",
+   "confidence": "high"
+  },
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "id": "hikari-cheerleading-tr-1",
+   "fields": {
+    "teamLabel": "Nebula"
+   },
+   "source": "https://www.hikaricheer.nl/nebula",
+   "evidence": "Nebula: 'Vrijdagen: 18.15 - 19.45' (times unchanged)",
+   "confidence": "high"
+  },
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "id": "hikari-cheerleading-tr-2",
+   "fields": {
+    "teamLabel": "Eclipse"
+   },
+   "source": "https://www.hikaricheer.nl/eclipse",
+   "evidence": "Eclipse: 'Woensdagen: 17.30 - 19.30' (times unchanged)",
+   "confidence": "high"
+  },
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "id": "hikari-cheerleading-tr-3",
+   "fields": {
+    "teamLabel": "Eclipse"
+   },
+   "source": "https://www.hikaricheer.nl/eclipse",
+   "evidence": "Eclipse: 'Vrijdagen: 18.15 - 19.45' (times unchanged)",
+   "confidence": "high"
+  },
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "id": "hikari-cheerleading-tr-4",
+   "fields": {
+    "teamLabel": "Blaze",
+    "endTime": "21:30",
+    "notes": null
+   },
+   "source": "https://www.hikaricheer.nl/blaze",
+   "evidence": "Blaze: 'Woensdagen: 19.00 - 21.30' (DB end 22:00). The World Cup preparation note expires 2026-09-30, so notes becomes null.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "id": "hikari-cheerleading-tr-5",
+   "fields": {
+    "teamLabel": "Blaze"
+   },
+   "source": "https://www.hikaricheer.nl/blaze",
+   "evidence": "Blaze: 'Zondagen: 10.00 - 14.00' (times unchanged)",
+   "confidence": "high"
+  },
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "id": "hikari-cheerleading-tr-6",
+   "fields": {
+    "teamLabel": "Halo"
+   },
+   "source": "https://www.hikaricheer.nl/halo",
+   "evidence": "Halo: 'Vrijdagen: 19.30 - 22.00' (times unchanged)",
+   "confidence": "high"
+  },
+  {
+   "clubId": "djalita-cheerleaders",
+   "action": "update",
+   "id": "djalita-cheerleaders-tr-0",
+   "fields": {
+    "teamLabel": "Youth A Cheerleading (11 t/m 15 jaar)"
+   },
+   "source": "https://www.djalitacheerleaders.nl/?page_id=51",
+   "evidence": "Academy page 'Trainingsrooster seizoen 2026-2027': 'Maandag 17.30 – 19.30 uur Youth A Cheerleading (11 t/m 15 jaar) Ten Veldestraat 94, De Meern'; 'Youth A is een selectieteam en traint twee keer per week'. Replaces teamLabel 'all'.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "djalita-cheerleaders",
+   "action": "update",
+   "id": "djalita-cheerleaders-tr-2",
+   "fields": {
+    "teamLabel": "Peewees Cheerleading (8 t/m 10 jaar)"
+   },
+   "source": "https://www.djalitacheerleaders.nl/?page_id=51",
+   "evidence": "Academy page 'Trainingsrooster seizoen 2026-2027': 'Dinsdag 17.30 – 19.30 uur Peewees Cheerleading (8 t/m 10 jaar) Ten Veldestraat 94, De Meern'. The age band changed from 6-11 to 8-10.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "djalita-cheerleaders",
+   "action": "update",
+   "id": "djalita-cheerleaders-tr-3",
+   "fields": {
+    "teamLabel": "Youth A & Youth B Cheerleading (11 t/m 15 jaar)",
+    "locationText": "Musicallaan 106, Utrecht"
+   },
+   "source": "https://www.djalitacheerleaders.nl/?page_id=51",
+   "evidence": "Academy page 'Trainingsrooster seizoen 2026-2027': 'Woensdag 17.30 – 19.30 uur Youth A & Youth B Cheerleading (11 t/m 15 jaar) Musicallaan 106, Utrecht'. The site footer also gives 'Academy adres Musicallaan 106, Utrecht' (DB says 110).",
+   "confidence": "high"
+  },
+  {
+   "clubId": "djalita-cheerleaders",
+   "action": "update",
+   "id": "djalita-cheerleaders-tr-4",
+   "fields": {
+    "startTime": "19:30",
+    "locationText": "Musicallaan 106, Utrecht"
+   },
+   "source": "https://www.djalitacheerleaders.nl/?page_id=51",
+   "evidence": "Academy page 'Trainingsrooster seizoen 2026-2027': '19.30 – 21.00 uur Seniors Cheerleading (16 jaar en ouder) Musicallaan 106, Utrecht' (DB 19:00-21:00 at no. 110).",
+   "confidence": "high"
+  },
+  {
+   "clubId": "djalita-cheerleaders",
+   "action": "update",
+   "id": "djalita-cheerleaders-tr-5",
+   "fields": {
+    "teamLabel": "Peewees Pom (8 t/m 10 jaar)",
+    "locationText": "Wevelaan 2, Utrecht"
+   },
+   "source": "https://www.djalitacheerleaders.nl/?page_id=51",
+   "evidence": "Academy page 'Trainingsrooster seizoen 2026-2027': 'Donderdag 18.30 – 19.30 uur Peewees Pom (8 t/m 10 jaar) Wevelaan 2, Utrecht' (DB venue Maria van Rheedestraat 4).",
+   "confidence": "high"
+  },
+  {
+   "clubId": "djalita-cheerleaders",
+   "action": "update",
+   "id": "djalita-cheerleaders-tr-6",
+   "fields": {
+    "teamLabel": "Youth Pom (11 t/m 15 jaar)",
+    "locationText": "Wevelaan 2, Utrecht"
+   },
+   "source": "https://www.djalitacheerleaders.nl/?page_id=51",
+   "evidence": "Academy page 'Trainingsrooster seizoen 2026-2027': '19.30 – 20.30 uur Youth Pom (11 t/m 15 jaar) Wevelaan 2, Utrecht'.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "djalita-cheerleaders",
+   "action": "update",
+   "id": "djalita-cheerleaders-tr-7",
+   "fields": {
+    "teamLabel": "Senior Pom (16 jaar en ouder)",
+    "startTime": "20:00",
+    "locationText": "Wevelaan 2, Utrecht"
+   },
+   "source": "https://www.djalitacheerleaders.nl/?page_id=51",
+   "evidence": "Academy page 'Trainingsrooster seizoen 2026-2027': '20.00 – 22.00 uur Senior Pom (16 jaar en ouder) Wevelaan 2, Utrecht' (DB 20:30-22:00, Maria van Rheedestraat 4).",
+   "confidence": "high"
+  },
+  {
+   "clubId": "djalita-cheerleaders",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Mini's Cheerleading (4 t/m 7 jaar)",
+    "byday": "TU",
+    "startTime": "17:30",
+    "endTime": "18:30",
+    "locationText": "Ten Veldestraat 94, De Meern",
+    "notes": null
+   },
+   "source": "https://www.djalitacheerleaders.nl/?page_id=51",
+   "evidence": "Academy page 'Trainingsrooster seizoen 2026-2027': 'Dinsdag 17.30 – 18.30 uur Mini’s Cheerleading (4 t/m 7 jaar) Ten Veldestraat 94, De Meern'. Runs alongside the Peewee slot (tr-2) for a different group, so it is added rather than merged.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "update",
+   "id": "inclusive-cheer-and-dance-tr-0",
+   "fields": {
+    "startTime": "18:30",
+    "endTime": "20:00"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "Blushhearts: 'dinsdag, donderdag — 18:30-20:00'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "update",
+   "id": "inclusive-cheer-and-dance-tr-1",
+   "fields": {
+    "startTime": "18:30",
+    "endTime": "20:00"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "Blushhearts: 'dinsdag, donderdag — 18:30-20:00'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "hide",
+   "id": "inclusive-cheer-and-dance-tr-2",
+   "fields": {},
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "Greenhearts now 'Trainingsfrequentie: 5 weekenden per jaar — Trainingsdag(en): nvt'. No weekly Tuesday slot.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "hide",
+   "id": "inclusive-cheer-and-dance-tr-3",
+   "fields": {},
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "Greenhearts now weekend-only (5x/year). No weekly Thursday slot.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "update",
+   "id": "inclusive-cheer-and-dance-tr-4",
+   "fields": {
+    "teamLabel": "Limehearts"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "The WE 17:00-18:00 slot is now 'Inclusive Limehearts — Woensdag 17:00-18:00'. Minthearts moved to 15:00-16:00 (added separately).",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "update",
+   "id": "inclusive-cheer-and-dance-tr-5",
+   "fields": {
+    "teamLabel": "Peachhearts",
+    "endTime": "19:00"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "The WE 18:00 slot is now 'Inclusive Peachhearts ... 18:00-19:00(w)'. Pinkhearts moved to 16:00-17:00 (added separately).",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "update",
+   "id": "inclusive-cheer-and-dance-tr-6",
+   "fields": {
+    "startTime": "19:00",
+    "endTime": "20:00"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "Jadehearts: 'woensdag — 19:00-20:00'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "hide",
+   "id": "inclusive-cheer-and-dance-tr-7",
+   "fields": {},
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "Sagehearts is now a Tumbleclass on 'dinsdag 16:30-17:30'. The WE 20:15-21:30 slot is gone.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Minthearts",
+    "byday": "WE",
+    "startTime": "15:00",
+    "endTime": "16:00",
+    "locationText": "Inclusive Cheer & Dance, Zuidlarenstraat 57, 2545 VP Den Haag",
+    "notes": null
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "'Inclusive Minthearts — Woensdag — 15:00-16:00'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Pinkhearts",
+    "byday": "WE",
+    "startTime": "16:00",
+    "endTime": "17:00",
+    "locationText": "Inclusive Cheer & Dance, Zuidlarenstraat 57, 2545 VP Den Haag",
+    "notes": "U12 pom."
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "'Inclusive Pinkhearts — U12 POM — Woensdag — 16:00-17:00'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Peachhearts",
+    "byday": "TU",
+    "startTime": "17:30",
+    "endTime": "18:30",
+    "locationText": "Inclusive Cheer & Dance, Zuidlarenstraat 57, 2545 VP Den Haag",
+    "notes": null
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "Peachhearts: '17:30-18:30(d)' (dinsdag).",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Sagehearts",
+    "byday": "TU",
+    "startTime": "16:30",
+    "endTime": "17:30",
+    "locationText": "Inclusive Cheer & Dance, Zuidlarenstraat 57, 2545 VP Den Haag",
+    "notes": "Tumbleles, alle leeftijden."
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "'Inclusive Sagehearts — Tumbleclass — Leeftijden: all — dinsdag 16:30-17:30'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Meadowhearts",
+    "byday": "TU",
+    "startTime": "20:00",
+    "endTime": "21:30",
+    "locationText": "Inclusive Cheer & Dance, Zuidlarenstraat 57, 2545 VP Den Haag",
+    "notes": "Senior stuntgroepen level 3/4"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "Meadowhearts: 'dinsdag, donderdag — 20:00-21:30'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inclusive-cheer-and-dance",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Meadowhearts",
+    "byday": "TH",
+    "startTime": "20:00",
+    "endTime": "21:30",
+    "locationText": "Inclusive Cheer & Dance, Zuidlarenstraat 57, 2545 VP Den Haag",
+    "notes": "Senior stuntgroepen level 3/4"
+   },
+   "source": "https://inclusivecheerleading.nl/proeflessenrooster",
+   "evidence": "Meadowhearts: 'dinsdag, donderdag — 20:00-21:30'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inferno-athletics",
+   "action": "update",
+   "id": "inferno-athletics-tr-0",
+   "fields": {
+    "teamLabel": "Flames"
+   },
+   "source": "https://infernoathletics.nl/teams",
+   "evidence": "'Flames ... Maandag: 19:00-20:30'. Time confirmed; the team is spelled 'Flames' on the teams page (homepage says 'Flame').",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "inferno-athletics",
+   "action": "update",
+   "id": "inferno-athletics-tr-1",
+   "fields": {
+    "teamLabel": "Flames"
+   },
+   "source": "https://infernoathletics.nl/teams",
+   "evidence": "'Flames ... Zaterdag: 10:00-12:00'. Time confirmed.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "partisans-athletics",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Little Athletics",
+    "byday": "TU",
+    "startTime": "18:00",
+    "endTime": "19:00",
+    "locationText": "Sporthal Elzendaalcollege, Boxmeer",
+    "notes": null
+   },
+   "source": "https://www.cheerleadersboxmeer.com/teams/little-athletics/",
+   "evidence": "'Training dinsdag 18.00 - 19.00 uur'; teams page: 'Alle Partisans Athletics teams trainen in de sporthal van Elzendaalcollege Boxmeer'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "partisans-athletics",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Little Athletics",
+    "byday": "TH",
+    "startTime": "18:00",
+    "endTime": "19:00",
+    "locationText": "Sporthal Elzendaalcollege, Boxmeer",
+    "notes": null
+   },
+   "source": "https://www.cheerleadersboxmeer.com/teams/little-athletics/",
+   "evidence": "'Training donderdag 18.00 - 19.00 uur'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "partisans-athletics",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Athletics Elite",
+    "byday": "TU",
+    "startTime": "18:30",
+    "endTime": "20:00",
+    "locationText": "Sporthal Elzendaalcollege, Boxmeer",
+    "notes": null
+   },
+   "source": "https://www.cheerleadersboxmeer.com/teams/athletics-elite/",
+   "evidence": "'Training dinsdag 18.30 - 20.00 uur'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "partisans-athletics",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Athletics Elite",
+    "byday": "TH",
+    "startTime": "18:30",
+    "endTime": "20:00",
+    "locationText": "Sporthal Elzendaalcollege, Boxmeer",
+    "notes": null
+   },
+   "source": "https://www.cheerleadersboxmeer.com/teams/athletics-elite/",
+   "evidence": "'Training donderdag 18.30 - 20.00 uur'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "partisans-athletics",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Partisans Athletics",
+    "byday": "TU",
+    "startTime": "20:00",
+    "endTime": "21:30",
+    "locationText": "Sporthal Elzendaalcollege, Boxmeer",
+    "notes": null
+   },
+   "source": "https://www.cheerleadersboxmeer.com/teams/partisans-athletics/",
+   "evidence": "'Training dinsdag 20.00 - 21.30 uur'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "partisans-athletics",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Partisans Athletics",
+    "byday": "TH",
+    "startTime": "20:00",
+    "endTime": "21:30",
+    "locationText": "Sporthal Elzendaalcollege, Boxmeer",
+    "notes": null
+   },
+   "source": "https://www.cheerleadersboxmeer.com/teams/partisans-athletics/",
+   "evidence": "'Training donderdag 20.00 - 21.30 uur'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "dansja-cheerleading",
+   "action": "update",
+   "id": "dansja-cheerleading-tr-0",
+   "fields": {
+    "startTime": "15:30",
+    "endTime": "16:30"
+   },
+   "source": "https://www.dansja.nl/rooster/",
+   "evidence": "Rooster page 'Vakanties & Rooster 2026-2027', Dinsdag: 'Cheerleading 15:30 - 16:30'; news post 15 Aug 2026 'Nieuw seizoen, nieuw lesrooster ... Sommige lessen zijn van dag en/of tijd veranderd'.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "blue-wolves-cheerleading",
+   "action": "update",
+   "id": "blue-wolves-cheerleading-tr-2",
+   "fields": {
+    "startTime": "19:00"
+   },
+   "source": "https://bluewolvescheerleading.nl/",
+   "evidence": "Trainingstijden Senioren: Dinsdag 19:00 – 21:30, Windesheim, zaal 8, Campus 2, 8017 CA Zwolle (identical on /lessen/ and /vereniging/, edited 2026-09-23)",
+   "confidence": "high"
+  },
+  {
+   "clubId": "blue-wolves-cheerleading",
+   "action": "update",
+   "id": "blue-wolves-cheerleading-tr-3",
+   "fields": {
+    "startTime": "19:00"
+   },
+   "source": "https://bluewolvescheerleading.nl/",
+   "evidence": "Trainingstijden Senioren: Donderdag 19:00 – 21:30, Windesheim, zaal 9, Campus 2, 8017 CA Zwolle (identical on all pages)",
+   "confidence": "high"
+  },
+  {
+   "clubId": "blue-wolves-cheerleading",
+   "action": "update",
+   "id": "blue-wolves-cheerleading-tr-0",
+   "fields": {
+    "startTime": "19:00",
+    "endTime": "21:00",
+    "locationText": "Windesheim zaal 8, Campus 2, 8017 CA Zwolle"
+   },
+   "source": "https://bluewolvescheerleading.nl/lessen/",
+   "evidence": "Trainingstijden Junioren: Dinsdag 19:00 – 21:00 (on every page; none says 18:00-20:00)",
+   "confidence": "high"
+  },
+  {
+   "clubId": "blue-wolves-cheerleading",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "teamLabel": "Junioren",
+    "byday": "TH",
+    "startTime": "17:30",
+    "endTime": "19:30",
+    "locationText": "Windesheim zaal 9, Campus 2, 8017 CA Zwolle",
+    "notes": null
+   },
+   "source": "https://bluewolvescheerleading.nl/",
+   "evidence": "Homepage: 'Trainingstijden Junioren ... Donderdag 17:30 – 19:30 Windesheim zaal 9 Campus 2 8017 CA Zwolle'",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "blue-wolves-cheerleading",
+   "action": "hide",
+   "id": "blue-wolves-cheerleading-tr-1",
+   "fields": {},
+   "source": "https://bluewolvescheerleading.nl/",
+   "evidence": "The new homepage junior schedule has Tue + Thu only, with no Saturday; Saturday at Victorium appears only as the monthly senior open gym. The /lessen/ and /vereniging/ footers still list 'Junioren Zaterdag 15:00 – 17:00 Victorium'.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "blue-wolves-cheerleading",
+   "action": "update",
+   "id": "blue-wolves-cheerleading-og-0",
+   "fields": {
+    "teamLabel": "Senioren",
+    "locationText": "Victorium Zwolle, Boerendanserdijk 47, 8024 AE Zwolle",
+    "notes": "Open gym voor Senioren, 1x per maand op zaterdag"
+   },
+   "source": "https://bluewolvescheerleading.nl/",
+   "evidence": "Trainingstijden Senioren: 'Zaterdag (Open gym) 1x per maand 15:00 – 17:00 Victorium Zwolle, Boerendanserdijk 47, 8024 AE Zwolle'",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "united-cheers",
+   "action": "update",
+   "id": "united-cheers-tr-2",
+   "fields": {
+    "locationText": "Gymworld Zoetermeer (Danszaal), Amerikaweg 135, Zoetermeer"
+   },
+   "source": "https://unitedcheers.nl/senioren/",
+   "evidence": "'Performance Cheer: UCC Pom, Tijd: maandag 19:00 – 21:00 uur, Locatie: Gymworld Zoetermeer (Danszaal)'. The time matches the DB. The Amerikaweg 135 address comes from the Panthers/Jaguars pages (same Gymworld building).",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "united-cheers",
+   "action": "update",
+   "id": "united-cheers-tr-3",
+   "fields": {
+    "locationText": "Gymworld Zoetermeer (Turnzaal), Amerikaweg 135, Zoetermeer"
+   },
+   "source": "https://unitedcheers.nl/senioren/",
+   "evidence": "'Cheerleading: UCC Stunt, Tijd: woensdag 19:30 – 21:30 uur, Locatie: Gymworld Zoetermeer (Turnzaal)'. The time matches the DB. The address is the same Gymworld building.",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "e-c-v-cheer-together",
+   "action": "hide",
+   "id": "e-c-v-cheer-together-tr-0",
+   "fields": {},
+   "source": "https://www.cheertogether.nl/",
+   "evidence": "'Cheerleading training: Onze trainingen liggen momenteel stil.' (page modified 2026-09-08)",
+   "confidence": "high"
+  },
+  {
+   "clubId": "e-c-v-cheer-together",
+   "action": "hide",
+   "id": "e-c-v-cheer-together-tr-1",
+   "fields": {},
+   "source": "https://www.cheertogether.nl/",
+   "evidence": "'Tumbling training (turnen): Wil je helpen deze mooie sport op te bouwen? Laat het ons weten, dan houden we je op de hoogte zodra er nieuws is.' So no tumbling training is running.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "ravens-cheerleading-utrecht",
+   "action": "update",
+   "id": "ravens-cheerleading-utrecht-og-0",
+   "fields": {
+    "teamLabel": "Crows / Level 3 Open Practice",
+    "startTime": "19:00",
+    "endTime": "21:00",
+    "price": 10,
+    "notes": "Drop-in €10 per training; gratis proefles. Locatie kan wijzigen; controleer de bevestigingsmail/website."
+   },
+   "source": "https://ravenscheerleadingutrecht.com/summer-membership/",
+   "evidence": "'Single Practice Drop-in — €10 per session, available for Level 3 Open Practice'; Level 3 Open Practice Tuesday 19:00–21:00 (join-us also lists CROWS Tue 19:00–21:00)",
+   "confidence": "high"
+  },
+  {
+   "clubId": "ravens-cheerleading-utrecht",
+   "action": "update",
+   "id": "ravens-cheerleading-utrecht-og-1",
+   "fields": {
+    "teamLabel": "Crows / Level 3 Open Practice",
+    "startTime": "11:00",
+    "endTime": "13:00",
+    "price": 10,
+    "notes": "Drop-in €10 per training; gratis proefles. Locatie kan wijzigen; controleer de bevestigingsmail/website."
+   },
+   "source": "https://ravenscheerleadingutrecht.com/summer-membership/",
+   "evidence": "Level 3 Open Practice Saturday 11:00–13:00 (join-us: CROWS Saturday 11:00–13:00)",
+   "confidence": "high"
+  },
+  {
+   "clubId": "ravens-cheerleading-utrecht",
+   "action": "hide",
+   "id": "ravens-cheerleading-utrecht-tr-2",
+   "fields": {},
+   "source": "https://ravenscheerleadingutrecht.com/join-us/",
+   "evidence": "Crows now trains Tue 19:00–21:00 and Sat 11:00–13:00, which og-0/og-1 already cover after the updates above. No Thursday slot is listed.",
+   "confidence": "high"
+  },
+  {
+   "clubId": "ravens-cheerleading-utrecht",
+   "action": "update",
+   "id": "ravens-cheerleading-utrecht-tr-0",
+   "fields": {
+    "teamLabel": "Ravens (Level 4)",
+    "startTime": "20:30",
+    "endTime": "22:30",
+    "locationText": "Utrecht (locatie kan wijzigen; Cremerstraat 253 of Franz Schubertstraat 20)",
+    "notes": null,
+    "status": "published"
+   },
+   "source": "https://ravenscheerleadingutrecht.com/join-us/",
+   "evidence": "LEVEL 4 (Competition): Tuesday 20:30–22:30",
+   "confidence": "high"
+  },
+  {
+   "clubId": "ravens-cheerleading-utrecht",
+   "action": "update",
+   "id": "ravens-cheerleading-utrecht-tr-1",
+   "fields": {
+    "teamLabel": "Ravens (Level 4)",
+    "startTime": "09:00",
+    "endTime": "12:00",
+    "locationText": "Utrecht (locatie kan wijzigen; Cremerstraat 253 of Franz Schubertstraat 20)",
+    "notes": null,
+    "status": "published"
+   },
+   "source": "https://ravenscheerleadingutrecht.com/join-us/",
+   "evidence": "LEVEL 4 (Competition): Saturday 09:00–12:00",
+   "confidence": "high"
+  },
+  {
+   "clubId": "everest-cheerleading-academy",
+   "action": "update",
+   "id": "everest-cheerleading-academy-tr-0",
+   "fields": {
+    "teamLabel": "Beginners",
+    "notes": "Vanaf €18,50 per maand (excl. Olympos-lidmaatschap). Inschrijving via Olympos; intakes 24 aug 2026, 2 nov 2026, 25 jan 2027, 5 apr 2027."
+   },
+   "source": "https://www.everestcheerleading.nl/classes/",
+   "evidence": "Beginners: Wednesday 19:00–21:00, Uppsalalaan 3 (Olympos); 'From €18.50 per month' plus Olympos membership",
+   "confidence": "high"
+  },
+  {
+   "clubId": "everest-cheerleading-academy",
+   "action": "update",
+   "id": "everest-cheerleading-academy-tr-1",
+   "fields": {
+    "notes": "Vanaf €18,50 per maand (excl. Olympos-lidmaatschap). Advanced-atleten trainen langer en doen mee aan wedstrijden/optredens."
+   },
+   "source": "https://www.everestcheerleading.nl/classes/",
+   "evidence": "Advanced & Tumbling: Saturday 10:00–12:30; participants 'participate in competitions and performances'",
+   "confidence": "high"
+  },
+  {
+   "clubId": "e-s-t-c-twist",
+   "action": "update",
+   "id": "e-s-t-c-twist-tr-1",
+   "fields": {
+    "endTime": "22:30",
+    "locationText": "SSC Eindhoven (Hall 3B), Het Eeuwsel 6, 5612 AS Eindhoven",
+    "notes": "Wedstrijd- en recreatieve training."
+   },
+   "source": "https://estctwist.nl/sports/cheerleading/",
+   "evidence": "Training Schedule (2026-2027): Competition/Recreational Training, Wednesday 20:00–22:30, SSCE Hall 3B",
+   "confidence": "medium"
+  },
+  {
+   "clubId": "invicta-tilburg-cheer",
+   "action": "update",
+   "id": "invicta-tilburg-cheer-tr-2",
+   "fields": {
+    "teamLabel": "Inferno"
+   },
+   "source": "https://invictacheer.nl",
+   "evidence": "'Competition team: Saturdays 10:00-12:00*'; the competition team is called Inferno ('Inferno try outs!'). Relabel only if the Inferno team is added.",
+   "confidence": "medium"
+  }
+ ],
+ "verifiedClubs": [
+  "hikari-cheerleading",
+  "djalita-cheerleaders",
+  "kandinsky-college-nijmegen-cheerleading",
+  "um-cheerleading",
+  "inclusive-cheer-and-dance",
+  "inferno-athletics",
+  "partisans-athletics",
+  "dansja-cheerleading",
+  "blue-wolves-cheerleading",
+  "united-cheers",
+  "dutch-lions-cheerleading",
+  "groningen-giants-cheerleaders",
+  "e-c-v-cheer-together",
+  "hilversum-international-cheerleading",
+  "dynamite-cheer-academy-amstelveen",
+  "ravens-cheerleading-utrecht",
+  "everest-cheerleading-academy",
+  "e-s-t-c-twist",
+  "university-cheerleading-amsterdam",
+  "usc-leiden-cheerleading",
+  "invicta-tilburg-cheer"
+ ]
+}
