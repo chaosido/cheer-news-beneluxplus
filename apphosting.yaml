@@ -40,6 +40,14 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  # Google Analytics property for the "Cheer overview" web app. Only ever used
+  # after the visitor opts in via the consent banner; see lib/analytics/.
+  - variable: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+    value: G-NP1V8VNQGK
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: GCP_PROJECT_ID
     value: cheer-overview-site
     availability:

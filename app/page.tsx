@@ -16,10 +16,12 @@ import {
   getPublishedVisitingCoaches,
 } from "@/lib/queries";
 import { expandOpenGym, weeklySlots } from "@/lib/recurrence";
+import { anchorForEvent, anchorForGym } from "@/lib/anchors";
 import { getDictionary } from "@/lib/i18n/server";
 import type { ClubClient } from "@/lib/types";
 import { HomeView } from "@/components/HomeView";
 import type {
+  Anchor,
   CalendarItem,
   MapClub,
   MapVenue,
@@ -66,6 +68,7 @@ export default async function Home() {
         id: `event:${e.id}`,
         clubId: e.clubId,
         venueId: null,
+        anchor: anchorForEvent(e, club),
         title: e.title,
         type: e.type,
         allDay: e.allDay ?? false,
@@ -81,15 +84,30 @@ export default async function Home() {
 
     // Located events → hover-reveal map pins. The map shows NO persistent event
     // pins (they cluttered the map — e.g. a club's off-site showcase sitting as
-    // its own diamond). Instead, every located event is a *candidate* pin keyed
-    // by the same `event:{id}` id as its CalendarItem; the pin only appears when
-    // its agenda row is hovered (see HomeView `hoveredItemId` → Map
-    // `activeEventId`). Club-hosted and independent events alike are included so
-    // hovering any event row reveals where it actually is.
+    // its own diamond). Instead, a located event is a *candidate* pin keyed by
+    // the same `event:{id}` id as its CalendarItem; the pin only appears when its
+    // agenda row is the active anchor (see `anchorForEvent` in lib/anchors.ts).
+    //
+    // An event held AT its own club gets no candidate pin. The club already has
+    // a persistent pin in that spot, and hovering the row highlights it via the
+    // club channel — adding a second pin underneath meant a club-hosted event
+    // behaved differently from an open gym at the same address, which has no
+    // candidate pin at all. Zoomed out, the extra pin surfaced under the cluster
+    // marker instead of next to it. Events elsewhere keep their pin: that is the
+    // case the reveal exists for.
     mapEvents = events
       .filter(
         (e): e is typeof e & { lat: number; lng: number } =>
           e.lat != null && e.lng != null,
+      )
+      // Exactly the events whose anchor is their OWN pin. An event held at its
+      // club points at the club's pin instead, so it needs no pin here — which
+      // is what makes a club-hosted event behave identically to an open gym at
+      // the same address. Off-site club events still qualify.
+      .filter(
+        (e) =>
+          anchorForEvent(e, e.clubId ? clubsById.get(e.clubId) : undefined)
+            ?.kind === "event",
       )
       .map((e) => {
         const club = e.clubId ? clubsById.get(e.clubId) : undefined;
@@ -120,12 +138,16 @@ export default async function Home() {
       const club = gym.clubId ? clubsById.get(gym.clubId) : undefined;
       const venueName = club?.name ?? gym.venueName ?? null;
       const occurrences = expandOpenGym(gym, now, horizon);
+      // A club gym points at its club's pin; a venue gym at the venue's. The
+      // venue id is built once, here, and reused for both the anchor and the
+      // MapVenue below, so the two cannot drift apart.
+      const venueAnchorId = `venue:${gym.venueId ?? gym.id}`;
+      const anchor = anchorForGym({ ...gym, venueAnchorId });
       return occurrences.map((occ, i) => ({
         id: `gym:${gym.id}:${i}`,
         clubId: gym.clubId,
-        // Must match the MapVenue id below (`venue:${vid}`) so clicking this row
-        // can find and reveal the venue's pin — same prefix on both sides.
-        venueId: gym.clubId ? null : `venue:${gym.venueId ?? gym.id}`,
+        venueId: gym.clubId ? null : venueAnchorId,
+        anchor,
         title: venueName ? `Open gym · ${venueName}` : t.eventType.open_gym,
         type: "open_gym" as const,
         allDay: false,
@@ -146,11 +168,11 @@ export default async function Home() {
     for (const gym of publicGyms) {
       if (gym.clubId) continue; // club gyms already render as club pins
       if (gym.lat == null || gym.lng == null) continue;
-      const vid = gym.venueId ?? gym.id;
+      const vid = `venue:${gym.venueId ?? gym.id}`;
       let venue = venuesById.get(vid);
       if (!venue) {
         venue = {
-          id: `venue:${vid}`,
+          id: vid,
           name: gym.venueName ?? t.eventType.open_gym,
           city: gym.city ?? "",
           region: gym.region ?? null,

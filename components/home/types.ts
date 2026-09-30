@@ -1,6 +1,37 @@
 import type { EventType } from "@/lib/types";
 
 /**
+ * What a map pin represents, and therefore what an agenda row points at.
+ *
+ * THE RULE THE MAP OBEYS: a pin is a PLACE; an agenda row is a DATED HAPPENING.
+ * A happening does not get a pin of its own — it points at the pin of the place
+ * hosting it, and only conjures one when no such place exists.
+ *
+ *  - `club`  — hosted at a club that already has a persistent pin.
+ *  - `venue` — hosted at a club-independent open-gym venue (also persistent).
+ *  - `event` — happening somewhere with no pin of its own; the map materialises
+ *              one on hover/selection and drops it again afterwards.
+ *
+ * A row with no anchor (`null`) is not locatable at all: it still appears in the
+ * agenda, but it cannot be hovered onto the map or clicked to zoom.
+ *
+ * Anchors are computed ONCE on the server (app/page.tsx) so the map and the
+ * agenda cannot disagree about what a row points at.
+ */
+export type AnchorKind = "club" | "venue" | "event";
+
+export interface Anchor {
+  kind: AnchorKind;
+  /** Entity id within its kind — a club id, a `venue:` id, or an `event:` id. */
+  id: string;
+}
+
+/** True when two anchors denote the same pin. Either side may be absent. */
+export function sameAnchor(a: Anchor | null, b: Anchor | null): boolean {
+  return a != null && b != null && a.kind === b.kind && a.id === b.id;
+}
+
+/**
  * A unified calendar/agenda item merged from two server sources:
  *  - published one-off `events`
  *  - expanded open-gym occurrences
@@ -31,6 +62,12 @@ export interface CalendarItem {
   province: string | null;
   /** True for open-gym occurrences (drives the "Alleen open gyms" toggle). */
   isOpenGym: boolean;
+  /**
+   * The pin this row points at, or null when it has no location at all.
+   * Replaces the old habit of inferring it from `clubId`/`venueId` at each call
+   * site, which let the map and the agenda reach different conclusions.
+   */
+  anchor: Anchor | null;
 }
 
 /** One weekly open-gym slot shown in a venue's map popup. */
@@ -62,9 +99,10 @@ export interface MapVenue {
 }
 
 /**
- * A located event rendered as its own map pin (colored by event type). Its `id`
- * matches the corresponding `CalendarItem.id` (`event:{id}`) so HomeView can
- * show/hide pins in lock-step with the filtered agenda.
+ * An event with no hosting place of its own, rendered as a map pin coloured by
+ * event type. Present only for events whose `CalendarItem.anchor` is
+ * `{ kind: "event" }`; its `id` equals that anchor's id. The pin is NOT
+ * persistent — the map materialises it while its row is hovered or selected.
  */
 export interface MapEvent {
   id: string;
@@ -81,8 +119,13 @@ export interface MapEvent {
 }
 
 /**
- * A visiting (touring) coach rendered as its own map pin. Self-contained popup
- * with their stay dates and contact handles; not part of the agenda.
+ * A visiting (touring) coach rendered as a PERSISTENT map pin, with a
+ * self-contained popup carrying their stay dates and contact handles.
+ *
+ * Coaches have no agenda rows — they are a presence over a date range, not a
+ * dated happening — so they cannot be anchors. They were briefly given the
+ * reveal-by-hover treatment used for events, which made them permanently
+ * invisible: no agenda row could ever carry their id to reveal them.
  */
 export interface MapCoach {
   id: string;
