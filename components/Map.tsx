@@ -9,18 +9,26 @@
  * building markers from inline SVG `divIcon`s, which also lets us tint the
  * selected/hovered pin with the spirit accent.
  *
- * OVERLAPPING PINS — clustering + click-to-zoom:
- *   All pins (clubs, venues, events, coaches) live in one `<MarkerClusterGroup>`.
- *   Nearby pins collapse into an accent count badge (the "pink circle"), and the
- *   clusters break apart automatically as you zoom in. Clicking a cluster zooms
- *   to its bounds so the members become individual, reliably-clickable pins;
- *   only genuinely coincident pins spiderfy (at max zoom). We avoid in-place
- *   spiderfy because the transient spider collapses on any hover-driven rerender.
+ * OVERLAPPING PINS — clustering + click-to-spiderfy:
+ *   CLUB and VENUE pins live in one `<MarkerClusterGroup>`; nearby ones collapse
+ *   into an accent count badge (the "pink circle") and break apart as you zoom
+ *   in. EVENT and COACH pins render outside the group — an event pin is
+ *   materialised one at a time, and a lone pin inside the group would render as
+ *   a count badge of 1.
  *
- * Hover/select sync: hovering a pin calls `onHover`, clicking selects via
- * `onSelect`; the externally-controlled `hoveredClubId`/`selectedClubId` props
- * restyle the matching marker. Selecting a club (here or from the agenda) flies
- * the camera to that pin's spread position; hover never moves the camera.
+ *   Clicking a cluster spiderfies it IN PLACE and the spider stays open
+ *   (`zoomToBoundsOnClick={false}` + `spiderfyOnEveryZoom`), so members can be
+ *   clicked and hovered without a zoom change. That is only safe because the
+ *   cluster subtree is memoized on data alone: react-leaflet-cluster rebuilds
+ *   every layer when its children change, which used to collapse the spider on
+ *   the next hover-driven rerender.
+ *
+ * Hover/select sync runs on ONE anchor model (see components/home/types.ts):
+ *   hovering a pin reports its `Anchor` via `onHoverAnchor`, clicking via
+ *   `onSelectAnchor`, and the controlled `hoveredAnchor`/`selectedAnchor` props
+ *   restyle the matching marker. A selection outranks a hover. Selecting a
+ *   clustered pin reveals it first (`zoomToShowLayer`) and then PANS; selecting
+ *   an event pin flies in to city zoom. Hover never moves the camera.
  */
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -51,6 +59,7 @@ import "leaflet/dist/leaflet.css";
 import { EVENT_TYPE_COLOR } from "@/lib/eventColors";
 import type { EventType } from "@/lib/types";
 import type {
+  Anchor,
   MapClub,
   MapVenue,
   MapEvent,
@@ -312,30 +321,46 @@ function pinTooltipHtml(name: string, city: string | null): string {
 }
 
 /**
- * Imperative highlight + reveal driver for clustered pins (clubs and venues).
+ * Imperative highlight + reveal driver for pins that live inside the cluster.
  *
  * WHY IMPERATIVE: the cluster subtree is memoized so it never re-renders — that
  * is what stops an open spider from collapsing (react-leaflet-cluster rebuilds
  * all layers on any child change). Per-pin focus visuals therefore can't be
  * React props; we apply them straight onto the Leaflet markers via the ref maps.
  *
- * For the active pin of each kind (a click/selection wins over a hover):
- *  - CLUB: swap to the hover/selected icon, raise it, show a permanent name
- *    tooltip, and on selection open its popup.
- *  - VENUE (club-independent open gym): no icon variants, so reveal it and, on
- *    selection, open its popup — the "spider opens + the gym is highlighted"
- *    behaviour these rows were missing.
+ * Clubs and venues are handled by ONE effect. They were two ~45-line copies
+ * that behaved identically apart from an icon swap (venues have a single icon,
+ * so there is nothing to swap) and a tooltip offset. Both of those now live in
+ * `KIND` below, so a third clustered pin kind is a table entry rather than a
+ * third copy to keep in sync.
  *
- * If the pin is buried in a cluster, `zoomToShowLayer` zooms/spiderfies until it
- * surfaces first (we never clamp the zoom — that could stop short and leave it
- * clustered). HOVER only surfaces/zooms when buried; SELECTION also pans + opens
- * the popup. The previously-active pin of each kind is reverted before the next.
+ * Behaviour, identical for every kind:
+ *  - HOVER  → highlight + a permanent name tooltip. Never moves the camera. A
+ *             pin buried in a cluster stays buried; its tooltip cannot show
+ *             until a click reveals it.
+ *  - SELECT → reveal (zoomToShowLayer if buried, which zooms/spiderfies until it
+ *             surfaces), then pan and open the popup. No tooltip — the popup
+ *             already carries the name.
+ *
+ * An `event` anchor is not handled here: those pins live outside the cluster and
+ * are mounted/unmounted by the parent, so there is nothing to reveal.
  */
+const KIND = {
+  club: {
+    /** Clubs have hover/selected icon variants; venues have one icon. */
+    swapsIcon: true,
+    /** Taller pin, so its name tag sits higher. */
+    tooltipOffset: [0, -28] as [number, number],
+  },
+  venue: {
+    swapsIcon: false,
+    tooltipOffset: [0, -16] as [number, number],
+  },
+} as const;
+
 function MapFocus({
-  selectedClubId,
-  hoveredClubId,
-  hoveredVenueId,
-  selectedVenueId,
+  anchor,
+  isSelection,
   clubs,
   venues,
   clusterRef,
@@ -343,10 +368,10 @@ function MapFocus({
   venueRefs,
   icons,
 }: {
-  selectedClubId: string | null;
-  hoveredClubId: string | null;
-  hoveredVenueId: string | null;
-  selectedVenueId: string | null;
+  /** The pin in focus: the selection if any, else the hover. */
+  anchor: Anchor | null;
+  /** True when `anchor` came from a click rather than a hover. */
+  isSelection: boolean;
   clubs: MapClub[];
   venues: MapVenue[];
   clusterRef: React.RefObject<L.MarkerClusterGroup | null>;
@@ -355,111 +380,73 @@ function MapFocus({
   icons: { default: L.DivIcon; hover: L.DivIcon; selected: L.DivIcon };
 }) {
   const map = useMap();
-  const prevClub = useRef<L.Marker | null>(null);
-  const prevVenue = useRef<L.Marker | null>(null);
+  const prev = useRef<L.Marker | null>(null);
 
-  // --- Clubs ---
-  const clubFocus = selectedClubId ?? hoveredClubId;
-  const clubIsSelection = selectedClubId != null;
+  const kind =
+    anchor?.kind === "club" || anchor?.kind === "venue" ? anchor.kind : null;
+  const anchorId = kind ? anchor!.id : null;
+
   useEffect(() => {
-    // Revert the previously highlighted club to its resting state.
-    if (prevClub.current) {
-      prevClub.current.setIcon(icons.default);
-      prevClub.current.setZIndexOffset(0);
-      prevClub.current.unbindTooltip();
-      prevClub.current.closePopup();
-      prevClub.current = null;
+    // Revert whatever was highlighted before, whichever kind it was.
+    if (prev.current) {
+      prev.current.setIcon(icons.default);
+      prev.current.setZIndexOffset(0);
+      prev.current.unbindTooltip();
+      prev.current.closePopup();
+      prev.current = null;
     }
-    if (!clubFocus) return;
-    const club = clubs.find((c) => c.id === clubFocus);
-    const marker = markerRefs.current.get(clubFocus);
-    if (!club || !marker) return;
+    if (!kind || !anchorId) return;
 
-    marker.setIcon(clubIsSelection ? icons.selected : icons.hover);
+    const spec = KIND[kind];
+    const place =
+      kind === "club"
+        ? clubs.find((c) => c.id === anchorId)
+        : venues.find((v) => v.id === anchorId);
+    const marker = (kind === "club" ? markerRefs : venueRefs).current.get(
+      anchorId,
+    );
+    if (!place || !marker) return;
+
+    if (spec.swapsIcon) {
+      marker.setIcon(isSelection ? icons.selected : icons.hover);
+    }
     marker.setZIndexOffset(1000);
-    prevClub.current = marker;
+    prev.current = marker;
 
     const group = clusterRef.current;
     const buried = group
       ? group.hasLayer(marker) && group.getVisibleParent(marker) !== marker
       : false;
 
-    if (clubIsSelection) {
-      // A CLICK travels to the pin: reveal it (zoom/spiderfy if buried), then
-      // pan and open its popup. No name-tag tooltip here — the popup already
-      // carries the club name, and the tooltip is reserved for hover.
+    if (isSelection) {
       const reveal = () => {
-        map.panTo([club.lat, club.lng], { animate: true });
+        map.panTo([place.lat, place.lng], { animate: true });
         marker.openPopup();
       };
       if (buried && group) group.zoomToShowLayer(marker, reveal);
       else reveal();
     } else if (!buried) {
-      // HOVER shows the name-tag tooltip and highlights — never moves the
-      // camera. A pin buried in a cluster stays put; its tooltip can't show
-      // until a click reveals it.
-      marker.bindTooltip(pinTooltipHtml(club.name, club.city), {
+      marker.bindTooltip(pinTooltipHtml(place.name, place.city), {
         permanent: true,
         direction: "top",
-        offset: [0, -28],
+        offset: spec.tooltipOffset,
         opacity: 1,
         className: "cheer-tooltip",
       });
       marker.openTooltip();
     }
-  }, [clubFocus, clubIsSelection, clubs, icons, map, clusterRef, markerRefs]);
-
-  // --- Venues (club-independent open gyms) ---
-  // Venues live INSIDE the cluster exactly like clubs (they hide under the count
-  // badge when zoomed out), so they follow the club pattern verbatim: HOVER
-  // shows the name tag and highlights; a CLICK reveals the buried pin
-  // (zoomToShowLayer) or pans to a visible one, then opens its popup — never a
-  // bespoke zoom-to-max flyTo.
-  const venueFocus = selectedVenueId ?? hoveredVenueId;
-  const venueIsSelection = selectedVenueId != null;
-  useEffect(() => {
-    if (prevVenue.current) {
-      prevVenue.current.setZIndexOffset(0);
-      prevVenue.current.unbindTooltip();
-      prevVenue.current.closePopup();
-      prevVenue.current = null;
-    }
-    if (!venueFocus) return;
-    const venue = venues.find((v) => v.id === venueFocus);
-    const marker = venueRefs.current.get(venueFocus);
-    if (!venue || !marker) return;
-
-    marker.setZIndexOffset(1000);
-    prevVenue.current = marker;
-
-    const group = clusterRef.current;
-    const buried = group
-      ? group.hasLayer(marker) && group.getVisibleParent(marker) !== marker
-      : false;
-
-    if (venueIsSelection) {
-      // A CLICK travels to the pin: reveal it (zoom/spiderfy if buried), then
-      // pan and open its popup. No name-tag tooltip — the popup carries the name.
-      const reveal = () => {
-        map.panTo([venue.lat, venue.lng], { animate: true });
-        marker.openPopup();
-      };
-      if (buried && group) group.zoomToShowLayer(marker, reveal);
-      else reveal();
-    } else if (!buried) {
-      // HOVER shows the name-tag tooltip and highlights — never moves the
-      // camera. A pin buried in a cluster stays put; its tooltip can't show
-      // until a click reveals it.
-      marker.bindTooltip(pinTooltipHtml(venue.name, venue.city), {
-        permanent: true,
-        direction: "top",
-        offset: [0, -16],
-        opacity: 1,
-        className: "cheer-tooltip",
-      });
-      marker.openTooltip();
-    }
-  }, [venueFocus, venueIsSelection, venues, map, clusterRef, venueRefs]);
+  }, [
+    kind,
+    anchorId,
+    isSelection,
+    clubs,
+    venues,
+    icons,
+    map,
+    clusterRef,
+    markerRefs,
+    venueRefs,
+  ]);
 
   return null;
 }
@@ -472,10 +459,10 @@ function MapFocus({
  * button is a real <button>, so it's keyboard-focusable and Enter/Space work.
  */
 function ResetViewControl({
-  onSelect,
+  onSelectAnchor,
   t,
 }: {
-  onSelect: (id: string | null) => void;
+  onSelectAnchor: (anchor: Anchor | null) => void;
   t: Dictionary;
 }) {
   const map = useMap();
@@ -483,7 +470,7 @@ function ResetViewControl({
 
   const onReset = () => {
     map.setView(NL_CENTER, NL_ZOOM, { animate: true });
-    onSelect(null);
+    onSelectAnchor(null);
   };
 
   useEffect(() => {
@@ -559,38 +546,26 @@ interface MapProps {
   /** Club-independent open-gym venues, rendered as a distinct pin layer. */
   venues?: MapVenue[];
   /**
-   * Located events — candidates for a revealed pin. Events have NO persistent
-   * pin; only the one whose id matches `hoveredEventId`/`selectedEventId` shows.
+   * Events with no hosting place of their own — candidates for a materialised
+   * pin. They have NO persistent pin; only the one matching the active anchor
+   * shows, kept out of the cluster so a lone pin never becomes a count badge.
    */
   events?: MapEvent[];
-  /** Visiting coaches. Like events, shown only when hovered/selected. */
+  /**
+   * Visiting coaches, rendered as PERSISTENT pins. They have no agenda rows, so
+   * they can never be an anchor — when they were revealed by anchor id like
+   * events, no row could ever name them and they were invisible for months.
+   */
   coaches?: MapCoach[];
   /**
-   * The agenda row currently HOVERED (`event:{id}` / `coach:{id}`). Reveals the
-   * matching pin (kept out of the cluster group so it never collapses into a
-   * count badge) and pans to it only if off-screen — a calm preview, no zoom.
+   * The pin being pointed at, and the one stuck by a click. Both sides of the
+   * app speak in anchors, so a pin and the rows pointing at it are the same
+   * thing to this component: hover highlights, selection also travels there.
    */
-  hoveredEventId?: string | null;
-  /**
-   * The agenda row CLICKED (sticky). Keeps the pin shown after the cursor
-   * leaves AND zooms the camera to it — the event/coach analogue of selecting a
-   * club, so a club-less pin row zooms like every other row.
-   */
-  selectedEventId?: string | null;
-  hoveredClubId: string | null;
-  selectedClubId: string | null;
-  onHover: (id: string | null) => void;
-  onSelect: (id: string | null) => void;
-  /**
-   * Venue channel — the club-independent open-gym pin currently hovered/selected
-   * from the agenda (or by clicking the pin itself). Venues live INSIDE the
-   * cluster like clubs, so they reveal via the same `zoomToShowLayer` machinery:
-   * hovering surfaces the buried pin, selecting also opens its popup.
-   */
-  hoveredVenueId?: string | null;
-  selectedVenueId?: string | null;
-  onHoverVenue?: (id: string | null) => void;
-  onSelectVenue?: (id: string | null) => void;
+  hoveredAnchor?: Anchor | null;
+  selectedAnchor?: Anchor | null;
+  onHoverAnchor?: (anchor: Anchor | null) => void;
+  onSelectAnchor?: (anchor: Anchor | null) => void;
   /** Bumped by HomeView to trigger a reset to the whole-NL view. */
   resetSignal?: number;
 }
@@ -600,16 +575,10 @@ export default function Map({
   venues = [],
   events = [],
   coaches = [],
-  hoveredEventId = null,
-  selectedEventId = null,
-  hoveredClubId,
-  selectedClubId,
-  onHover,
-  onSelect,
-  hoveredVenueId = null,
-  selectedVenueId = null,
-  onHoverVenue,
-  onSelectVenue,
+  hoveredAnchor = null,
+  selectedAnchor = null,
+  onHoverAnchor,
+  onSelectAnchor,
   resetSignal = 0,
 }: MapProps) {
   const { t, locale } = useI18n();
@@ -636,8 +605,8 @@ export default function Map({
     >;
   }, []);
 
-  // Cluster group + per-club marker handles, so FocusHighlight can reveal a
-  // club's pin (zoomToShowLayer) when it's selected from the agenda.
+  // Cluster group + per-club marker handles, so MapFocus can reveal a club's
+  // pin (zoomToShowLayer) when it's selected from the agenda.
   const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const markerRefs = useRef<globalThis.Map<string, L.Marker>>(
     new globalThis.Map(),
@@ -647,47 +616,43 @@ export default function Map({
   const venueRefs = useRef<globalThis.Map<string, L.Marker>>(
     new globalThis.Map(),
   );
-  // Stable no-op fallbacks so the venue handlers are always referentially
-  // constant — the memoized cluster subtree below depends on them not changing.
+  // Stable no-op fallbacks so the handlers are always referentially constant —
+  // the memoized cluster subtree below depends on them not changing.
   const noop = useCallback(() => {}, []);
-  const handleHoverVenue = onHoverVenue ?? noop;
-  const handleSelectVenue = onSelectVenue ?? noop;
+  const handleHoverAnchor = onHoverAnchor ?? noop;
+  const handleSelectAnchor = onSelectAnchor ?? noop;
 
-  // Just store the cluster group ref (FocusHighlight uses it to reveal a buried
-  // pin). Cluster CLICKS use the library's default zoom-to-bounds — see the
-  // MarkerClusterGroup props below for why we no longer spiderfy in place.
+  // Just store the cluster group ref (MapFocus uses it to reveal a buried pin).
+  // Cluster CLICKS spiderfy in place — see the MarkerClusterGroup props below.
   const setClusterGroup = useCallback((group: L.MarkerClusterGroup | null) => {
     clusterRef.current = group;
   }, []);
 
-  // The single event/coach pin to show: the hovered row wins (live preview),
-  // falling back to the selected (sticky) one so a clicked pin stays put after
-  // the cursor leaves. Kept out of the cluster group below so a lone pin never
-  // collapses into a count badge.
-  const activeEventId = hoveredEventId ?? selectedEventId;
-  const activeEvent = useMemo(
-    () => events.find((e) => e.id === activeEventId) ?? null,
-    [events, activeEventId],
-  );
-  const activeCoach = useMemo(
-    () => coaches.find((c) => c.id === activeEventId) ?? null,
-    [coaches, activeEventId],
-  );
-  // Whether the shown pin is the CLICKED one (not just a hover preview), mirror
-  // of a club's `clubIsSelection`: a selection wins. Drives the hover-tag vs
-  // click-popup split on the event/coach marker (HOVER → name tag, CLICK →
-  // popup only).
-  const eventIsSelection =
-    selectedEventId != null && selectedEventId === activeEventId;
+  // ONE precedence rule, shared by every pin kind: a sticky selection outranks a
+  // transient hover. This used to be stated three times, and the event/coach
+  // channel stated it backwards (hover winning), which no comment mentioned.
+  const activeAnchor = selectedAnchor ?? hoveredAnchor;
+  const activeIsSelection = selectedAnchor != null;
 
-  // Selected point → zoom-in fly (matches clicking a club). Looked up across
-  // events + coaches by id. Hover never moves the camera — see <FocusEvent>.
+  // The single event pin to materialise, when the active anchor is an event.
+  // Kept out of the cluster group below so a lone pin never collapses into a
+  // count badge.
+  const activeEvent = useMemo(
+    () =>
+      activeAnchor?.kind === "event"
+        ? (events.find((e) => e.id === activeAnchor.id) ?? null)
+        : null,
+    [events, activeAnchor],
+  );
+
+  // Selected event → zoom-in fly (matches clicking a club). Hover never moves
+  // the camera — see <FocusEvent>.
   const selectedPoint = useMemo(
     () =>
-      events.find((e) => e.id === selectedEventId) ??
-      coaches.find((c) => c.id === selectedEventId) ??
-      null,
-    [events, coaches, selectedEventId],
+      selectedAnchor?.kind === "event"
+        ? (events.find((e) => e.id === selectedAnchor.id) ?? null)
+        : null,
+    [events, selectedAnchor],
   );
 
   // The cluster subtree is memoized on data + STABLE callbacks only — never on
@@ -723,8 +688,8 @@ export default function Map({
             key={club.id}
             club={club}
             defaultIcon={icons.default}
-            onHover={onHover}
-            onSelect={onSelect}
+            onHoverAnchor={handleHoverAnchor}
+            onSelectAnchor={handleSelectAnchor}
             markerRefs={markerRefs}
             t={t}
           />
@@ -734,8 +699,8 @@ export default function Map({
             key={venue.id}
             venue={venue}
             icon={venueMarkerIcon}
-            onHover={handleHoverVenue}
-            onSelect={handleSelectVenue}
+            onHoverAnchor={handleHoverAnchor}
+            onSelectAnchor={handleSelectAnchor}
             venueRefs={venueRefs}
             t={t}
           />
@@ -747,10 +712,8 @@ export default function Map({
       venues,
       icons.default,
       venueMarkerIcon,
-      onHover,
-      onSelect,
-      handleHoverVenue,
-      handleSelectVenue,
+      handleHoverAnchor,
+      handleSelectAnchor,
       setClusterGroup,
       t,
     ],
@@ -772,10 +735,8 @@ export default function Map({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapFocus
-          selectedClubId={selectedClubId}
-          hoveredClubId={hoveredClubId}
-          hoveredVenueId={hoveredVenueId}
-          selectedVenueId={selectedVenueId}
+          anchor={activeAnchor}
+          isSelection={activeIsSelection}
           clubs={clubs}
           venues={venues}
           clusterRef={clusterRef}
@@ -783,7 +744,7 @@ export default function Map({
           venueRefs={venueRefs}
           icons={icons}
         />
-        <ResetViewControl onSelect={onSelect} t={t} />
+        <ResetViewControl onSelectAnchor={handleSelectAnchor} t={t} />
         <ResetView signal={resetSignal} />
 
         {/* Pins merge into the accent count badge. Clicking a cluster spiderfies
@@ -794,27 +755,33 @@ export default function Map({
             reveal are done imperatively by <MapFocus> above. */}
         {clusterGroup}
 
-        {/* Hover-revealed event / coach pin. Rendered OUTSIDE the cluster group
-            (so a single pin can't be swallowed into a count badge) and only
-            while its agenda row is hovered. */}
+        {/* Materialised event pin. Rendered OUTSIDE the cluster group (so a
+            single pin can't be swallowed into a count badge) and only while its
+            agenda row is the active anchor. */}
         {activeEvent && (
           <EventMarker
             event={activeEvent}
             icon={eventIcons[activeEvent.type]}
             t={t}
             locale={locale}
-            selected={eventIsSelection}
+            selected={activeIsSelection}
           />
         )}
-        {activeCoach && (
+
+        {/* Visiting coaches are PERSISTENT pins, outside the cluster so they
+            stay legible among the club pins. They have no agenda rows, so they
+            can never be an anchor — revealing them by anchor id (as events are)
+            made them permanently invisible, since no row could ever name one. */}
+        {coaches.map((coach) => (
           <CoachMarker
-            coach={activeCoach}
+            key={coach.id}
+            coach={coach}
             icon={coachMarkerIcon}
             t={t}
             locale={locale}
-            selected={eventIsSelection}
+            selected={false}
           />
-        )}
+        ))}
         {/* Camera only moves on a click; hovering just reveals the pin in place. */}
         <FocusEvent point={selectedPoint} />
       </MapContainer>
@@ -839,15 +806,15 @@ function formatSlot(s: MapVenue["sessions"][number], t: Dictionary): string {
 const VenueMarker = memo(function VenueMarker({
   venue,
   icon,
-  onHover,
-  onSelect,
+  onHoverAnchor,
+  onSelectAnchor,
   venueRefs,
   t,
 }: {
   venue: MapVenue;
   icon: L.DivIcon;
-  onHover: (id: string | null) => void;
-  onSelect: (id: string | null) => void;
+  onHoverAnchor: (anchor: Anchor | null) => void;
+  onSelectAnchor: (anchor: Anchor | null) => void;
   venueRefs: React.RefObject<globalThis.Map<string, L.Marker>>;
   t: Dictionary;
 }) {
@@ -869,9 +836,9 @@ const VenueMarker = memo(function VenueMarker({
       icon={icon}
       riseOnHover
       eventHandlers={{
-        mouseover: () => onHover(venue.id),
-        mouseout: () => onHover(null),
-        click: () => onSelect(venue.id),
+        mouseover: () => onHoverAnchor({ kind: "venue", id: venue.id }),
+        mouseout: () => onHoverAnchor(null),
+        click: () => onSelectAnchor({ kind: "venue", id: venue.id }),
       }}
     >
       {/* No declarative tooltip: the hover name-tag is bound imperatively by
@@ -1187,15 +1154,15 @@ function UserGlyph() {
 const ClubMarker = memo(function ClubMarker({
   club,
   defaultIcon,
-  onHover,
-  onSelect,
+  onHoverAnchor,
+  onSelectAnchor,
   markerRefs,
   t,
 }: {
   club: MapClub;
   defaultIcon: L.DivIcon;
-  onHover: (id: string | null) => void;
-  onSelect: (id: string | null) => void;
+  onHoverAnchor: (anchor: Anchor | null) => void;
+  onSelectAnchor: (anchor: Anchor | null) => void;
   markerRefs: React.RefObject<globalThis.Map<string, L.Marker>>;
   t: Dictionary;
 }) {
@@ -1239,9 +1206,9 @@ const ClubMarker = memo(function ClubMarker({
       // Raise the hovered/selected pin above any neighbours it overlaps.
       riseOnHover
       eventHandlers={{
-        mouseover: () => onHover(club.id),
-        mouseout: () => onHover(null),
-        click: () => onSelect(club.id),
+        mouseover: () => onHoverAnchor({ kind: "club", id: club.id }),
+        mouseout: () => onHoverAnchor(null),
+        click: () => onSelectAnchor({ kind: "club", id: club.id }),
       }}
     >
       {/*
