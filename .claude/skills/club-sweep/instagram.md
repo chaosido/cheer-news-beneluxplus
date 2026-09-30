@@ -29,3 +29,18 @@ using the maintainer's logged-in browser. It cannot be delegated to a fetch-only
 
 Write findings in the same JSON shape as brief.md, to tmp/sweep/result-instagram.json, and fold
 them into the change set like any other batch.
+
+## Technique that works (2026-09)
+- Instagram's `web_profile_info` API returns HTML now — don't bother.
+- On the profile page, collect post shortcodes from `a[href*="/p/"], a[href*="/reel/"]`, then
+  `fetch('/p/<code>/')` each and read `<meta property="og:description">`: it holds the post date
+  ("… on September 7, 2026: …") and the full caption. ~12 posts per club in one JS call.
+- Click the bio's "more" button before reading `header` innerText, or the bio is truncated.
+- Instagram's CSP blocks `eval` when nested: store ONE routine in localStorage and `eval` it once
+  per page. The tool output truncates at ~1,300 chars — stash results in localStorage and page
+  through them.
+- Schedules often live only in carousel images (e.g. a "TEAMS 2026/2027" post, a monthly
+  schedule graphic): open the post, screenshot, click the next arrow, and zoom per slide.
+- `apply-sweep.ts` can add open gyms (`"sessionType": "open_gym"`) and date-bound slots
+  (`"validFrom": "YYYY-MM-DD"`). The club page ignores `validFrom`, so a "starts later" slot
+  also needs a public note — and a memory reminder to clear it.

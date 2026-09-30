@@ -1,0 +1,108 @@
+{
+ "teams": [
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "docId": "FMQ6nQnvzyA92eaqB11F",
+   "fields": {
+    "division": "all_girl",
+    "ageGroup": "junior"
+   },
+   "source": "https://www.instagram.com/hikari_cheerleading/",
+   "evidence": "Instagram bio (30 Sep 2026): \"ECLIPSE - Junior All Girl Lev 2\""
+  },
+  {
+   "clubId": "united-cheers",
+   "action": "update",
+   "docId": "uDYyOPdv0vxoF1qP0k0F",
+   "fields": {
+    "ageGroup": "youth"
+   },
+   "source": "https://www.instagram.com/p/DaXEUMHinBQ/",
+   "evidence": "UCC TEAMS 2026/2027 carousel (4 Jul 2026): \"United Cheers Jaguars — Youth Intermediate / Median (Level 2/3) — Geboortejaar 2012-2015\""
+  }
+ ],
+ "sessions": [
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "id": "hikari-cheerleading-tr-2",
+   "fields": {
+    "endTime": "19:00"
+   },
+   "source": "https://www.instagram.com/p/DdzeJYbEb_G/",
+   "evidence": "27 Sep 2026: \"Hierna zijn de trainingen elke woensdag om 17:30 tot 19:00 en elke vrijdag (afhankelijk van leeftijd)\""
+  },
+  {
+   "clubId": "hikari-cheerleading",
+   "action": "update",
+   "id": "hikari-cheerleading-tr-4",
+   "fields": {
+    "endTime": "22:00",
+    "validFrom": "2026-11-25",
+    "notes": "De woensdagtraining start op 25 november (World Cup-periode); tot die tijd traint Blaze alleen op zondag."
+   },
+   "source": "https://www.instagram.com/p/Dc_jnQBCBCM/",
+   "evidence": "7 Sep 2026: \"Training: Every Wednesday | 19:00–22:00 Every Sunday | 10:00–14:00 ⚠️ Wednesday trainings start on November 25th due to the World Cup. Until then, we will only have Sunday practices.\""
+  },
+  {
+   "clubId": "groningen-giants-cheerleaders",
+   "action": "update",
+   "id": "groningen-giants-cheerleaders-og-0",
+   "fields": {
+    "startTime": "19:00",
+    "endTime": "21:00",
+    "teamLabel": "Cheerleaders",
+    "locationText": null,
+    "notes": null
+   },
+   "source": "https://www.instagram.com/p/DdLkD9hDYvM/",
+   "evidence": "12 Sep 2026: \"last open training before tryouts on Monday from 19:00 to 21:00\"; 5 Sep (Dc5mUkUNhuQ): \"open practices on the 7th, 9th and 14th of September from 19:00 to 21:00\" (Mon/Wed/Mon)"
+  },
+  {
+   "clubId": "groningen-giants-cheerleaders",
+   "action": "update",
+   "id": "groningen-giants-cheerleaders-og-1",
+   "fields": {
+    "startTime": "19:00",
+    "endTime": "21:00",
+    "teamLabel": "Cheerleaders",
+    "locationText": null,
+    "notes": null
+   },
+   "source": "https://www.instagram.com/p/Dc5mUkUNhuQ/",
+   "evidence": "5 Sep 2026: \"open practices on the 7th, 9th and 14th of September from 19:00 to 21:00\" — 9 Sep is a Wednesday"
+  },
+  {
+   "clubId": "university-cheerleading-amsterdam",
+   "action": "add",
+   "id": null,
+   "fields": {
+    "sessionType": "open_gym",
+    "teamLabel": "Open gym",
+    "byday": "WE",
+    "startTime": "19:00",
+    "endTime": "21:45",
+    "locationText": "Van Ostadestraat 201, Amsterdam",
+    "notes": null
+   },
+   "source": "https://www.instagram.com/p/DcizTlosmbj/",
+   "evidence": "September 2026 schedule image (27 Aug 2026): Wednesdays 2, 9, 16 and 23 Sep \"OPEN GYM 19.00 - 21.45\"; caption: \"Wednesday: van Ostadestraat 201\". Added on maintainer's call despite September being the intro month."
+  }
+ ],
+ "verifiedClubs": [
+  "hikari-cheerleading",
+  "groningen-giants-cheerleaders",
+  "united-cheers",
+  "um-cheerleading",
+  "ravens-cheerleading-utrecht",
+  "blue-wolves-cheerleading",
+  "invicta-tilburg-cheer",
+  "dansja-cheerleading",
+  "e-s-t-c-twist",
+  "everest-cheerleading-academy",
+  "ash-cheer-sport",
+  "xfit-cheer",
+  "university-cheerleading-amsterdam"
+ ]
+}

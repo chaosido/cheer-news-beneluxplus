@@ -74,6 +74,7 @@ const REQUIRED_ON_ADD = ["name", "discipline", "tier", "division", "ageGroup"];
 // The classification fields that get guessed. Each needs its own quote on an add.
 const SOURCED_ON_ADD = ["division", "ageGroup", "tier"];
 const SESSION_KEYS = new Set([
+  "sessionType",
   "teamLabel",
   "byday",
   "rrule",
@@ -159,9 +160,17 @@ const slug = (s: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-/** `byday` is op shorthand; the stored shape is a weekly RRULE. */
-function sessionFields(f: Record<string, unknown>) {
+/**
+ * `byday` is op shorthand; the stored shape is a weekly RRULE. Date-only
+ * `validFrom`/`validUntil` ("YYYY-MM-DD") are stored as Timestamps like the
+ * other slot docs; noon UTC keeps the calendar day stable, since recurrence.ts
+ * anchors on the UTC date.
+ */
+function sessionFields(f: Record<string, unknown>, toTs: (d: Date) => unknown) {
   const { byday, ...rest } = f;
+  for (const k of ["validFrom", "validUntil"])
+    if (typeof rest[k] === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rest[k]))
+      rest[k] = toTs(new Date(`${rest[k]}T12:00:00Z`));
   return byday && !rest.rrule
     ? { ...rest, rrule: `FREQ=WEEKLY;BYDAY=${byday}` }
     : rest;
@@ -185,7 +194,8 @@ async function main() {
   }
 
   const { adminDb } = await import("../lib/firebaseAdmin");
-  const { FieldValue } = await import("firebase-admin/firestore");
+  const { FieldValue, Timestamp } = await import("firebase-admin/firestore");
+  const toTs = (d: Date) => Timestamp.fromDate(d);
   const tag = APPLY ? "" : "[dry run] ";
   const now = FieldValue.serverTimestamp();
 
@@ -243,7 +253,7 @@ async function main() {
         n++;
       const id = `${op.clubId}-tr-${n}`;
       taken.add(id);
-      const f = sessionFields(op.fields);
+      const f = sessionFields(op.fields, toTs);
       console.log(
         `   + ${id}  ${f.rrule} ${f.startTime}-${f.endTime}  ${f.teamLabel}`,
       );
@@ -275,7 +285,9 @@ async function main() {
       continue;
     }
     const patch =
-      op.action === "hide" ? { status: "rejected" } : sessionFields(op.fields);
+      op.action === "hide"
+        ? { status: "rejected" }
+        : sessionFields(op.fields, toTs);
     const d = diff(snap.data()!, patch);
     if (!d.length) continue;
     console.log(`   ~ ${op.id}  ${d.join(", ")}`);
