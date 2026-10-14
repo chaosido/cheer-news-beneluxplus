@@ -6,12 +6,14 @@ sessionType "training" = team training slot, "open_gym" = public drop-in).
 You are READ-ONLY with respect to the database. Your only output is one JSON file.
 
 ## What to verify, per club
+
 1. **Teams** fielded THIS season: name, discipline, level, danceStyle, tier, division, ageGroup.
    Flag DB teams that no longer exist and teams missing from the DB.
 2. **Training slots**: day(s), start/end (local HH:mm), venue/address, which team.
    Flag slots that are wrong, missing, or gone.
 
 ## Sources, in order of trust
+
 1. The club's own website (team pages, "trainingstijden", "rooster", "lidmaatschap").
 2. The club's Instagram/Facebook (bio, pinned posts, season-start posts). NOTE: plain fetches
    are usually blocked — try once, then move on. Instagram is covered by a separate
@@ -23,6 +25,7 @@ Prefer sources dated for the current season. An older source contradicting the D
 `conflict`, not a change.
 
 ## Enums (exactly these)
+
 - discipline: "cheer" | "performance_cheer"
 - level: "1".."7" (ICU L-code) or null. Novice=1, Intermediate=2, Median=3, Advanced=4,
   Elite=5, Premier=6/7. Beginner/L0 → "1" with a note. USASF numbers run ~+1 vs ICU — convert.
@@ -34,6 +37,7 @@ Prefer sources dated for the current season. An older source contradicting the D
 - byday: MO TU WE TH FR SA SU. Times "HH:mm", Europe/Amsterdam.
 
 ## Hard rules
+
 - **Never guess a required team field.** A team `add` needs a SOURCED name, discipline, tier,
   division and ageGroup. If division (or any of those) isn't published, do NOT propose the add —
   put the team under `unverified` and, if it has a slot, carry the name in the slot's teamLabel.
@@ -49,26 +53,27 @@ Prefer sources dated for the current season. An older source contradicting the D
 - Club looks defunct or suspended → evidence under `clubFlags`, no team changes.
 
 ## Output shape
+
 {
-  "clubs": [{
-    "clubId": "...",
-    "checkedSources": ["url", ...],
-    "summary": "1-3 sentences",
-    "clubFlags": ["..."],
-    "teamChanges": [
-      { "action": "update"|"add"|"deactivate"|"confirm", "docId": "existing doc id or null",
-        "fields": { only fields that change; full team for add },
-        "source": "url", "evidence": "quote/paraphrase", "confidence": "high"|"medium",
-        "sourced": { "division": "quote", "ageGroup": "quote", "tier": "quote" }  // REQUIRED on add
-      } ],
-    "sessionChanges": [
-      { "action": "update"|"add"|"hide"|"confirm", "id": "existing open_gyms id or null",
-        "fields": { "teamLabel","byday","startTime","endTime","locationText","notes","price" — only what changes },
-        "source": "url", "evidence": "...", "confidence": "high"|"medium" } ],
-    "conflicts": ["..."],
-    "unverified": ["..."],
-    "instagramTodo": ["what an Instagram check should settle for this club"]
-  }]
+"clubs": [{
+"clubId": "...",
+"checkedSources": ["url", ...],
+"summary": "1-3 sentences",
+"clubFlags": ["..."],
+"teamChanges": [
+{ "action": "update"|"add"|"deactivate"|"confirm", "docId": "existing doc id or null",
+"fields": { only fields that change; full team for add },
+"source": "url", "evidence": "quote/paraphrase", "confidence": "high"|"medium",
+"sourced": { "division": "quote", "ageGroup": "quote", "tier": "quote" } // REQUIRED on add
+} ],
+"sessionChanges": [
+{ "action": "update"|"add"|"hide"|"confirm", "id": "existing open_gyms id or null",
+"fields": { "teamLabel","byday","startTime","endTime","locationText","notes","price" — only what changes },
+"source": "url", "evidence": "...", "confidence": "high"|"medium" } ],
+"conflicts": ["..."],
+"unverified": ["..."],
+"instagramTodo": ["what an Instagram check should settle for this club"]
+}]
 }
 Use "confirm" for things you positively verified (lets us stamp lastVerifiedAt).
 Finish with a short reply: path written + one line per club.

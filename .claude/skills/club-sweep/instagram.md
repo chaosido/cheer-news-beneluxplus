@@ -5,12 +5,14 @@ but it blocks plain fetches. So this pass runs in the MAIN session with Claude i
 using the maintainer's logged-in browser. It cannot be delegated to a fetch-only agent.
 
 ## Setup
+
 1. Invoke the `claude-in-chrome` skill, then load the Chrome tools in ONE ToolSearch call
    (tabs_context_mcp, tabs_create_mcp, navigate, get_page_text, find, computer, tabs_close_mcp).
 2. `tabs_context_mcp` first; open ONE new tab for the whole pass and reuse it.
 3. If Instagram shows a login wall, stop and ask the maintainer to log in — never type credentials.
 
 ## Per club (only clubs with an `instagramUrl`, prioritise those with `instagramTodo` items)
+
 1. Navigate to the profile. Read the **bio** (often holds the training times or a linktree).
 2. Read the **pinned posts** and posts from the **season window** (for 2026–27: Aug–Oct 2026).
    Open a post to read its caption; carousel images with schedules need a screenshot — read the
@@ -21,6 +23,7 @@ using the maintainer's logged-in browser. It cannot be delegated to a fetch-only
 5. Budget: ~6 posts per club. Don't scroll the whole feed; don't like/follow/comment/DM — read only.
 
 ## What counts
+
 - A dated season post beats the website when they disagree (clubs update IG first) — but record
   the disagreement under `conflicts` so the maintainer sees it.
 - Tryout/new-team posts can add a team only if they state (or clearly show) division AND age group.
@@ -31,6 +34,7 @@ Write findings in the same JSON shape as brief.md, to tmp/sweep/result-instagram
 them into the change set like any other batch.
 
 ## Technique that works (2026-09)
+
 - Instagram's `web_profile_info` API returns HTML now — don't bother.
 - On the profile page, collect post shortcodes from `a[href*="/p/"], a[href*="/reel/"]`, then
   `fetch('/p/<code>/')` each and read `<meta property="og:description">`: it holds the post date
