@@ -7,6 +7,7 @@ import "server-only";
 import { Timestamp } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebaseAdmin";
 import type {
+  ChangelogEntryClient,
   Coach,
   ClubClient,
   EventClient,
@@ -25,6 +26,7 @@ export const COLLECTIONS = {
   openGyms: "open_gyms",
   submissions: "submissions",
   visitingCoaches: "visiting_coaches",
+  changelog: "changelog",
 } as const;
 
 /**
@@ -241,6 +243,35 @@ export async function getPublishedVisitingCoaches(): Promise<
     .map((d) => docToClient<VisitingCoachClient>(d))
     .filter((c) => c.endsAt == null || c.endsAt >= cutoffIso)
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+}
+
+// ---- Changelog (release notes) ----
+
+/** All release-notes entries, newest first. */
+export async function getChangelog(opts?: {
+  limit?: number;
+}): Promise<ChangelogEntryClient[]> {
+  let q: FirebaseFirestore.Query = adminDb
+    .collection(COLLECTIONS.changelog)
+    .orderBy("date", "desc");
+  if (opts?.limit) q = q.limit(opts.limit);
+  const snap = await q.get();
+  return snap.docs.map((d) => docToClient<ChangelogEntryClient>(d));
+}
+
+/**
+ * The date of the newest changelog entry (ISO), or null when the collection is
+ * empty or unreachable — the footer hides its "last updated" line in that case
+ * rather than failing the whole page over a cosmetic read.
+ */
+export async function getLastUpdated(): Promise<string | null> {
+  try {
+    const [latest] = await getChangelog({ limit: 1 });
+    return latest?.date ?? null;
+  } catch (err) {
+    console.error("[changelog] last-updated read failed:", err);
+    return null;
+  }
 }
 
 // ---- Submissions (admin) ----

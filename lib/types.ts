@@ -328,6 +328,31 @@ export interface SubmissionClient {
   reviewNote?: string | null;
 }
 
+// ---- Changelog (release notes) ----
+
+/**
+ * What a changelog entry announces: a data refresh (clubs/events updated) or a
+ * site feature. Drives the badge on /updates; nothing else branches on it.
+ */
+export type ChangelogKind = "data" | "feature";
+
+/**
+ * One release-notes entry on /updates. Entries are maintainer-written DATA
+ * (Dutch, like all Firestore content) — the UI chrome around them translates,
+ * the entry text does not. Written via maintainer scripts only; there is no
+ * public or admin write surface.
+ */
+export interface ChangelogEntryClient {
+  id: string; // `<yyyy-mm-dd>-<slug>`
+  /** The date the update applies to (not necessarily when it was written). */
+  date: string; // ISO-8601
+  title: string;
+  /** Bullet lines describing what changed. */
+  items: string[];
+  kind: ChangelogKind;
+  updatedAt: string;
+}
+
 // ---- Extraction contract (emitted by JSON-LD/Gemini extractor, see lib/extract.ts) ----
 
 /**

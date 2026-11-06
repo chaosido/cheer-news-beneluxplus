@@ -13,7 +13,7 @@
  * Some entries are functions (e.g. result counts, "+N" pluralization) so callers
  * pass runtime values; both languages implement the same signature.
  */
-import type { EventType, SubmissionKind } from "@/lib/types";
+import type { ChangelogKind, EventType, SubmissionKind } from "@/lib/types";
 
 /** The Dutch dictionary is the canonical source of the shape. */
 export const nl = {
@@ -35,6 +35,9 @@ export const nl = {
     about: "Over",
     contribute: "Bijdragen",
     privacy: "Privacy",
+    updates: "Updates",
+    /** Links to /updates; `date` is already locale-formatted. */
+    lastUpdated: (date: string) => `Laatst bijgewerkt op ${date}`,
     builtBy: "Gemaakt door",
     csnLogoAlt: "Cheersport Nederland",
   },
@@ -419,6 +422,21 @@ export const nl = {
     },
   },
 
+  // ---- Updates (release notes) page ----
+  updates: {
+    metaTitle: "Updates",
+    metaDescription:
+      "Wat er is bijgewerkt op Cheer Overview: nieuwe clubs, evenementen, gecorrigeerde trainingstijden en nieuwe functies.",
+    heading: "Updates",
+    intro:
+      "Wat er recent is bijgewerkt: nieuwe clubs en evenementen, gecorrigeerde gegevens en nieuwe functies. Klopt er iets niet? Meld het via Bijdragen.",
+    empty: "Nog geen updates gelogd.",
+    kind: {
+      data: "Gegevens",
+      feature: "Site",
+    } satisfies Record<ChangelogKind, string>,
+  },
+
   // ---- About page ----
   about: {
     metaTitle: "Over Cheer Overview",
@@ -550,6 +568,8 @@ export const en = {
     about: "About",
     contribute: "Contribute",
     privacy: "Privacy",
+    updates: "Updates",
+    lastUpdated: (date: string) => `Last updated on ${date}`,
     builtBy: "Built by",
     csnLogoAlt: "Cheersport Netherlands",
   },
@@ -893,6 +913,20 @@ export const en = {
       url: "url",
       description: "description",
     },
+  },
+
+  updates: {
+    metaTitle: "Updates",
+    metaDescription:
+      "What changed on Cheer Overview: new clubs, events, corrected training times and new features.",
+    heading: "Updates",
+    intro:
+      "What changed recently: new clubs and events, corrected data and new features. Spotted something wrong? Report it via Contribute.",
+    empty: "No updates logged yet.",
+    kind: {
+      data: "Data",
+      feature: "Site",
+    } satisfies Record<ChangelogKind, string>,
   },
 
   about: {

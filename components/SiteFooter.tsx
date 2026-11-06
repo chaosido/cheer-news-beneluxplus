@@ -1,9 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getDictionary } from "@/lib/i18n/server";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
+import { getLastUpdated } from "@/lib/queries";
+import { formatDate } from "@/lib/dateFormat";
 
 export async function SiteFooter() {
+  const locale = await getLocale();
   const t = await getDictionary();
+  // Null when the changelog is empty/unreachable — the line simply stays off.
+  const lastUpdated = await getLastUpdated();
   return (
     <footer className="mt-auto border-t border-[var(--border)] bg-[var(--surface)]">
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
@@ -26,6 +31,16 @@ export async function SiteFooter() {
           </a>
           <div>
             <p>{t.footer.tagline}</p>
+            {lastUpdated && (
+              <p className="mt-0.5 text-xs">
+                <Link
+                  href="/updates"
+                  className="hover:text-[var(--ink)] hover:underline"
+                >
+                  {t.footer.lastUpdated(formatDate(lastUpdated, locale))}
+                </Link>
+              </p>
+            )}
             <p className="mt-0.5 text-xs">
               {t.footer.builtBy}{" "}
               <a
@@ -42,6 +57,9 @@ export async function SiteFooter() {
         <nav className="flex gap-4">
           <Link href="/over" className="hover:text-[var(--ink)]">
             {t.footer.about}
+          </Link>
+          <Link href="/updates" className="hover:text-[var(--ink)]">
+            {t.footer.updates}
           </Link>
           <Link href="/submit" className="hover:text-[var(--ink)]">
             {t.footer.contribute}
