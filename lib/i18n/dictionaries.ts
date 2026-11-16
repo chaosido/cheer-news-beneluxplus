@@ -210,6 +210,9 @@ export const nl = {
     /** tooltip/aria for the CSN member badge */
     csnMemberAria: "Lid van Cheersport Nederland",
     csnMembersOnly: "Alleen CSN-leden",
+    bcfMember: "BCF-lid",
+    /** tooltip/aria for the BCF member badge */
+    bcfMemberAria: "Lid van de Belgian Cheerleading Federation",
   },
 
   // ---- Club profile ----
@@ -706,6 +709,9 @@ export const en = {
     /** tooltip/aria for the CSN member badge */
     csnMemberAria: "Member of Cheersport Netherlands",
     csnMembersOnly: "CSN members only",
+    bcfMember: "BCF member",
+    /** tooltip/aria for the BCF member badge */
+    bcfMemberAria: "Member of the Belgian Cheerleading Federation",
   },
 
   club: {

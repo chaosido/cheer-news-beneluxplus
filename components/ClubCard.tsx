@@ -3,6 +3,7 @@ import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { CsnMemberBadge } from "@/components/CsnMemberBadge";
+import { BcfMemberBadge } from "@/components/BcfMemberBadge";
 import { TeamBadges } from "@/components/TeamBadges";
 import { safeUrl } from "@/lib/safeUrl";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
@@ -48,6 +49,7 @@ export function ClubCard({ club, t }: { club: ClubClient; t: Dictionary }) {
 
       <div className="mt-auto flex flex-col gap-2">
         {club.csnMember && <CsnMemberBadge t={t} className="self-start" />}
+        {club.bcfMember && <BcfMemberBadge t={t} className="self-start" />}
         <TeamBadges teams={club.teamsSummary} t={t} max={4} />
       </div>
     </Card>

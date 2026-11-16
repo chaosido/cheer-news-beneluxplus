@@ -54,6 +54,7 @@ import type { ClubClient, EventClient, OpenGymClient, Team } from "@/lib/types";
 import { safeUrl } from "@/lib/safeUrl";
 import { TeamBadges } from "@/components/TeamBadges";
 import { CsnMemberBadge } from "@/components/CsnMemberBadge";
+import { BcfMemberBadge } from "@/components/BcfMemberBadge";
 import { EventsList } from "@/components/clubs/EventsList";
 import { OpenGymsList } from "@/components/clubs/OpenGymsList";
 import { TrainingTimesList } from "@/components/clubs/TrainingTimesList";
@@ -245,10 +246,11 @@ export default async function ClubProfilePage({
             )}
           </div>
 
-          {/* CSN membership — own block, kept separate for clean merges. */}
-          {club.csnMember && (
-            <div className="mt-3">
-              <CsnMemberBadge t={t} />
+          {/* Federation membership — own block, kept separate for clean merges. */}
+          {(club.csnMember || club.bcfMember) && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {club.csnMember && <CsnMemberBadge t={t} />}
+              {club.bcfMember && <BcfMemberBadge t={t} />}
             </div>
           )}
 

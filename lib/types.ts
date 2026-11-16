@@ -124,6 +124,10 @@ export interface ClubBase {
   // Federation membership. True if the club is a Cheersport Nederland (CSN)
   // member; optional so legacy docs stay valid — consumers default to false.
   csnMember?: boolean;
+  // Same category of tag for the Belgian Cheerleading Federation (BCF).
+  // Mutually exclusive with csnMember in practice: no club is a member of both
+  // federations, so at most one federation badge ever renders.
+  bcfMember?: boolean;
   // Richer profile fields (populated by the deep-research pass; optional so
   // existing docs without them stay valid — consumers default to [] / null).
   coaches?: Coach[];

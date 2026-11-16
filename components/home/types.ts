@@ -160,6 +160,8 @@ export interface MapClub {
   tiktokUrl: string | null;
   /** True if the club is a Cheersport Nederland (CSN) member. */
   csnMember: boolean;
+  /** True if the club is a Belgian Cheerleading Federation (BCF) member. */
+  bcfMember: boolean;
 }
 
 export interface HomeFilters {
