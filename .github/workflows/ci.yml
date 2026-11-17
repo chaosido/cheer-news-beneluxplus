@@ -56,12 +56,13 @@ jobs:
           NEXT_TELEMETRY_DISABLED: "1"
 
       # --- Hard gate: dependency audit --------------------------------------
-      # Fails the run on high/critical advisories. Moderate and below stay
-      # informational. If a fix isn't yet available upstream, triage with
-      # `npm audit` locally and add a scoped allowance rather than reverting
-      # this gate.
+      # Fails the run on high/critical advisories, except those explicitly
+      # allowlisted in .github/audit-allowlist.json (scoped allowances for
+      # advisories with no patched version upstream — each entry carries a
+      # reason and should be removed once a fix ships). Moderate and below
+      # stay informational.
       - name: Dependency audit
-        run: npm audit --audit-level=high
+        run: node scripts/audit-gate.mjs
 
   secrets:
     name: Secret scan (gitleaks)
