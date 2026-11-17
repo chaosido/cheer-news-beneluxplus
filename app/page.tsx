@@ -259,6 +259,7 @@ export default async function Home() {
       facebookUrl: c.facebookUrl,
       tiktokUrl: c.tiktokUrl,
       csnMember: c.csnMember ?? false,
+      bcfMember: c.bcfMember ?? false,
     }));
 
   return (

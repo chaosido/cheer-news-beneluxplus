@@ -90,8 +90,9 @@ function Facebook({ className }: { className?: string }) {
   );
 }
 
-const NL_CENTER: [number, number] = [52.2, 5.3];
-const NL_ZOOM = 7;
+// Default view covers the whole Benelux scene (NL + BE pins), not just NL.
+const BENELUX_CENTER: [number, number] = [51.55, 4.9];
+const BENELUX_ZOOM = 7;
 // City-level cap so revealing a pin from the agenda surfaces it without flying
 // all the way in.
 const FOCUS_MAX_ZOOM = 11;
@@ -469,7 +470,7 @@ function ResetViewControl({
   const [container, setContainer] = useState<HTMLElement | null>(null);
 
   const onReset = () => {
-    map.setView(NL_CENTER, NL_ZOOM, { animate: true });
+    map.setView(BENELUX_CENTER, BENELUX_ZOOM, { animate: true });
     onSelectAnchor(null);
   };
 
@@ -518,7 +519,7 @@ function ResetView({ signal }: { signal: number }) {
       first.current = false;
       return;
     }
-    map.setView(NL_CENTER, NL_ZOOM, { animate: true });
+    map.setView(BENELUX_CENTER, BENELUX_ZOOM, { animate: true });
   }, [signal, map]);
   return null;
 }
@@ -723,8 +724,8 @@ export default function Map({
     <>
       <style>{MAP_THEME_CSS}</style>
       <MapContainer
-        center={NL_CENTER}
-        zoom={NL_ZOOM}
+        center={BENELUX_CENTER}
+        zoom={BENELUX_ZOOM}
         scrollWheelZoom
         className="h-full w-full bg-[var(--surface-2)]"
         // Keep the map below the sticky header (z-1000) and popups usable.
