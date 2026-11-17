@@ -1,0 +1,8 @@
+[
+  {
+    "id": "GHSA-fc5q-39xc-vjpf",
+    "package": "picomatch",
+    "reason": "ReDoS through single-branch repeated extglobs. No patched version exists (first_patched_version is null as of 2026-11-17) and every version is flagged, so no update or override can clear it. Only reachable through dev-time glob tooling (eslint, vitest, patch-package); no production exposure. Remove this entry once picomatch publishes a fix.",
+    "added": "2026-11-17"
+  }
+]

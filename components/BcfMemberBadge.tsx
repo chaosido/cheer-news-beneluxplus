@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 
 /**
  * Filled pill marking a Belgian Cheerleading Federation (BCF) member club —
- * the Belgian counterpart of the CSN badge, same category of tag, same
- * accent-token styling so it re-themes with the palette.
+ * the Belgian counterpart of the CSN badge, same category of tag. Uses the
+ * BCF brand tokens (gold with near-black text, from the BCF logo).
  */
 export function BcfMemberBadge({
   t,
@@ -18,7 +18,7 @@ export function BcfMemberBadge({
     <span
       title={t.clubs.bcfMemberAria}
       className={cn(
-        "inline-flex items-center gap-1 rounded-full bg-[var(--accent)] px-2 py-0.5 text-xs font-semibold text-[var(--accent-fg)]",
+        "inline-flex items-center gap-1 rounded-full bg-[var(--bcf)] px-2 py-0.5 text-xs font-semibold text-[var(--bcf-fg)]",
         className,
       )}
     >

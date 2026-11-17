@@ -1,18 +1,19 @@
 /**
- * UI string dictionaries (NL + EN), organized by area.
+ * UI string dictionaries (NL + EN + FR), organized by area.
  *
  * SCOPE: UI chrome and static editorial copy ONLY. Firestore DATA — club names,
  * event titles, venue names, user submissions, blurbs, coach bios — is NEVER
  * translated; it is proper-noun / live data and flows through verbatim.
  *
  * TYPING: `nl` is the canonical shape via `satisfies Dictionary`-by-inference —
- * we derive the `Dictionary` type FROM the `nl` object, then require `en` to
- * match it exactly. A missing or misspelled key in `en` is therefore a compile
- * error (see the `satisfies Dictionary` on `en`).
+ * we derive the `Dictionary` type FROM the `nl` object, then require `en` and
+ * `fr` to match it exactly. A missing or misspelled key in `en`/`fr` is
+ * therefore a compile error (see the `satisfies Dictionary` on `en`/`fr`).
  *
  * Some entries are functions (e.g. result counts, "+N" pluralization) so callers
  * pass runtime values; both languages implement the same signature.
  */
+import type { Locale } from "@/lib/i18n/config";
 import type { EventType, SubmissionKind } from "@/lib/types";
 
 /** The Dutch dictionary is the canonical source of the shape. */
@@ -43,8 +44,10 @@ export const nl = {
     label: "Taal",
     nl: "NL",
     en: "EN",
+    fr: "FR",
     nlFull: "Nederlands",
     enFull: "Engels",
+    frFull: "Frans",
     /** aria-label per option, e.g. "Wissel naar Nederlands". */
     switchTo: (full: string) => `Wissel naar ${full}`,
   },
@@ -158,6 +161,7 @@ export const nl = {
     from: "Van",
     to: "Tot",
     csnMembersOnly: "Alleen CSN-leden",
+    bcfMembersOnly: "Alleen BCF-leden",
   },
 
   // ---- Map: tooltips, popups, controls ----
@@ -213,6 +217,7 @@ export const nl = {
     bcfMember: "BCF-lid",
     /** tooltip/aria for the BCF member badge */
     bcfMemberAria: "Lid van de Belgian Cheerleading Federation",
+    bcfMembersOnly: "Alleen BCF-leden",
   },
 
   // ---- Club profile ----
@@ -444,19 +449,9 @@ export const nl = {
     roadmap: {
       belgiumTitle: "België",
       belgiumBody:
-        "Clubs, wedstrijden en open gyms uit België erbij, zodat de Lage Landen samen op één kaart staan.",
-      belgiumWhen: "Binnenkort",
-      germanyTitle: "Duitse grensstreek",
-      germanyBody:
-        "Het aangrenzende Ruhrgebied en de Duitse grensregio, waar veel clubs vlak bij Nederland zitten.",
-      germanyWhen: "Later",
-      sourcesTitle: "Bronnenpagina",
-      sourcesBody:
-        "Eén plek voor de officiële regels: rulebooks, scoresheets en richtlijnen van de federatie, gebundeld en altijd vindbaar.",
-      sourcesWhen: "Later",
+        "Clubs, wedstrijden en open gyms uit België staan nu op de kaart — de Lage Landen samen op één overzicht.",
+      belgiumWhen: "Live",
       rulesAiTitle: "Regels-assistent",
-      rulesAiBody:
-        "Een Google NotebookLM gevuld met de officiële cheerleadingreglementen, zodat je een vraag als “mag deze stunt in level 3?” kunt stellen en meteen antwoord krijgt, met verwijzing naar de bron.",
       rulesAiWhen: "Later",
       coachesTitle: "Uitgebreidere coachespagina",
       coachesBody:
@@ -471,6 +466,10 @@ export const nl = {
     tcnlBody1:
       "Stichting Team Cheerleading Nederland (TCNL) staat achter de nationale teams (de Dutch Equipe) die Nederland vertegenwoordigen op internationale wedstrijden zoals de ICU World Championships. Aangesteld door CSN en volledig gedragen door vrijwilligers, regelt TCNL de trainingen, coaches, kleding, reizen en sponsoring. Team Cheer NL komt uit in Coed, All Girl, Junior, Youth en Adaptive Abilities.",
     tcnlVisit: "Bezoek teamcheerleading.nl",
+    tbHeading: "Over Team Belgium",
+    tbBody1:
+      "Team Belgium is het nationale-teamprogramma van de Belgian Cheerleading Federation (BCF), de Belgische cheerleadingfederatie en ICU-lid, gevestigd in Leuven. Bij de allereerste deelname aan de ICU World Championships (Orlando, april 2025) pakte Team Belgium meteen goud in All Girl Elite en zilver in Coed Elite.",
+    tbVisit: "Bezoek belgiancheer.be",
     ctaHeading: "Mis je iets?",
     ctaBody:
       "De agenda groeit met de community. Ontbreekt er een club, wedstrijd of open gym? Laat het ons weten.",
@@ -560,8 +559,10 @@ export const en = {
     label: "Language",
     nl: "NL",
     en: "EN",
+    fr: "FR",
     nlFull: "Dutch",
     enFull: "English",
+    frFull: "French",
     switchTo: (full: string) => `Switch to ${full}`,
   },
 
@@ -664,6 +665,7 @@ export const en = {
     from: "From",
     to: "To",
     csnMembersOnly: "CSN members only",
+    bcfMembersOnly: "BCF members only",
   },
 
   map: {
@@ -712,6 +714,7 @@ export const en = {
     bcfMember: "BCF member",
     /** tooltip/aria for the BCF member badge */
     bcfMemberAria: "Member of the Belgian Cheerleading Federation",
+    bcfMembersOnly: "BCF members only",
   },
 
   club: {
@@ -922,19 +925,9 @@ export const en = {
     roadmap: {
       belgiumTitle: "Belgium",
       belgiumBody:
-        "Adding clubs, competitions and open gyms from Belgium, so the Low Countries share one map.",
-      belgiumWhen: "Soon",
-      germanyTitle: "German border region",
-      germanyBody:
-        "The neighbouring Ruhr area and German border region, where many clubs sit close to the Netherlands.",
-      germanyWhen: "Later",
-      sourcesTitle: "Sources page",
-      sourcesBody:
-        "One place for the official rules: rulebooks, scoresheets and federation guidelines, bundled and always findable.",
-      sourcesWhen: "Later",
+        "Clubs, competitions and open gyms from Belgium are now on the map — the Low Countries on one overview.",
+      belgiumWhen: "Live",
       rulesAiTitle: "Ask-the-rules assistant",
-      rulesAiBody:
-        "A Google NotebookLM loaded with the official cheerleading rulebooks, so you can ask a question like “is this stunt allowed in level 3?” and get an answer, with a reference back to the source.",
       rulesAiWhen: "Later",
       coachesTitle: "Expanded coaches page",
       coachesBody:
@@ -949,6 +942,10 @@ export const en = {
     tcnlBody1:
       "Stichting Team Cheerleading Nederland (TCNL) is the body behind the national teams (the Dutch Equipe) that represent the country at international competitions such as the ICU World Championships. Appointed by CSN and run entirely by volunteers, it handles the training, coaching, apparel, travel and sponsorship. Team Cheer NL competes in Coed, All Girl, Junior, Youth and Adaptive Abilities.",
     tcnlVisit: "Visit teamcheerleading.nl",
+    tbHeading: "About Team Belgium",
+    tbBody1:
+      "Team Belgium is the national-team programme of the Belgian Cheerleading Federation (BCF), Belgium's cheerleading federation and ICU member, based in Leuven. At its very first ICU World Championships (Orlando, April 2025), Team Belgium took gold in All Girl Elite and silver in Coed Elite.",
+    tbVisit: "Visit belgiancheer.be",
     ctaHeading: "Missing something?",
     ctaBody:
       "The agenda grows with the community. Missing a club, competition or open gym? Let us know.",
@@ -1000,5 +997,472 @@ export const en = {
   },
 } satisfies Dictionary;
 
+/** The French dictionary — must structurally match `nl` (compile-checked). */
+export const fr = {
+  header: {
+    nav: {
+      home: "Carte & agenda",
+      clubs: "Clubs",
+      coaches: "Coaches",
+      about: "À propos",
+      admin: "Admin",
+    },
+    submitCta: "Signaler un élément manquant",
+    skipToContent: "Aller au contenu",
+    csnLogoAlt: "Cheersport Nederland",
+  },
+  footer: {
+    tagline: "Cheer Overview, un aperçu ouvert du cheerleading.",
+    about: "À propos",
+    contribute: "Contribuer",
+    privacy: "Confidentialité",
+    builtBy: "Créé par",
+    csnLogoAlt: "Cheersport Nederland",
+  },
+  language: {
+    label: "Langue",
+    nl: "NL",
+    en: "EN",
+    fr: "FR",
+    nlFull: "Néerlandais",
+    enFull: "Anglais",
+    frFull: "Français",
+    switchTo: (full: string) => `Passer en ${full.toLowerCase()}`,
+  },
+
+  eventType: {
+    competition: "Compétition",
+    open_gym: "Open gym",
+    workshop: "Workshop",
+    tryout: "Tryout",
+    showcase: "Showcase",
+    other: "Autre",
+  },
+
+  // Numeric L-code keys; labels show the ICU word-name (CSN/NK convention).
+  level: {
+    "1": "Novice (L1)",
+    "2": "Intermediate (L2)",
+    "3": "Median (L3)",
+    "4": "Advanced (L4)",
+    "5": "Elite (L5)",
+    "6": "Premier (L6)",
+    "7": "Premier (L7)",
+  },
+  discipline: {
+    cheer: "Cheer",
+    performance_cheer: "Performance Cheer",
+  },
+  danceStyle: {
+    pom: "Pom",
+    hip_hop: "Hip Hop",
+    jazz: "Jazz",
+    kick: "Kick",
+    pom_doubles: "Pom Doubles",
+    hip_hop_doubles: "Hip Hop Doubles",
+  },
+  tier: {
+    competition: "Compétition",
+    prep: "Prep",
+    recreational: "Loisir",
+  },
+  division: {
+    all_girl: "All Girl",
+    coed: "Coed",
+    all_boy: "All Boy",
+  },
+  ageGroup: {
+    mini: "Mini",
+    youth: "Youth",
+    junior: "Junior",
+    senior: "Senior",
+    open: "Open",
+  },
+
+  weekdays: [
+    "Lundi",
+    "Mardi",
+    "Mercredi",
+    "Jeudi",
+    "Vendredi",
+    "Samedi",
+    "Dimanche",
+  ],
+
+  home: {
+    mobileTab: { map: "Carte", agenda: "Agenda" },
+    mapAriaLabel: "Carte des clubs de cheerleading",
+    agendaAriaLabel: "Agenda des événements",
+    emptyMap: {
+      title: "Pas encore de clubs sur la carte",
+      hint: "Dès que des clubs avec une localisation seront ajoutés, ils apparaîtront ici sous forme d'épingles.",
+    },
+    emptyAgenda: {
+      title: "Pas encore d'événements",
+      hint: "Les compétitions, open gyms et workshops apparaîtront ici dès qu'ils seront annoncés.",
+    },
+  },
+
+  agenda: {
+    today: "Aujourd'hui",
+    tomorrow: "Demain",
+    allDay: "Toute la journée",
+    until: "jusqu'à",
+    emptyTitle: "Aucun événement",
+    emptyHint: "Aucun événement sur cette période ou avec ces filtres.",
+    viewClub: "Voir le club",
+    viewCoach: "Voir le coach",
+    moreInfo: "Plus d'infos",
+    website: "Site web",
+    showOnMap: (title: string) => `${title} — afficher le lieu sur la carte`,
+    rowLink: (title: string, action: string) => `${title} — ${action}`,
+    externalSuffix: (action: string) => `${action} (lien externe)`,
+  },
+
+  filters: {
+    title: "Filtres",
+    item: "élément",
+    items: "éléments",
+    clear: "Effacer",
+    province: "Province",
+    allProvinces: "Toutes les provinces",
+    from: "Du",
+    to: "Au",
+    csnMembersOnly: "Membres CSN uniquement",
+    bcfMembersOnly: "Membres BCF uniquement",
+  },
+
+  map: {
+    resetView: "Toute la carte",
+    resetViewAria: "Afficher toute la carte",
+    clusterItems: (count: number) => `${count} éléments`,
+    openGymLocation: "Lieu d'open gym",
+    openGym: "Open gym",
+    toWebsite: "Vers le site web",
+    moreInfo: "Plus d'infos",
+    viewClubPage: "Voir la page du club",
+    fromDate: (date: string) => `À partir du ${date}`,
+    clubVia: (name: string, network: string) => `${name} sur ${network}`,
+    coachVia: (name: string, network: string) => `${name} via ${network}`,
+  },
+
+  clubs: {
+    metaTitle: "Annuaire des clubs",
+    metaDescription:
+      "Tous les clubs de cheerleading : cherche par nom ou par ville et filtre par niveau, division et catégorie d'âge.",
+    heading: "Annuaire des clubs",
+    intro:
+      "Trouve des clubs de cheerleading. Cherche par nom ou par ville et filtre par niveau, division et catégorie d'âge.",
+    searchPlaceholder: "Cherche par nom de club ou ville…",
+    searchAria: "Rechercher des clubs",
+    filter: "Filtrer",
+    level: "Niveau",
+    type: "Type",
+    division: "Division",
+    age: "Âge",
+    province: "Province",
+    clear: "Effacer",
+    filterAll: (label: string) => `${label} : tous`,
+    one: "club",
+    many: "clubs",
+    ofTotal: (total: number) => ` sur ${total}`,
+    emptyNoneTitle: "Pas encore de clubs",
+    emptyNoneHint: "Dès que des clubs seront ajoutés, ils apparaîtront ici.",
+    emptyFilteredTitle: "Aucun club trouvé",
+    emptyFilteredHint: "Ajuste ta recherche ou tes filtres.",
+    noTeams: "Pas encore d'équipes connues",
+    csnMember: "Membre CSN",
+    /** tooltip/aria for the CSN member badge */
+    csnMemberAria: "Membre de Cheersport Nederland",
+    csnMembersOnly: "Membres CSN uniquement",
+    bcfMember: "Membre BCF",
+    /** tooltip/aria for the BCF member badge */
+    bcfMemberAria: "Membre de la Belgian Cheerleading Federation",
+    bcfMembersOnly: "Membres BCF uniquement",
+  },
+
+  club: {
+    notFoundTitle: "Club introuvable",
+    metaFallback: (name: string, city: string | null) =>
+      `Club de cheerleading ${name}${city ? ` à ${city}` : ""} : équipes, événements et open gyms.`,
+    backToClubs: "← Retour à l'annuaire des clubs",
+    founded: (year: number) => `Fondé en ${year}`,
+    sectionTeams: "Équipes",
+    sectionTrainingTimes: "Horaires d'entraînement",
+    sectionCoaches: "Coaches",
+    sectionAchievements: "Palmarès",
+    sectionUpcoming: "Événements à venir",
+    sectionOpenGyms: "Open gyms",
+    practical: "Infos pratiques",
+    trainingLocation: "Lieu d'entraînement",
+    address: "Adresse",
+    contact: "Contact",
+    noPractical: "Infos pratiques pas encore connues",
+    viewOnMap: "Voir sur la carte",
+    emptyEventsTitle: "Pas encore d'événements",
+    emptyEventsHint:
+      "Les compétitions et workshops à venir apparaîtront ici dès qu'ils seront annoncés.",
+    emptyOpenGymsTitle: "Pas encore d'open gyms",
+    emptyOpenGymsHint:
+      "Les créneaux d'open gym récurrents apparaîtront ici dès qu'ils seront connus.",
+    emptyTrainingTitle: "Pas encore d'horaires d'entraînement",
+    emptyTrainingHint:
+      "Les entraînements hebdomadaires par équipe apparaîtront ici dès qu'ils seront connus.",
+    otherTeam: "Autre",
+    every: (weekday: string) => `Chaque ${weekday.toLowerCase()}`,
+    icuCertified: "Certifié ICU",
+    openGymFree: "Gratuit",
+  },
+
+  coaches: {
+    metaTitle: "Coaches",
+    metaDescription:
+      "Les coaches des clubs de cheerleading et les coaches invités de passage : vois qui coache où et prends contact directement.",
+    heading: "Coaches invités",
+    introBefore:
+      "Les coaches des clubs, plus les coaches invités et en tournée. Toi-même de passage ?",
+    introLink: "Annonce ton séjour",
+    emptyTitle: "Pas encore de coaches invités",
+    emptyHint:
+      "Dès qu'un coach invité annonce son séjour et qu'il est approuvé, il apparaîtra ici.",
+    fromDate: (date: string) => `À partir du ${date}`,
+    pageHeading: "Coaches",
+    clubCoachesHeading: "Coaches de club",
+    visitingHeading: "Coaches invités",
+    clubHasIcuCoach: "A un coach ICU",
+  },
+
+  submit: {
+    metaTitle: "Signaler · Cheer Overview",
+    metaDescription:
+      "Il manque un événement, un open gym ou un club ? Envoie-le-nous. Nous vérifions chaque contribution avant sa mise en ligne.",
+    heading: "Envoyer une info",
+    intro:
+      "Il manque une compétition, un open gym ou un club sur la carte ? Ou quelque chose ne colle pas ? Envoie-le ci-dessous. Nous relisons chaque contribution à la main avant sa mise en ligne — c'est ce qui garde l'agenda fiable.",
+    signInIntro:
+      "Pour éviter le spam, nous te demandons de te connecter avant d'envoyer quelque chose. Tes données servent uniquement à vérifier ta contribution.",
+    signInButton:
+      "Se connecter avec Google pour signaler ou compléter une info",
+    signInError: "La connexion avec Google a échoué. Réessaie.",
+    successTitle: "Merci ! Nous examinons ta contribution.",
+    successBody:
+      "Dès qu'un rédacteur aura examiné ta contribution, elle apparaîtra sur le site.",
+    successAgain: "Envoyer autre chose",
+    signedInAs: "Connecté en tant que",
+    signOut: "Se déconnecter",
+    kindLegend: "De quoi s'agit-il ?",
+    messageLabel: "Que veux-tu nous dire ?",
+    emailLabel: "Ton adresse e-mail (facultatif)",
+    emailHint: "Uniquement si nous avons une question sur ta contribution.",
+    submitting: "Envoi…",
+    submit: "Envoyer",
+    reviewNote: "Nous vérifions chaque contribution avant publication.",
+    honeypotLabel: "Laisse ce champ vide",
+    notSignedInError:
+      "Connecte-toi avec Google pour signaler ou compléter une info.",
+    genericError: "Un problème est survenu. Réessaie.",
+    networkError: "Impossible d'envoyer ta contribution. Vérifie ta connexion.",
+    kindLabel: {
+      event: "Événement",
+      gym: "Open gym",
+      club: "Club",
+      coach: "Coach invité (de passage)",
+      correction: "Info manquante ou incorrecte",
+      feedback: "Feedback",
+    },
+    kindHelp: {
+      event:
+        "Une compétition, un workshop, un tryout, un showcase ou une autre activité.",
+      gym: "Un créneau d'open gym récurrent dans un club.",
+      club: "Un club, une équipe étudiante, scolaire ou de sélection qui n'est pas encore sur la carte.",
+      coach:
+        "Tu es un coach (invité) de passage chez nous ? Dis-nous où et quand tu es là et comment te joindre.",
+      correction: "Quelque chose ne colle pas ou il manque quelque chose.",
+      feedback: "Une idée, une remarque ou un problème avec le site lui-même.",
+    },
+    kindPlaceholder: {
+      event:
+        "p. ex. Open NK Cheerleading le 31 mai 2026 aux Sporthallen Zuid à Amsterdam, organisé par … — ajoute un lien ou une billetterie si tu en as.",
+      gym: "p. ex. Cheer Amsterdam a un open gym tous les mercredis de 19h00 à 21h00 à la salle …",
+      club: "p. ex. Nom, ville, et un site web ou Instagram. Tout ce que tu sais nous aide.",
+      coach:
+        "p. ex. Coach Jamie (tumbling) est à Utrecht du 12 au 20 juin, à contacter via @pseudo ou toi@exemple.be.",
+      correction:
+        "p. ex. L'adresse du club X est fausse, ou l'équipe Y ne s'entraîne plus le mardi.",
+      feedback:
+        "Dis-nous ce qui pourrait être mieux, ou ce que tu as remarqué sur le site.",
+    },
+    kindUrl: {
+      event: {
+        label: "Lien (facultatif)",
+        hint: "Un site web, une billetterie ou un Instagram utile.",
+      },
+      gym: {
+        label: "Lien (facultatif)",
+        hint: "Un site web ou l'Instagram du club.",
+      },
+      club: {
+        label: "Lien (facultatif)",
+        hint: "Site web ou Instagram du club.",
+      },
+      coach: {
+        label: "Lien (facultatif)",
+        hint: "Ton site web, ton Instagram ou ta page de réservation.",
+      },
+      correction: {
+        label: "Lien pertinent (facultatif)",
+        hint: "Colle la page ou le lien lié à ce qui manque ou ne colle pas. Plusieurs ? Mets les autres dans ton message.",
+      },
+      feedback: {
+        label: "Lien (facultatif)",
+        hint: "Une page ou un lien de capture d'écran utile.",
+      },
+    },
+  },
+
+  validation: {
+    urlTooLong: "L'URL est trop longue",
+    urlInvalid: "Entre une URL valide (avec https://)",
+    emailInvalid: "Entre une adresse e-mail valide",
+    messageTooShort: "Dis-nous en un peu plus (au moins 5 caractères)",
+    messageTooLong: "C'est vraiment très long — raccourcis un peu",
+  },
+
+  admin: {
+    loadingTitle: "Review queue",
+    signInHeading: "Administration",
+    signInIntro: "Connecte-toi avec Google pour examiner les contributions.",
+    signInError: "La connexion avec Google a échoué. Réessaie.",
+    signInButton: "Se connecter avec Google",
+    signOut: "Se déconnecter",
+    columnUndecided: "En attente",
+    columnAgreed: "Accepté",
+    columnDisagreed: "Refusé",
+    refresh: "Actualiser",
+    retry: "Réessayer",
+    counts: (total: number, decided: number) =>
+      `${total} éléments · ${decided} traités`,
+    nothingToReview: "Rien à examiner.",
+    loadError: "Impossible de charger les éléments.",
+    networkError: "Erreur réseau. Réessaie.",
+    forbiddenTitle: "Pas d'accès avec ce compte",
+    forbiddenBody:
+      "Ce compte Google n'est pas administrateur. Déconnecte-toi et essaie un autre compte.",
+    badgeSubmission: "Contribution",
+    badgeEvent: "Event",
+    eventFallbackTitle: "Event",
+    noFields: "(aucun champ)",
+    showMore: "Afficher plus",
+    showLess: "Afficher moins",
+    notePlaceholder: "Note (facultatif)…",
+    noteDirty: "Non enregistré — clique en dehors du champ",
+    noteSaving: "Enregistrement…",
+    noteSaved: "Enregistré ✓",
+    noteError: "Échec de l'enregistrement",
+    submissionMeta: (when: string) => `Contribution · ${when}`,
+    scrapedMeta: (type: string, when: string) => `Scrapé · ${type} · ${when}`,
+    payload: {
+      title: "titre",
+      type: "type",
+      start: "début",
+      location: "lieu",
+      url: "url",
+      description: "description",
+    },
+  },
+
+  about: {
+    metaTitle: "À propos de Cheer Overview",
+    metaDescription:
+      "Cheer Overview rassemble tout le cheerleading en un seul endroit : clubs, compétitions, open gyms et horaires d'entraînement sur une carte, un agenda et un annuaire des clubs.",
+    eyebrow: "À propos de ce projet",
+    heading: "Tout le cheerleading, en un seul endroit",
+    introBefore:
+      "Cheer Overview rassemble le monde du cheerleading en un seul endroit : clubs, compétitions, open gyms et horaires d'entraînement, sur une carte, un agenda et un annuaire des clubs. Je l'ai créé parce que ces infos sont aujourd'hui éparpillées entre les sites des clubs, les réseaux sociaux et les calendriers des fédérations.",
+    whatHeading: "Ce que je construis",
+    whatBody:
+      "Les infos sur le cheerleading sont aujourd'hui éparpillées entre les sites des clubs, les réseaux sociaux et les calendriers des fédérations. Je les rassemble. Les données sont en grande partie collectées automatiquement et complétées par les signalements de la communauté. Je vérifie à la main chaque ajout incertain ou signalé avant sa mise en ligne.",
+    chipMap: "Carte",
+    chipAgenda: "Agenda",
+    chipClubs: "Annuaire des clubs",
+    builtBy: "Créé par",
+    roadmapHeading: "Roadmap",
+    roadmapIntro:
+      "Là où Cheer Overview se dirige : vers la région au sens large, pour qu'à terme toute la scène figure sur une seule carte.",
+    roadmap: {
+      belgiumTitle: "Belgique",
+      belgiumBody:
+        "Les clubs, compétitions et open gyms de Belgique sont désormais sur la carte — le Benelux réuni en un seul aperçu.",
+      belgiumWhen: "En ligne",
+      rulesAiTitle: "Assistant règlement",
+      rulesAiWhen: "Plus tard",
+      coachesTitle: "Page coaches enrichie",
+      coachesBody:
+        "Développer la page coaches existante pour les coaches déjà actifs dans les clubs : des profils plus riches avec leurs spécialités et le club où ils coachent, pour trouver plus facilement le bon coach.",
+      coachesWhen: "Plus tard",
+    },
+    csnHeading: "À propos de Cheersport Netherlands",
+    csnBody1:
+      "Cheersport Netherlands (CSN) est la fédération nationale de cheerleading des Pays-Bas, basée à Maastricht. Avec les coaches, les athlètes, les écoles et les clubs, la CSN fait grandir le cheerleading autour de la collaboration, de la formation et de l'inclusivité.",
+    csnVisit: "Visiter cheersport.nl",
+    tcnlHeading: "À propos de Team Cheerleading Nederland",
+    tcnlBody1:
+      "La fondation Stichting Team Cheerleading Nederland (TCNL) porte les équipes nationales (la Dutch Equipe) qui représentent les Pays-Bas lors de compétitions internationales comme les ICU World Championships. Désignée par la CSN et portée entièrement par des bénévoles, la TCNL s'occupe des entraînements, des coaches, des tenues, des déplacements et du sponsoring. Team Cheer NL concourt en Coed, All Girl, Junior, Youth et Adaptive Abilities.",
+    tcnlVisit: "Visiter teamcheerleading.nl",
+    tbHeading: "À propos de Team Belgium",
+    tbBody1:
+      "Team Belgium est le programme d'équipes nationales de la Belgian Cheerleading Federation (BCF), la fédération belge de cheerleading et membre de l'ICU, basée à Louvain. Dès sa toute première participation aux ICU World Championships (Orlando, avril 2025), Team Belgium a décroché l'or en All Girl Elite et l'argent en Coed Elite.",
+    tbVisit: "Visiter belgiancheer.be",
+    ctaHeading: "Il manque quelque chose ?",
+    ctaBody:
+      "L'agenda grandit avec la communauté. Il manque un club, une compétition ou un open gym ? Fais-le-nous savoir.",
+    ctaButton: "Signaler un élément manquant",
+  },
+
+  // ---- Analytics consent ----
+  consent: {
+    title: "Avis cookies",
+    body: "Nous utilisons des statistiques pour voir comment le site est utilisé. Uniquement avec ton accord, et jamais pour de la publicité.",
+    privacyLink: "Lis notre déclaration de confidentialité",
+    accept: "Accepter",
+    decline: "Refuser",
+  },
+
+  privacy: {
+    metaTitle: "Confidentialité",
+    metaDescription:
+      "Déclaration de confidentialité de Cheer Overview : quelles données nous affichons et comment nous les traitons.",
+    heading: "Confidentialité",
+    lastUpdated: "Dernière mise à jour : juin 2026",
+    whatHeading: "De quoi il s'agit",
+    whatBody:
+      "Cheer Overview est un aperçu ouvert du cheerleading : clubs, compétitions, open gyms et horaires d'entraînement. Nous collectons et affichons des informations publiquement disponibles sur les clubs et les événements.",
+    dataHeading: "Quelles données",
+    dataBody:
+      "Les données des clubs affichées (nom, lieu, équipes, coordonnées, réseaux sociaux) proviennent de sources publiques ou ont été fournies par les clubs eux-mêmes. Nous ne stockons pas de données personnelles de compte des visiteurs et n'utilisons jamais de données à des fins publicitaires.",
+    analyticsHeading: "Statistiques",
+    analyticsBody:
+      "Si tu y consens, nous utilisons Google Analytics pour voir comment le site est utilisé : quelles pages sont visitées et combien il y a de visiteurs. Ton adresse IP est alors tronquée. Sans ton accord, rien n'est chargé et rien n'est mesuré. Tu veux changer d'avis ? Efface les données de ce site dans ton navigateur ; nous te le redemanderons.",
+    contributeHeading: "Contribuer",
+    contributeBody:
+      "Quand tu nous transmets des informations via le formulaire de contribution, nous les utilisons uniquement pour compléter et vérifier l'aperçu.",
+    correctionsHeading: "Corrections",
+    correctionsBody:
+      "Quelque chose ne colle pas, ou tu veux que des données soient modifiées ou supprimées ? Fais-le-nous savoir via le formulaire de contribution et nous les adapterons.",
+  },
+
+  notFound: {
+    title: "Page introuvable",
+    body: "Cette page n'existe pas (ou plus). Le lien est peut-être obsolète ou contient une faute de frappe.",
+    backHome: "Retour à la carte",
+  },
+
+  meta: {
+    defaultTitle: "Cheer Overview : tout le cheerleading en un seul endroit",
+    description:
+      "Un seul aperçu de tous les clubs de cheerleading, compétitions, open gyms et horaires d'entraînement. Carte, calendrier et annuaire des clubs.",
+  },
+} satisfies Dictionary;
+
 /** Locale → dictionary lookup. */
-export const DICTIONARIES: Record<"nl" | "en", Dictionary> = { nl, en };
+export const DICTIONARIES: Record<Locale, Dictionary> = { nl, en, fr };
