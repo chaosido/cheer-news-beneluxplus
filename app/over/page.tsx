@@ -2,10 +2,10 @@
  * About page (Server Component).
  *
  * Static content: a first-person intro to what Cheer Overview is, the roadmap of
- * future regional expansions, and short profiles of the two national bodies it
- * references — Cheersport Netherlands (CSN) and Team Cheerleading Nederland
- * (TCNL). No data fetching, so it's a plain Server Component. Copy comes from
- * the active locale's dictionary.
+ * future regional expansions, and short profiles of the national bodies it
+ * references — Cheersport Netherlands (CSN), Team Cheerleading Nederland
+ * (TCNL) and Team Belgium (BCF). No data fetching, so it's a plain Server
+ * Component. Copy comes from the active locale's dictionary.
  */
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -16,7 +16,6 @@ import {
   Building2,
   Globe,
   ArrowUpRight,
-  BookOpen,
   Sparkles,
   Contact,
 } from "lucide-react";
@@ -34,8 +33,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AboutPage() {
   const t = await getDictionary();
 
-  /** Future big expansions, in the order we plan to ship them. */
-  const roadmap = [
+  /** Big expansions: what shipped (België) and what's planned, in order. */
+  const roadmap: {
+    icon: typeof Globe;
+    title: string;
+    body?: string;
+    when: string;
+  }[] = [
     {
       icon: Globe,
       title: t.about.roadmap.belgiumTitle,
@@ -43,21 +47,8 @@ export default async function AboutPage() {
       when: t.about.roadmap.belgiumWhen,
     },
     {
-      icon: MapPinned,
-      title: t.about.roadmap.germanyTitle,
-      body: t.about.roadmap.germanyBody,
-      when: t.about.roadmap.germanyWhen,
-    },
-    {
-      icon: BookOpen,
-      title: t.about.roadmap.sourcesTitle,
-      body: t.about.roadmap.sourcesBody,
-      when: t.about.roadmap.sourcesWhen,
-    },
-    {
       icon: Sparkles,
       title: t.about.roadmap.rulesAiTitle,
-      body: t.about.roadmap.rulesAiBody,
       when: t.about.roadmap.rulesAiWhen,
     },
     {
@@ -141,7 +132,9 @@ export default async function AboutPage() {
                     {when}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-[var(--muted)]">{body}</p>
+                {body && (
+                  <p className="mt-1 text-sm text-[var(--muted)]">{body}</p>
+                )}
               </div>
             </li>
           ))}
@@ -198,6 +191,34 @@ export default async function AboutPage() {
               rel="noopener noreferrer"
             >
               {t.about.tcnlVisit}
+              <ArrowUpRight className="size-4" aria-hidden />
+            </a>
+          </Button>
+        </div>
+      </section>
+
+      {/* About Team Belgium (BCF) */}
+      <section className="mb-12 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-sm)]">
+        <Image
+          src="/belgian-cheerleading-federation.png"
+          alt="Belgian Cheerleading Federation"
+          width={484}
+          height={255}
+          className="mb-5 h-16 w-auto"
+          unoptimized
+        />
+        <h2 className="font-display text-xl font-bold tracking-tight">
+          {t.about.tbHeading}
+        </h2>
+        <p className="mt-3 text-[var(--muted)]">{t.about.tbBody1}</p>
+        <div className="mt-5">
+          <Button asChild variant="secondary" size="sm">
+            <a
+              href="https://www.belgiancheer.be/nl/team-belgium"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t.about.tbVisit}
               <ArrowUpRight className="size-4" aria-hidden />
             </a>
           </Button>

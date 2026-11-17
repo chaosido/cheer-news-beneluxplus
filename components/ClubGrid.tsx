@@ -38,8 +38,11 @@ export function ClubGrid({ clubs }: ClubGridProps) {
   const [division, setDivision] = useState<Division | "">("");
   const [age, setAge] = useState<AgeGroup | "">("");
   const [province, setProvince] = useState("");
-  // Show all clubs by default; toggle on to narrow to CSN members only.
+  // Show all clubs by default; toggle on to narrow to federation members.
+  // CSN and BCF membership are mutually exclusive, so with both toggles on
+  // the result is the union: members of either federation.
   const [csnOnly, setCsnOnly] = useState(false);
+  const [bcfOnly, setBcfOnly] = useState(false);
 
   // Provinces present in the dataset, sorted NL-style for the dropdown.
   const provinces = useMemo(
@@ -59,7 +62,11 @@ export function ClubGrid({ clubs }: ClubGridProps) {
         const haystack = `${c.name} ${c.city}`.toLowerCase();
         if (!haystack.includes(q)) return false;
       }
-      if (csnOnly && !c.csnMember) return false;
+      if (
+        (csnOnly || bcfOnly) &&
+        !((csnOnly && c.csnMember) || (bcfOnly && c.bcfMember))
+      )
+        return false;
       if (province && c.region !== province) return false;
       const summary = c.teamsSummary ?? [];
       if (level && !summary.some((t) => t.level === level)) return false;
@@ -77,7 +84,7 @@ export function ClubGrid({ clubs }: ClubGridProps) {
       if (age && !summary.some((t) => t.ageGroup === age)) return false;
       return true;
     });
-  }, [clubs, query, province, level, type, division, age, csnOnly]);
+  }, [clubs, query, province, level, type, division, age, csnOnly, bcfOnly]);
 
   const hasActive =
     query !== "" ||
@@ -86,8 +93,9 @@ export function ClubGrid({ clubs }: ClubGridProps) {
     division !== "" ||
     age !== "" ||
     province !== "" ||
-    // Show-all is the default; enabling CSN-only is the deviation.
-    csnOnly;
+    // Show-all is the default; enabling a federation toggle is the deviation.
+    csnOnly ||
+    bcfOnly;
 
   function reset() {
     setQuery("");
@@ -97,6 +105,7 @@ export function ClubGrid({ clubs }: ClubGridProps) {
     setAge("");
     setProvince("");
     setCsnOnly(false);
+    setBcfOnly(false);
   }
 
   return (
@@ -173,6 +182,21 @@ export function ClubGrid({ clubs }: ClubGridProps) {
         >
           <BadgeCheck className="size-3.5" aria-hidden />
           {t.clubs.csnMembersOnly}
+        </button>
+
+        <button
+          type="button"
+          aria-pressed={bcfOnly}
+          onClick={() => setBcfOnly((v) => !v)}
+          className={cn(
+            "inline-flex h-9 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors",
+            bcfOnly
+              ? "border-transparent bg-[var(--bcf)] text-[var(--bcf-fg)]"
+              : "border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] hover:bg-[var(--surface-2)]",
+          )}
+        >
+          <BadgeCheck className="size-3.5" aria-hidden />
+          {t.clubs.bcfMembersOnly}
         </button>
 
         {hasActive && (

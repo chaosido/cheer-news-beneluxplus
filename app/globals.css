@@ -24,6 +24,11 @@
   --secondary: #c2410c; /* deep CSN orange — legible as text on white */
   --secondary-soft: #fcebd9;
 
+  /* BCF (Belgian Cheerleading Federation) — gold + black from the BCF logo */
+  --bcf: #f0b400;
+  --bcf-fg: #231f20; /* near-black, ~10:1 on the gold */
+  --bcf-soft: #fdf3d7;
+
   /* Event-type coding (functional; kept distinct, no old magenta/teal) */
   --type-competition: #ec1e24; /* CSN red */
   --type-open_gym: #15803d; /* green */
@@ -48,6 +53,9 @@
   --color-accent-soft: var(--accent-soft);
   --color-secondary: var(--secondary);
   --color-secondary-soft: var(--secondary-soft);
+  --color-bcf: var(--bcf);
+  --color-bcf-fg: var(--bcf-fg);
+  --color-bcf-soft: var(--bcf-soft);
 
   --font-sans: var(--font-dm-sans);
   --font-display: var(--font-display), var(--font-dm-sans);

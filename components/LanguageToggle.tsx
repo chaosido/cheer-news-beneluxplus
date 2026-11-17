@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Language switcher (Client Component) — a compact two-segment NL / EN toggle.
+ * Language switcher (Client Component) — a compact NL / EN / FR segment toggle.
  *
  * Sets the locale cookie and calls `router.refresh()`, which re-runs the Server
  * Components with the new cookie value so the whole page re-renders in the chosen
@@ -35,6 +35,12 @@ export function LanguageToggle() {
   const fullName: Record<Locale, string> = {
     nl: t.language.nlFull,
     en: t.language.enFull,
+    fr: t.language.frFull,
+  };
+  const shortName: Record<Locale, string> = {
+    nl: t.language.nl,
+    en: t.language.en,
+    fr: t.language.fr,
   };
 
   return (
@@ -59,7 +65,7 @@ export function LanguageToggle() {
                 : "text-[var(--muted)] hover:text-[var(--ink)]",
             )}
           >
-            {loc === "nl" ? t.language.nl : t.language.en}
+            {shortName[loc]}
           </button>
         );
       })}

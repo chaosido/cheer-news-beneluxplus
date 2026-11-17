@@ -178,4 +178,10 @@ export interface HomeFilters {
    * events. Open gyms / turn-hall venues are unaffected. Set `false` to show all.
    */
   membersOnly: boolean;
+  /**
+   * BCF-member view: show only BCF-member clubs and their events. Combines with
+   * `membersOnly` as a union (memberships are mutually exclusive, so both on
+   * means "member of either federation"). Open gyms stay unaffected.
+   */
+  bcfMembersOnly: boolean;
 }

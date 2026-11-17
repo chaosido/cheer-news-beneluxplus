@@ -63,8 +63,9 @@ const EMPTY_FILTERS: HomeFilters = {
   province: null,
   from: null,
   to: null,
-  // Show all clubs/events by default; the toggle opts IN to CSN-members-only.
+  // Show all clubs/events by default; the toggles opt IN to federation members.
   membersOnly: false,
+  bcfMembersOnly: false,
 };
 
 export function HomeView({
@@ -108,12 +109,24 @@ export function HomeView({
     return map;
   }, [clubs]);
 
-  // Ids of CSN-member clubs, for scoping the "members only" base view. The CSN
+  // Ids of federation-member clubs matching the active toggles, for scoping the
+  // "members only" views. Memberships are mutually exclusive, so with both
+  // toggles on this is the union: members of either federation. The federation
   // distinction applies to cheer clubs and their events only — open gyms (e.g.
-  // turn-hall venues) are neutral and always shown regardless of the toggle.
-  const csnClubIds = useMemo(
-    () => new Set(clubs.filter((c) => c.csnMember).map((c) => c.id)),
-    [clubs],
+  // turn-hall venues) are neutral and always shown regardless of the toggles.
+  const memberFilterOn = filters.membersOnly || filters.bcfMembersOnly;
+  const memberClubIds = useMemo(
+    () =>
+      new Set(
+        clubs
+          .filter(
+            (c) =>
+              (filters.membersOnly && c.csnMember) ||
+              (filters.bcfMembersOnly && c.bcfMember),
+          )
+          .map((c) => c.id),
+      ),
+    [clubs, filters.membersOnly, filters.bcfMembersOnly],
   );
 
   // Provinces for the dropdown — union of club regions and item provinces.
@@ -131,14 +144,14 @@ export function HomeView({
     return items.filter((it) => {
       if (filters.types.size > 0 && !filters.types.has(it.type)) return false;
       if (filters.province && it.province !== filters.province) return false;
-      // CSN base view: hide events tied to a non-CSN club. Open gyms are never
-      // affected (turn-hall sessions aren't a CSN matter), and club-less events
-      // (e.g. federation competitions) stay visible.
+      // Members base view: hide events tied to a non-member club. Open gyms are
+      // never affected (turn-hall sessions aren't a federation matter), and
+      // club-less events (e.g. federation competitions) stay visible.
       if (
-        filters.membersOnly &&
+        memberFilterOn &&
         !it.isOpenGym &&
         it.clubId &&
-        !csnClubIds.has(it.clubId)
+        !memberClubIds.has(it.clubId)
       )
         return false;
       const d = dayKey(it.startsAt);
@@ -146,7 +159,7 @@ export function HomeView({
       if (filters.to && d > filters.to) return false;
       return true;
     });
-  }, [items, filters, csnClubIds]);
+  }, [items, filters, memberFilterOn, memberClubIds]);
 
   // Filter map pins to the province filter (event-type/date filters don't apply
   // to clubs/venues themselves, but the province filter does so the two panels
@@ -154,10 +167,10 @@ export function HomeView({
   const filteredClubs = useMemo(() => {
     return clubs.filter((c) => {
       if (filters.province && c.region !== filters.province) return false;
-      if (filters.membersOnly && !c.csnMember) return false;
+      if (memberFilterOn && !memberClubIds.has(c.id)) return false;
       return true;
     });
-  }, [clubs, filters.province, filters.membersOnly]);
+  }, [clubs, filters.province, memberFilterOn, memberClubIds]);
 
   const filteredVenues = useMemo(() => {
     if (!filters.province) return venues;

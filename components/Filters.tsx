@@ -45,9 +45,10 @@ export function Filters({
     filters.province !== null ||
     filters.from !== null ||
     filters.to !== null ||
-    // Show-all is the default base; enabling CSN-only is the deviation, so it
-    // counts as an active filter and the reset affordance appears.
-    filters.membersOnly;
+    // Show-all is the default base; enabling a federation toggle is the
+    // deviation, so it counts as an active filter and reset appears.
+    filters.membersOnly ||
+    filters.bcfMembersOnly;
 
   function reset() {
     onChange({
@@ -56,6 +57,7 @@ export function Filters({
       from: null,
       to: null,
       membersOnly: false,
+      bcfMembersOnly: false,
     });
   }
 
@@ -172,6 +174,23 @@ export function Filters({
         >
           <BadgeCheck className="size-3.5" aria-hidden />
           {t.filters.csnMembersOnly}
+        </button>
+
+        <button
+          type="button"
+          aria-pressed={filters.bcfMembersOnly}
+          onClick={() =>
+            onChange({ ...filters, bcfMembersOnly: !filters.bcfMembersOnly })
+          }
+          className={cn(
+            "inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-xs font-medium transition-colors",
+            filters.bcfMembersOnly
+              ? "border-transparent bg-[var(--bcf)] text-[var(--bcf-fg)]"
+              : "border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] hover:bg-[var(--surface-2)]",
+          )}
+        >
+          <BadgeCheck className="size-3.5" aria-hidden />
+          {t.filters.bcfMembersOnly}
         </button>
       </div>
     </div>
