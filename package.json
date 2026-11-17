@@ -40,7 +40,8 @@
       "postcss": "^8.5.18"
     },
     "undici": "^7.30.0",
-    "@grpc/grpc-js": "^1.13.6"
+    "@grpc/grpc-js": "^1.13.6",
+    "picomatch": "^4.0.7"
   },
   "dependencies": {
     "@google/genai": "^2.24.0",
@@ -80,7 +81,7 @@
     "@types/nodemailer": "^8.0.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.12",
     "eslint": "^10.11.0",
     "eslint-config-next": "16.3.6",
     "patch-package": "^8.0.1",
@@ -88,6 +89,6 @@
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.12"
   }
 }
