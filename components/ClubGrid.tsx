@@ -11,7 +11,14 @@ import { cn } from "@/lib/utils";
 
 const LEVEL_OPTIONS: CheerLevel[] = ["1", "2", "3", "4", "5", "6", "7"];
 const DIVISION_OPTIONS: Division[] = ["all_girl", "coed", "all_boy"];
-const AGE_OPTIONS: AgeGroup[] = ["mini", "youth", "junior", "senior", "open"];
+const AGE_OPTIONS: AgeGroup[] = [
+  "mini",
+  "peewee",
+  "youth",
+  "junior",
+  "senior",
+  "open",
+];
 
 /**
  * Second classification axis (orthogonal to numeric level): performance-cheer

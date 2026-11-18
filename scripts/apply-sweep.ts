@@ -66,7 +66,7 @@ const ENUMS: Record<string, readonly unknown[]> = {
   ],
   tier: ["competition", "prep", "recreational"],
   division: ["all_girl", "coed", "all_boy"],
-  ageGroup: ["mini", "youth", "junior", "senior", "open"],
+  ageGroup: ["mini", "peewee", "youth", "junior", "senior", "open"],
   status: ["active", "inactive"],
 };
 const TEAM_KEYS = new Set([...Object.keys(ENUMS), "name", "notes"]);

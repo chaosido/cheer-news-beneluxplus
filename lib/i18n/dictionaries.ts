@@ -97,6 +97,7 @@ export const nl = {
   },
   ageGroup: {
     mini: "Mini",
+    peewee: "Peewee",
     youth: "Youth",
     junior: "Junior",
     senior: "Senior",
@@ -609,6 +610,7 @@ export const en = {
   },
   ageGroup: {
     mini: "Mini",
+    peewee: "Peewee",
     youth: "Youth",
     junior: "Junior",
     senior: "Senior",
@@ -1073,6 +1075,7 @@ export const fr = {
   },
   ageGroup: {
     mini: "Mini",
+    peewee: "Peewee",
     youth: "Youth",
     junior: "Junior",
     senior: "Senior",

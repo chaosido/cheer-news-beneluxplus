@@ -111,7 +111,7 @@ const DISCIPLINES = new Set(["cheer", "performance_cheer"]);
 const LEVELS = new Set(["1", "2", "3", "4", "5", "6", "7"]);
 const TIERS = new Set(["competition", "prep", "recreational"]);
 const DIVISIONS = new Set(["all_girl", "coed", "all_boy"]);
-const AGES = new Set(["mini", "youth", "junior", "senior", "open"]);
+const AGES = new Set(["mini", "peewee", "youth", "junior", "senior", "open"]);
 const DAYS = new Set(["MO", "TU", "WE", "TH", "FR", "SA", "SU"]);
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 
