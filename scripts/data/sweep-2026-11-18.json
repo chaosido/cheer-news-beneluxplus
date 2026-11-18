@@ -1,0 +1,1089 @@
+{
+  "teams": [
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "CLA Aces",
+        "discipline": "cheer",
+        "level": "3",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "all_girl",
+        "ageGroup": "senior"
+      },
+      "source": "https://www.cheerleaderacademy.be/_files/ugd/e5a581_899e82951ece49b2bd4ce670f534351e.pdf",
+      "evidence": "Lessenrooster 2026-2027, OUR TEAMS: 'CLA ACES — 2011 en ouder — SENIOR LEVEL 3 STUNTTEAM'. Level per the club's own current-season rooster; BCC 2026 (last season) had them at Senior Allgirl Advanced (L4) — see conflicts.",
+      "confidence": "medium",
+      "sourced": {
+        "division": "BCC 2026 results (belgiancheer.be/nl/results-2026): 'CLA Aces — Senior Allgirl Advanced'",
+        "ageGroup": "'CLA ACES — 2011 en ouder — SENIOR LEVEL 3 STUNTTEAM' (Lessenrooster 2026-2027 PDF)",
+        "tier": "'Wedstrijdteams: All-inclusive lidmaatschap 695€' (Lessenrooster 2026-2027, lidmaatschap info) + deelname BCC 2026 (Senior Allgirl Advanced)"
+      },
+      "clubId": "cheerleader-academy"
+    },
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "CLA Blackjax",
+        "discipline": "cheer",
+        "level": "5",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "coed",
+        "ageGroup": "senior"
+      },
+      "source": "https://www.cheerleaderacademy.be/_files/ugd/e5a581_899e82951ece49b2bd4ce670f534351e.pdf",
+      "evidence": "Lessenrooster 2026-2027, OUR TEAMS: 'CLA BLACKJAX — 2011 en ouder — SENIOR LEVEL 4/5 STUNTTEAM'. Level set to 5 because BCC 2026 placed them in Senior Coed Elite (=L5); site itself says 4/5.",
+      "confidence": "medium",
+      "sourced": {
+        "division": "BCC 2026 results (belgiancheer.be/nl/results-2026): 'CLA Blackjax — Senior Coed Elite'",
+        "ageGroup": "'CLA BLACKJAX — 2011 en ouder — SENIOR LEVEL 4/5 STUNTTEAM' (Lessenrooster 2026-2027 PDF)",
+        "tier": "'Wedstrijdteams: All-inclusive lidmaatschap 695€' (Lessenrooster 2026-2027) + deelname BCC 2026 (Senior Coed Elite)"
+      },
+      "clubId": "cheerleader-academy"
+    },
+    {
+      "action": "update",
+      "docId": "cheerteam-danshuis-team-2",
+      "fields": {
+        "ageGroup": "peewee"
+      },
+      "source": "https://www.belgiancheer.be/nl/results-2026",
+      "evidence": "BCC 2026: \"Danshuis Energy Flames\" — Primary Pom, 3e plaats. DB had youth, maar Burst is het youth-team. Clubsite kidsles?id=12 bevestigt de banden: \"Na selectie, mag je mee cheeren in de Primary, Youth, Junior of Senior selectiegroep.\" LET OP: ageGroup-enum kent nog geen \"primary\" (BCF-band tussen mini en youth) — maintainerbeslissing nodig.",
+      "confidence": "high",
+      "clubId": "cheerteam-danshuis"
+    },
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "Nova",
+        "discipline": "cheer",
+        "level": "3",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "coed",
+        "ageGroup": "open",
+        "status": "active"
+      },
+      "source": "https://www.belgiancheer.be/nl/results-2026",
+      "evidence": "BCC 2026: \"Nova\" — onder club \"Henallux\" — Senior Coed Median, 3e plaats. Median = level 3. ageGroup 'open' per site-conventie voor hogeschool-/universiteitsteams (UMONS/UCA-precedent); BCC-categorie zegt Senior.",
+      "confidence": "high",
+      "sourced": {
+        "division": "BCC 2026 (belgiancheer.be/nl/results-2026): \"Nova\" — Henallux — categorie \"Senior Coed Median\", 3e plaats",
+        "ageGroup": "BCC 2026 categorie \"Senior Coed Median\" (Senior); hogeschoolteam → 'open' per site-conventie voor studententeams",
+        "tier": "Nam deel aan BCC 2026 (Belgisch kampioenschap, Belgian Cheerleading Federation): 3e plaats Senior Coed Median"
+      },
+      "clubId": "henallux-pom-dance"
+    },
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "Aira United Emerald",
+        "discipline": "cheer",
+        "level": "3",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "all_girl",
+        "ageGroup": "senior",
+        "status": "active"
+      },
+      "source": "https://www.airaunited.be/teams/emerald + belgiancheer.be/nl/results-2026",
+      "evidence": "Site 2026-27 lists Emerald under Competition Teams: 'Senior Level 3/4', born '2011+', 'vanaf 15 jaar'. BCC 2026 category: 'Senior Allgirl Median' (=L3) — Aira United Emerald. Level set to 3 per BCC; site's 'Level 3/4' is a range (flagged in conflicts).",
+      "confidence": "medium",
+      "sourced": {
+        "division": "BCC 2026 results (belgiancheer.be/nl/results-2026): category 'Senior Allgirl Median' — Aira United Emerald",
+        "ageGroup": "airaunited.be/teams/emerald: 'Senior Level 3/4', born '2011+', atleten 'vanaf 15 jaar'; BCC 2026 category 'Senior Allgirl Median'",
+        "tier": "Listed under 'Competition Teams' on airaunited.be/competition-teams; competed at BCC 2026 (Senior Allgirl Median)"
+      },
+      "clubId": "aira-united"
+    },
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "TTG Tigers",
+        "discipline": "cheer",
+        "level": "5",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "all_girl",
+        "ageGroup": "senior",
+        "status": "active"
+      },
+      "source": "https://turnkringtengaerde.be + belgiancheer.be/nl/results-2026",
+      "evidence": "Site (Aanbod, Cheerleading): team 'TTG Tigers', level 'Senior', training Thursday 19:30-21:30 and Saturday 19:30-21:30, 'Inschrijven kan enkel na selectie via de auditie'. BCC 2026 category: 'Senior Allgirl Elite' (=L5) — TTG Tigers.",
+      "confidence": "high",
+      "sourced": {
+        "division": "BCC 2026 results (belgiancheer.be/nl/results-2026): category 'Senior Allgirl Elite' — TTG Tigers",
+        "ageGroup": "turnkringtengaerde.be Aanbod: 'TTG Tigers' listed with level 'Senior'; BCC 2026 category 'Senior Allgirl Elite'",
+        "tier": "Site: 'All Stars Cheerleading', 'Inschrijven kan enkel na selectie via de auditie'; team competed at BCC 2026 (Senior Allgirl Elite)"
+      },
+      "clubId": "ttg-cheer"
+    },
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "ISC Cyclones",
+        "discipline": "cheer",
+        "level": "4",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "all_girl",
+        "ageGroup": "senior",
+        "status": "active"
+      },
+      "source": "belgiancheer.be/nl/results-2026 (via tmp/sweep/bcc-extract.json)",
+      "evidence": "BCC 2026 (season 2025-26) results: category 'Senior Allgirl Advanced' (=L4) — ISC Cyclones. Single federation source; club publishes nothing itself.",
+      "confidence": "medium",
+      "sourced": {
+        "division": "BCC 2026 results (belgiancheer.be/nl/results-2026): category 'Senior Allgirl Advanced' — ISC Cyclones",
+        "ageGroup": "BCC 2026 results: category 'Senior Allgirl Advanced' — ISC Cyclones",
+        "tier": "Competed at BCC 2026 (official Belgian championship, category Senior Allgirl Advanced)"
+      },
+      "clubId": "ice-storm-cheer"
+    },
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "Athena",
+        "discipline": "cheer",
+        "level": "3",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "all_girl",
+        "ageGroup": "senior",
+        "status": "active"
+      },
+      "source": "https://www.belgiancheer.be/nl/results-2026",
+      "evidence": "BCC 2026 (Belgisch kampioenschap, seizoen 2025-26): Athena (Gym Danse Loisirs Aywaille) in de categorie 'Senior Allgirl Median' (Median = L3). In 2025 nog 'Junior Median' — doorgeschoven naar senior. Clubsite publiceert zelf geen teaminfo voor 2026-27.",
+      "confidence": "medium",
+      "sourced": {
+        "division": "BCC 2026 resultaten: Athena — categorie 'Senior Allgirl Median'",
+        "ageGroup": "BCC 2026 resultaten: Athena — categorie 'Senior Allgirl Median' (2025: Junior Median)",
+        "tier": "Nam deel aan het Belgisch kampioenschap BCC 2026 (Senior Allgirl Median); DB-slot 'Cheerleading comp (sur selection)' bevestigt wedstrijdgroep op selectie"
+      },
+      "clubId": "gym-danse-loisirs-aywaille"
+    },
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "ULiège Bulls Cheer",
+        "discipline": "cheer",
+        "level": "3",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "coed",
+        "ageGroup": "open",
+        "status": "active"
+      },
+      "source": "https://www.sports.uliege.be/cms/c_16463592/fr/sports-cheerleading",
+      "evidence": "ULiege-sportsite seizoen 2026-27: cheerleading 'pratique en Senior Cheer Coed level 3' ('Coed' = groupe mixte); neemt deel aan het ASEUS-universiteitskampioenschap en het 'Belgian Cheer & Dance Championship'. BCC 2026-naam: 'Cheer ULiege Bulls'.",
+      "confidence": "high",
+      "sourced": {
+        "division": "Site 2026-27: 'Senior Cheer Coed level 3' — 'Coed' betekent dat de groep gemengd is",
+        "ageGroup": "Universiteitsteam → open (NL-conventie voor studententeams, cf. UCLouvain/UCA-precedent; site zegt 'Senior' en 'accessible a partir de 16 ans')",
+        "tier": "Site: neemt deel aan het ASEUS-kampioenschap en het Belgian Cheer & Dance Championship; BCC 2026: 'Cheer ULiege Bulls — Senior Allgirl Median'"
+      },
+      "clubId": "uliege-bulls-cheerleaders"
+    },
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "UBC (UB Cheer Senior)",
+        "discipline": "cheer",
+        "level": "4",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "all_girl",
+        "ageGroup": "senior",
+        "status": "active"
+      },
+      "source": "tmp/sweep/bcc-extract.json (belgiancheer.be/nl/results-2026) + https://www.urbanbasedancestudio.com/wat-is-cheerleading + https://www.urbanbasedancestudio.com/s/URBAN-BASE-lessenrooster-26-27.pdf",
+      "evidence": "BCC 2026: 'UB Cheer Senior — Senior Allgirl Advanced' (2025: Senior Allgirl Median). Rooster 26-27: 'UBC*' wo 20:00-21:00, lichtblauw = 'De wedstrijdteams/compagnies in het lichtblauw zijn geen vrij toegankelijke lessen, dit kan enkel na een auditie of uitnodiging.' Level 4 is het laatst bekende wedstrijdlevel (BCC 2026, seizoen 2025-26); 2026-27-level nog niet gepubliceerd.",
+      "confidence": "medium",
+      "sourced": {
+        "division": "BCC 2026 resultaten: categorie 'Senior Allgirl Advanced' (UB Cheer Senior)",
+        "ageGroup": "BCC 2026 resultaten: categorie 'Senior Allgirl Advanced'; site: 'Cheer Seniors: vanaf geboortejaar 2011'",
+        "tier": "Site: 'Dit team zal deelnemen aan regionale en nationale cheerleading competities.' + rooster 26-27: wedstrijdteam, 'enkel na een auditie of uitnodiging'"
+      },
+      "clubId": "urban-base-cheer-gent"
+    },
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "Cardinals",
+        "discipline": "cheer",
+        "level": "4",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "coed",
+        "ageGroup": "junior",
+        "status": "active"
+      },
+      "source": "http://www.belgiancheer.be/nl/results-2026",
+      "evidence": "BCC 2026, category 'Junior Coed Advanced': 'Cardinals' | 'Aubel Cheer Academy' (rank 1). Advanced = ICU L4.",
+      "confidence": "high",
+      "sourced": {
+        "division": "BCC 2026 category 'Junior Coed Advanced': 'Cardinals' | 'Aubel Cheer Academy'",
+        "ageGroup": "BCC 2026 category 'Junior Coed Advanced'",
+        "tier": "Competed at Belgian Cheer Championship 2026, Junior Coed Advanced, rank 1 (belgiancheer.be/nl/results-2026)"
+      },
+      "clubId": "athletic-cheer-aubel"
+    },
+    {
+      "action": "update",
+      "docId": "dragons-cheer-athletics-vilvoorde-team-2",
+      "fields": {
+        "ageGroup": "peewee"
+      },
+      "source": "https://www.dragonscheerathletics.be/teams",
+      "evidence": "TEAMS (2026-2027): 'Dragons Embers' — 'Allstar Primary Coed Novice', 'Geboortejaar 2019 - 2014', 'Recreatief'. Team exists this season (also on 2026-27 planning as 'Primary Coed Recrea'). BCF 'Primary' band, not youth. NOTE: 'primary' is not in the ageGroup enum yet — maintainer decision pending (see conflicts).",
+      "confidence": "high",
+      "clubId": "dragons-cheer-athletics-vilvoorde"
+    },
+    {
+      "action": "update",
+      "docId": "dragons-cheer-athletics-vilvoorde-team-3",
+      "fields": {
+        "ageGroup": "peewee"
+      },
+      "source": "https://www.dragonscheerathletics.be/teams",
+      "evidence": "TEAMS (2026-2027): 'Dragons Sparks' — 'Allstar Primary Coed Novice', 'Geboortejaar 2019 - 2014', 'Competitief'. Praktische info: competes in 'nationale en Benelux wedstrijden' (ICU scoring). Did not appear at BCC 2026 but clearly fielded this season. BCF 'Primary' band, not youth.",
+      "confidence": "high",
+      "clubId": "dragons-cheer-athletics-vilvoorde"
+    },
+    {
+      "action": "update",
+      "docId": "dragons-cheer-athletics-vilvoorde-team-4",
+      "fields": {
+        "ageGroup": "peewee"
+      },
+      "source": "https://www.dragonscheerathletics.be/teams",
+      "evidence": "TEAMS (2026-2027): 'Dragons Whelps' — 'Allstar Primary Coed Intermediate', 'Geboortejaar 2019 - 2014', 'Competitief'. BCC 2026 results: 'Dragon Whelps', category 'Primary Intermediate'. DB ageGroup 'youth' is wrong — BCF 'Primary' band (between mini and youth). Level 2 confirmed by both sources.",
+      "confidence": "high",
+      "clubId": "dragons-cheer-athletics-vilvoorde"
+    },
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "ABC Nectar",
+        "discipline": "cheer",
+        "level": "4",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "coed",
+        "ageGroup": "senior",
+        "status": "active"
+      },
+      "source": "https://www.athanorgym.be/cheerleading/",
+      "evidence": "Club site: 'ABC Nest' sibling list — 'ABC Nectar', 'Senior Coed Level 4', '(2010 & +)'. BCC 2026 results: 'ABC Nectar', category 'Senior Coed Advanced', rank 1 (club 'Athanor Brussels Cheer').",
+      "confidence": "high",
+      "sourced": {
+        "division": "athanorgym.be/cheerleading: 'Senior Coed Level 4'; BCC 2026: category 'Senior Coed Advanced'",
+        "ageGroup": "athanorgym.be/cheerleading: 'Senior Coed Level 4 (2010 & +)'; BCC 2026 category 'Senior Coed Advanced'",
+        "tier": "BCC 2026 results: 'ABC Nectar', 'Senior Coed Advanced', rank 1 — competed at the Belgian championship"
+      },
+      "clubId": "abc-hive-cheerleading"
+    },
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "ABC Honey",
+        "discipline": "cheer",
+        "level": "5",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "coed",
+        "ageGroup": "senior",
+        "status": "active"
+      },
+      "source": "https://www.athanorgym.be/cheerleading/",
+      "evidence": "Club site: 'ABC Honey', 'Senior Coed Level 5', '(2010 & +)', described as 'équipe compétitive phare du club'. BCC 2026 results: 'ABC Honey', category 'Senior Coed Elite', rank 1.",
+      "confidence": "high",
+      "sourced": {
+        "division": "athanorgym.be/cheerleading: 'Senior Coed Level 5'; BCC 2026: category 'Senior Coed Elite'",
+        "ageGroup": "athanorgym.be/cheerleading: 'Senior Coed Level 5 (2010 & +)'; BCC 2026 category 'Senior Coed Elite'",
+        "tier": "athanorgym.be/cheerleading: 'équipe compétitive phare du club' + BCC 2026 rank 1 Senior Coed Elite"
+      },
+      "clubId": "abc-hive-cheerleading"
+    },
+    {
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "Blue Moon",
+        "discipline": "cheer",
+        "level": "3",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "coed",
+        "ageGroup": "senior",
+        "status": "active"
+      },
+      "source": "http://www.belgiancheer.be/nl/results-2026",
+      "evidence": "BCC 2026 results: 'Blue Moon' (club 'All Star Cheerleading UFO'), category 'Senior Coed Median', rank 4. Club Linktree (current): 'BCC - Senior💙 Blue Moon🌑' under 'Championship 2026, season 3'; 'Inscription tryout saison 4' (2026-27) is open, training resumed 23 August.",
+      "confidence": "medium",
+      "sourced": {
+        "division": "BCC 2026 results: category 'Senior Coed Median'",
+        "ageGroup": "BCC 2026 results: category 'Senior Coed Median'; Linktree label 'BCC - Senior Blue Moon'",
+        "tier": "Competed at BCC 2026 ('Senior Coed Median', rank 4); tryout saison 4: 'Les tryouts ne sont pas un cours d'essai' — full-season competitive commitment"
+      },
+      "clubId": "all-star-cheerleading-ufo"
+    },
+    {
+      "clubId": "abc-hive-cheerleading",
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "ABC Nest",
+        "discipline": "cheer",
+        "level": "3",
+        "danceStyle": null,
+        "tier": "competition",
+        "division": "coed",
+        "ageGroup": "senior",
+        "notes": "Bron: IG abc_hive_cheerleading post 2026-07-20 (open-practicesschema 2026-27): 'NEST — Senior Coed Median' | site athanorgym.be/cheerleading lijst Nest onder Teams"
+      },
+      "source": "https://www.instagram.com/p/DbBQbc7i5jU/",
+      "evidence": "Clubposter 2026-27: 'NEST — Senior Coed Median' (naast Daisy/Sunny/Nectar/Elixir/Honey).",
+      "confidence": "medium",
+      "sourced": {
+        "division": "'Senior Coed Median' (clubposter 2026-27)",
+        "ageGroup": "'Senior Coed Median' (clubposter 2026-27)",
+        "tier": "categorie 'Senior Coed Median' is een BCC-wedstrijdcategorie; team staat op de teams-pagina van de club"
+      }
+    },
+    {
+      "clubId": "cheerteam-danshuis",
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "Energy Burst",
+        "discipline": "performance_cheer",
+        "level": null,
+        "danceStyle": "pom",
+        "tier": "competition",
+        "division": "all_girl",
+        "ageGroup": "youth",
+        "notes": "Bron: BCC 2026 (belgiancheer.be/nl/results-2026) 'Youth Pom' rang 1 | IG-bio 'National champions 2026 in … Youth Pom' | divisie: rooster-/auditiebeelden tonen uitsluitend meisjes (zelfde methode als overige Energy-teams)"
+      },
+      "source": "https://www.belgiancheer.be/nl/results-2026",
+      "evidence": "BCC 2026 Youth Pom rang 1: 'Danshuis Energy Burst'; IG-bio noemt Youth Pom-titel; trainings-/auditiefoto's (IG cheerteamdanshuis) tonen uitsluitend meisjes.",
+      "confidence": "high",
+      "sourced": {
+        "division": "roosterfoto's/auditieposter IG cheerteamdanshuis 2026: uitsluitend meisjes",
+        "ageGroup": "BCC 2026 categorie 'Youth Pom' + IG-bio",
+        "tier": "BCC 2026 deelname (goud Youth Pom)"
+      }
+    },
+    {
+      "clubId": "dragons-cheerleaders-umons",
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "The Dragons UMONS Pom",
+        "discipline": "performance_cheer",
+        "level": null,
+        "danceStyle": "pom",
+        "tier": "competition",
+        "division": "all_girl",
+        "ageGroup": "open",
+        "notes": "Bron: BCC 2026 'Senior Pom' rang 6 | IG-bio 'Cheer Coed level 3 & Pomdance' + highlight 'Pom 26-27' | divisie: pom-trainingsvideo okt 2026 toont uitsluitend vrouwen | ageGroup open per studententeam-conventie"
+      },
+      "source": "https://www.instagram.com/dragonscheerleaders_umons/",
+      "evidence": "IG-bio noemt Pomdance naast Cheer; highlight 'Pom 26-27' met 'Entraînement Pom' (okt 2026, uitsluitend vrouwen in beeld); BCC 2026 Senior Pom rang 6.",
+      "confidence": "medium",
+      "sourced": {
+        "division": "'Entraînement Pom — Pink October edition' (IG highlight Pom 26-27): uitsluitend vrouwen",
+        "ageGroup": "universiteitsteam ('Équipe universitaire officielle UMONS') → open, conform UCA/UM/ULB-precedent",
+        "tier": "BCC 2026 Senior Pom rang 6"
+      }
+    },
+    {
+      "clubId": "unamur-cheerleaders",
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "UNamur Pomdance",
+        "discipline": "performance_cheer",
+        "level": null,
+        "danceStyle": "pom",
+        "tier": "competition",
+        "division": "all_girl",
+        "ageGroup": "open",
+        "notes": "Bron: BCC 2026 'Senior Pom' rang 10 ('Université de Namur') | IG-bio 'Cheerleaders de l'UNamur - Senior Pomdance' | divisie: teamfoto's 2026 tonen uitsluitend vrouwen | ageGroup open per studententeam-conventie"
+      },
+      "source": "https://www.instagram.com/cheerleaders.unamur/",
+      "evidence": "IG-bio 'Senior Pomdance' + ASEUS-medailles; meerdere volledige teamfoto's (2026) tonen uitsluitend vrouwen; BCC 2026 Senior Pom rang 10.",
+      "confidence": "high",
+      "sourced": {
+        "division": "teamfoto's IG cheerleaders.unamur (2026): uitsluitend vrouwen",
+        "ageGroup": "universiteitsteam → open, conform studententeam-conventie",
+        "tier": "BCC 2026 Senior Pom rang 10 + ASEUS-podia"
+      }
+    },
+    {
+      "clubId": "zebrettes-dancers",
+      "action": "add",
+      "docId": null,
+      "fields": {
+        "name": "Zebrettes Dancers",
+        "discipline": "performance_cheer",
+        "level": null,
+        "danceStyle": "pom",
+        "tier": "competition",
+        "division": "all_girl",
+        "ageGroup": "senior",
+        "notes": "Bron: BCC 2026 'Senior Pom' rang 8 ('Zebrettes Dancers - CampusUCharleroi', club 'Wanna Dance') | IG: ledenvoorstellingen Team 26-27 tonen uitsluitend vrouwen | officiële cheerleaders van RCSC"
+      },
+      "source": "https://www.instagram.com/zebrettesdancers/",
+      "evidence": "Ledenvoorstellingen Team 26-27 (Solen, Mélissa, Louise, Aline, Margaux, …) tonen uitsluitend vrouwen; BCC 2026 Senior Pom rang 8.",
+      "confidence": "high",
+      "sourced": {
+        "division": "ledenvoorstellingen IG zebrettesdancers Team 26-27: uitsluitend vrouwen",
+        "ageGroup": "BCC 2026 categorie 'Senior Pom' (geen studententeam)",
+        "tier": "BCC 2026 Senior Pom rang 8"
+      }
+    },
+    {
+      "clubId": "athletic-cheer-aubel",
+      "action": "update",
+      "docId": "athletic-cheer-aubel-team-1",
+      "fields": {
+        "level": "5",
+        "notes": "Bron: https://cheerunion.org/championships/25-icu-ecc-results-ch/ (Senior Coed Premier) | Update 2026-11: IG-bio aubel_cheer_gym 'mini L1 | Peewee L1•L2, junior L3•L4 | Senior L5' → niveau 2026-27 = L5 (club-actueel wint van BCC 2026 Senior Coed Premier/L6)"
+      },
+      "source": "https://www.instagram.com/aubel_cheer_gym/",
+      "evidence": "Actuele IG-bio (nov 2026): 'Senior L5'; BCC mei 2026: Senior Coed Premier (L6) — clubactuele info wint per maintainerbesluit.",
+      "confidence": "medium"
+    }
+  ],
+  "sessions": [
+    {
+      "action": "update",
+      "id": "cheerleader-academy-tr-12",
+      "fields": {
+        "teamLabel": "CLA Phoenax (Junior level 3 stuntteam)"
+      },
+      "source": "https://www.cheerleaderacademy.be/_files/ugd/e5a581_899e82951ece49b2bd4ce670f534351e.pdf",
+      "evidence": "Rooster 2026-2027, woensdag 18.00-20.00: 'CLA Phoenax — 2012 tem 2008 — Junior level 3 stuntteam — BS 't Plantijntje'. Team spells its name Phoenax (also at BCC 2026), not Phoenix.",
+      "confidence": "high",
+      "clubId": "cheerleader-academy"
+    },
+    {
+      "action": "update",
+      "id": "cheerleader-academy-tr-14",
+      "fields": {
+        "teamLabel": "CLA Phoenax (Junior level 3 stuntteam)"
+      },
+      "source": "https://www.cheerleaderacademy.be/_files/ugd/e5a581_899e82951ece49b2bd4ce670f534351e.pdf",
+      "evidence": "Rooster 2026-2027, donderdag 18.00-20.00: 'CLA Phoenax — Junior level 3 stuntteam — Sporthal Putte'.",
+      "confidence": "high",
+      "clubId": "cheerleader-academy"
+    },
+    {
+      "action": "update",
+      "id": "cheerleader-academy-tr-24",
+      "fields": {
+        "teamLabel": "CLA Phoenax — Tumbling & Stunts (oneven weken, start 27/9)"
+      },
+      "source": "https://www.cheerleaderacademy.be/_files/ugd/e5a581_899e82951ece49b2bd4ce670f534351e.pdf",
+      "evidence": "Rooster 2026-2027, zondag 19.30-21.30: 'CLA Phoenax — Tumbling & Stunts — Oneven weken — Start vanaf 27/9 — Turnhal De Schinde Ekeren'.",
+      "confidence": "high",
+      "clubId": "cheerleader-academy"
+    },
+    {
+      "action": "update",
+      "id": "danscentrum-leuven-tr-1",
+      "fields": {
+        "teamLabel": "Angels (cheerdance, 2e-4e leerjaar)",
+        "locationText": "Danscentrum Leuven, Manhattan Site, Kolonel Begaultlaan 21, Leuven"
+      },
+      "source": "https://danscentrumleuven.be/new-page-1",
+      "evidence": "Aanbod: 'Angels — voor kinderen in de 2e tot en met 4e leerjaar, geen auditie nodig... Elke vrijdag van 16u45 tot 18u les van coach Emily, met assistentie van Free' (DB zei 1e-4e leerjaar). Schema 2026-27 vrijdag: 'Repetitie Angels 16u45-18u'. Locatie per lessenrooster-pagina: Studio's Manhattan Site, Kolonel Begaultlaan 21.",
+      "confidence": "high",
+      "clubId": "danscentrum-leuven"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "DC Mini's (repetitie)",
+        "byday": "TU",
+        "startTime": "17:30",
+        "endTime": "19:30",
+        "locationText": "Danscentrum Leuven, Manhattan Site, Kolonel Begaultlaan 21, Leuven",
+        "notes": "Cheerteam voor kinderen geboren 2014-2016; deelname via auditie."
+      },
+      "source": "https://danscentrumleuven.be/lessenrooster",
+      "evidence": "SCHEMA 2026-27, dinsdag: 'Repetitie Mini's 17u30-19u30 — les van Luna / Louise' (Luna = coach Mini's per site).",
+      "confidence": "high",
+      "clubId": "danscentrum-leuven"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "DC Mini's (techniek)",
+        "byday": "FR",
+        "startTime": "17:00",
+        "endTime": "18:00",
+        "locationText": "Danscentrum Leuven, Manhattan Site, Kolonel Begaultlaan 21, Leuven",
+        "notes": "Techniektraining van het Mini's-cheerteam."
+      },
+      "source": "https://danscentrumleuven.be/lessenrooster",
+      "evidence": "SCHEMA 2026-27, vrijdag: 'Techniek Mini's 17u-18u — les van Amber'.",
+      "confidence": "high",
+      "clubId": "danscentrum-leuven"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "DC Youth (repetitie)",
+        "byday": "TH",
+        "startTime": "18:00",
+        "endTime": "20:00",
+        "locationText": "Danscentrum Leuven, Manhattan Site, Kolonel Begaultlaan 21, Leuven",
+        "notes": "Cheerteam voor kinderen geboren 2010-2013; deelname via auditie."
+      },
+      "source": "https://danscentrumleuven.be/lessenrooster",
+      "evidence": "SCHEMA 2026-27, donderdag: 'Repetitie Youth 18u-20u — les van Lola / Mirthe' (Lola = coach Youth per site).",
+      "confidence": "high",
+      "clubId": "danscentrum-leuven"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "DC Youth (techniek)",
+        "byday": "FR",
+        "startTime": "18:00",
+        "endTime": "19:00",
+        "locationText": "Danscentrum Leuven, Manhattan Site, Kolonel Begaultlaan 21, Leuven",
+        "notes": "Techniektraining van het Youth-cheerteam."
+      },
+      "source": "https://danscentrumleuven.be/lessenrooster",
+      "evidence": "SCHEMA 2026-27, vrijdag: 'Techniek Youth 18u-19u — les van Amber'.",
+      "confidence": "high",
+      "clubId": "danscentrum-leuven"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "DC Girls (techniek)",
+        "byday": "TU",
+        "startTime": "18:45",
+        "endTime": "20:15",
+        "locationText": "Danscentrum Leuven, Manhattan Site, Kolonel Begaultlaan 21, Leuven",
+        "notes": "Techniektraining van het Girls-cheerteam (geboren 2009 of eerder)."
+      },
+      "source": "https://danscentrumleuven.be/lessenrooster",
+      "evidence": "SCHEMA 2026-27, dinsdag: 'Techniek Girls 18u45-20u15 — les van Amber' (Amber = coach Girls per site).",
+      "confidence": "high",
+      "clubId": "danscentrum-leuven"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "DC Girls (repetitie)",
+        "byday": "FR",
+        "startTime": "20:15",
+        "endTime": "22:15",
+        "locationText": "Danscentrum Leuven, Manhattan Site, Kolonel Begaultlaan 21, Leuven",
+        "notes": "Cheerteam voor dansers geboren in 2009 of eerder; deelname via auditie."
+      },
+      "source": "https://danscentrumleuven.be/lessenrooster",
+      "evidence": "SCHEMA 2026-27, vrijdag: 'Repetitie Girls 20u15-22u15 — les van Amber / Kelly'.",
+      "confidence": "high",
+      "clubId": "danscentrum-leuven"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Basket Girls (training)",
+        "byday": "TH",
+        "startTime": "20:00",
+        "endTime": "21:00",
+        "locationText": "Danscentrum Leuven, Manhattan Site, Kolonel Begaultlaan 21, Leuven",
+        "notes": "Training voor de cheerdance-optredens bij basketbalwedstrijden."
+      },
+      "source": "https://danscentrumleuven.be/lessenrooster",
+      "evidence": "SCHEMA 2026-27, donderdag: 'Training Basket Girls 20u-21u — les van Kelly' (Kelly = hulpcoach Girls). Interpretatie (Girls-team dat bij basketbal optreedt) onzeker — zie instagramTodo.",
+      "confidence": "medium",
+      "clubId": "danscentrum-leuven"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Blue Sharks (senior, 14+)",
+        "byday": "MO",
+        "startTime": "19:00",
+        "endTime": "21:00",
+        "locationText": "Turnzaal SBS Spoele, Lokeren",
+        "notes": "Seniorteam voor iedereen geboren in 2011 of eerder; traint 2x per week."
+      },
+      "source": "https://cheerleaders-lokeren.com/blue-sharks/",
+      "evidence": "'Voor iedereen geboren in 2011 of eerder... Dit team traint 2x per week: Maandag 19u00 tot 21u00, Donderdag 19u00 tot 21u00.' Venue per about: 'Al onze trainingen vinden plaats in de turnzaal van SBS Spoele te Lokeren.'",
+      "confidence": "high",
+      "clubId": "blue-shark-cheerleaders-lokeren"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Blue Sharks (senior, 14+)",
+        "byday": "TH",
+        "startTime": "19:00",
+        "endTime": "21:00",
+        "locationText": "Turnzaal SBS Spoele, Lokeren",
+        "notes": "Seniorteam voor iedereen geboren in 2011 of eerder; traint 2x per week."
+      },
+      "source": "https://cheerleaders-lokeren.com/blue-sharks/",
+      "evidence": "'Donderdag 19u00 tot 21u00' (team page, season 2026-2027).",
+      "confidence": "high",
+      "clubId": "blue-shark-cheerleaders-lokeren"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Electric Blue (primary, stunttraining)",
+        "byday": "MO",
+        "startTime": "17:30",
+        "endTime": "19:00",
+        "locationText": "Turnzaal SBS Spoele, Lokeren",
+        "notes": "Primarygroep voor kinderen geboren 2014-2019; daarnaast tumbling op zondag per niveau."
+      },
+      "source": "https://cheerleaders-lokeren.com/electric-blue/",
+      "evidence": "Seizoen 2026-2027: 'Voor kinderen geboren in 2019, 2018, 2017, 2016, 2015 of 2014... Dit team traint 2x per week' — stunttraining maandag 17u30-19u00.",
+      "confidence": "high",
+      "clubId": "blue-shark-cheerleaders-lokeren"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Blue Marlin (youth, stunttraining)",
+        "byday": "TH",
+        "startTime": "17:30",
+        "endTime": "19:00",
+        "locationText": "Turnzaal SBS Spoele, Lokeren",
+        "notes": "Youthgroep voor kinderen geboren 2012-2015; daarnaast tumbling op zondag per niveau."
+      },
+      "source": "https://cheerleaders-lokeren.com/blue-marlin/",
+      "evidence": "Seizoen 2026-2027: 'Voor kinderen geboren in 2015, 2014, 2013 of 2012... onze youth-groep' — stunttraining donderdag 17u30-19u00.",
+      "confidence": "high",
+      "clubId": "blue-shark-cheerleaders-lokeren"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Black Ivy (performance cheer)",
+        "byday": "TU",
+        "startTime": "17:30",
+        "endTime": "18:30",
+        "locationText": "Turnzaal SBS Spoele, Lokeren",
+        "notes": "Performance cheer (pomdance) voor kinderen geboren 2014-2019."
+      },
+      "source": "https://cheerleaders-lokeren.com/black-ivy/",
+      "evidence": "'Voor kinderen geboren in 2019, 2018, 2017, 2016, 2015 of 2014... Dinsdag 17u30 tot 18u30.' Stijl: 'een dansstijl met elementen uit de stijlen jazz, hip-hop en cheerleaden.'",
+      "confidence": "high",
+      "clubId": "blue-shark-cheerleaders-lokeren"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Tumbling level 0-1 (Blue Marlin & Electric Blue)",
+        "byday": "SU",
+        "startTime": "09:00",
+        "endTime": "10:30",
+        "locationText": "Turnzaal SBS Spoele, Lokeren",
+        "notes": "Gezamenlijke tumblingtraining per niveau voor de youth- en primarygroep; niveau wordt bepaald bij try-outs."
+      },
+      "source": "https://cheerleaders-lokeren.com/blue-marlin/",
+      "evidence": "Blue Marlin & Electric Blue team pages (seizoen 2026-2027): tumbling zondag 9u00-10u30 (level 0-1).",
+      "confidence": "high",
+      "clubId": "blue-shark-cheerleaders-lokeren"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Tumbling level 2-3 (Blue Marlin & Electric Blue)",
+        "byday": "SU",
+        "startTime": "10:30",
+        "endTime": "12:00",
+        "locationText": "Turnzaal SBS Spoele, Lokeren",
+        "notes": "Gezamenlijke tumblingtraining per niveau voor de youth- en primarygroep; niveau wordt bepaald bij try-outs."
+      },
+      "source": "https://cheerleaders-lokeren.com/blue-marlin/",
+      "evidence": "Blue Marlin & Electric Blue team pages (seizoen 2026-2027): tumbling zondag 10u30-12u00 (level 2-3).",
+      "confidence": "high",
+      "clubId": "blue-shark-cheerleaders-lokeren"
+    },
+    {
+      "action": "update",
+      "id": "cheerteam-danshuis-tr-7",
+      "fields": {
+        "startTime": "17:30",
+        "endTime": "18:30"
+      },
+      "source": "https://www.danshuis.be/lesroosters?location=all&schooljaar=2026-2027",
+      "evidence": "Rooster 2026-2027, vrijdag: \"Cheer pom teens B\" 17.30 - 18.30, Kleine zaal (Nina Rademakers). 18.30-19.30 is Showdance, niet cheer.",
+      "confidence": "high",
+      "clubId": "cheerteam-danshuis"
+    },
+    {
+      "action": "update",
+      "id": "sykyc-bredene-tr-2",
+      "fields": {
+        "startTime": "17:30",
+        "notes": "Eindtijd onder voorbehoud (rooster publiceert geen eindtijden)."
+      },
+      "source": "https://www.sykyc.be/uurrooster/",
+      "evidence": "Uurrooster nov 2026: \"BCO KIDS / Cheerleaders - 13j\" op vr 13/20/27 nov om 17:30 (DB had 17:15). Geen eindtijden op het rooster; 18:15 blijft ongetoetst.",
+      "confidence": "high",
+      "clubId": "sykyc-bredene"
+    },
+    {
+      "action": "update",
+      "id": "sykyc-bredene-tr-3",
+      "fields": {
+        "byday": ["FR"],
+        "startTime": "18:00",
+        "notes": "Eindtijd onder voorbehoud (rooster publiceert geen eindtijden)."
+      },
+      "source": "https://www.sykyc.be/uurrooster/",
+      "evidence": "Uurrooster nov 2026: \"BCO JUNIORS / Cheerleaders 14+\" op vr 13/20/27 nov om 18:00 — DB had woensdag 19:30-21:00. Dag en starttijd per drie opeenvolgende vrijdagen; eindtijd staat niet op het rooster, daarom leeggemaakt in plaats van een gegokte waarde.",
+      "confidence": "high",
+      "clubId": "sykyc-bredene"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Cheerleading compétitions (juniors)",
+        "byday": ["TH"],
+        "startTime": "17:00",
+        "endTime": "19:00",
+        "locationText": "Dance Center, Salle 1, Avenue Maistriau 56, Mons",
+        "notes": "Competitiegroep (8-13 jaar).",
+        "price": null
+      },
+      "source": "https://dancecenter.be/les-juniors-8-13-ans/",
+      "evidence": "Juniors-pagina (8/13 ans): \"Compétitions : Jeudi 17h (2h)\"; horaires-pagina: \"Cheerleading juniors compétitions\", jeudi 17h, Salle 1. Ontbreekt in DB.",
+      "confidence": "high",
+      "clubId": "dance-center-mons"
+    },
+    {
+      "action": "update",
+      "id": "aira-united-tr-1",
+      "fields": {
+        "locationText": "Spiegelzaal Redingenhof, Leuven"
+      },
+      "source": "https://www.airaunited.be/teams/ruby",
+      "evidence": "Ruby team page 2026-27: Tuesday 17:00-19:00 at Spiegelzaal Redingenhof — day, time and hall confirmed; drop the '(exacte locatie niet bevestigd)' hedge.",
+      "confidence": "high",
+      "clubId": "aira-united"
+    },
+    {
+      "action": "update",
+      "id": "aira-united-tr-2",
+      "fields": {
+        "locationText": "Gymnasium Sportkot, Leuven"
+      },
+      "source": "https://www.airaunited.be/teams/ruby",
+      "evidence": "Ruby team page 2026-27: Saturday 10:00-12:30 at Gymnasium Sportkot — confirmed.",
+      "confidence": "high",
+      "clubId": "aira-united"
+    },
+    {
+      "action": "update",
+      "id": "aira-united-tr-3",
+      "fields": {
+        "locationText": "Heilig Hart Gymzaal, Leuven"
+      },
+      "source": "https://www.airaunited.be/teams/gold",
+      "evidence": "Gold team page 2026-27: Tuesday 17:30-19:30 at Heilig Hart Gymzaal — confirmed.",
+      "confidence": "high",
+      "clubId": "aira-united"
+    },
+    {
+      "action": "update",
+      "id": "aira-united-tr-4",
+      "fields": {
+        "locationText": "Gymnasium Sportkot, Leuven"
+      },
+      "source": "https://www.airaunited.be/teams/gold",
+      "evidence": "Gold team page 2026-27: Friday 17:30-20:00 at Gymnasium Sportkot — confirmed.",
+      "confidence": "high",
+      "clubId": "aira-united"
+    },
+    {
+      "action": "update",
+      "id": "aira-united-tr-5",
+      "fields": {
+        "locationText": "Spiegelzaal Redingenhof, Leuven"
+      },
+      "source": "https://www.airaunited.be/teams/pearl",
+      "evidence": "Pearl team page 2026-27: Wednesday 19:00-21:30 at Spiegelzaal Redingenhof — confirmed.",
+      "confidence": "high",
+      "clubId": "aira-united"
+    },
+    {
+      "action": "update",
+      "id": "aira-united-tr-6",
+      "fields": {
+        "locationText": "Gymnasium Sportkot, Leuven"
+      },
+      "source": "https://www.airaunited.be/teams/pearl",
+      "evidence": "Pearl team page 2026-27: Saturday 16:00-18:00 at Gymnasium Sportkot — confirmed.",
+      "confidence": "high",
+      "clubId": "aira-united"
+    },
+    {
+      "action": "update",
+      "id": "aira-united-tr-7",
+      "fields": {
+        "locationText": "Spiegelzaal Redingenhof, Leuven"
+      },
+      "source": "https://www.airaunited.be/teams/emerald",
+      "evidence": "Emerald team page 2026-27: Tuesday 20:00-22:00 at Spiegelzaal Redingenhof — confirmed.",
+      "confidence": "high",
+      "clubId": "aira-united"
+    },
+    {
+      "action": "update",
+      "id": "aira-united-tr-8",
+      "fields": {
+        "locationText": "Gymnasium Sportkot, Leuven"
+      },
+      "source": "https://www.airaunited.be/teams/emerald",
+      "evidence": "Emerald team page 2026-27: Friday 20:00-22:00 at Gymnasium Sportkot — confirmed.",
+      "confidence": "high",
+      "clubId": "aira-united"
+    },
+    {
+      "action": "update",
+      "id": "aira-united-tr-9",
+      "fields": {
+        "locationText": "Heilig Hart Gymzaal, Leuven"
+      },
+      "source": "https://www.airaunited.be/teams/diamond",
+      "evidence": "Diamond team page 2026-27: Tuesday 19:30-22:00 at Heilig Hart Gymzaal — confirmed.",
+      "confidence": "high",
+      "clubId": "aira-united"
+    },
+    {
+      "action": "update",
+      "id": "aira-united-tr-10",
+      "fields": {
+        "locationText": "Gymnasium Sportkot, Leuven"
+      },
+      "source": "https://www.airaunited.be/teams/diamond",
+      "evidence": "Diamond team page 2026-27: Friday 19:30-22:00 at Gymnasium Sportkot — confirmed.",
+      "confidence": "high",
+      "clubId": "aira-united"
+    },
+    {
+      "action": "update",
+      "id": "uliege-bulls-cheerleaders-tr-1",
+      "fields": {
+        "notes": "Toegankelijk vanaf 16 jaar, ook zonder voorkennis; plaats om de twee weken reserveren via de sportsite van ULiège."
+      },
+      "source": "https://www.sports.uliege.be/cms/c_16463592/fr/sports-cheerleading",
+      "evidence": "Site 2026-27: 'Lundi de 20h a 22h - Performance Cheer - Gymnase 1 (G1)', Centres Sportifs du Sart-Tilman; 'Il n'y a pas de prerequis'; 'accessible a partir de 16 ans'; reserveren via 'Reserver un creneau'. Slot zelf (dag/tijd/locatie) exact bevestigd.",
+      "confidence": "high",
+      "clubId": "uliege-bulls-cheerleaders"
+    },
+    {
+      "action": "update",
+      "id": "uliege-bulls-cheerleaders-tr-2",
+      "fields": {
+        "notes": "Toegankelijk vanaf 16 jaar, ook zonder voorkennis; plaats om de twee weken reserveren via de sportsite van ULiège."
+      },
+      "source": "https://www.sports.uliege.be/cms/c_16463592/fr/sports-cheerleading",
+      "evidence": "Site 2026-27: 'Jeudi de 18h30 a 20h30 - Cheerleading - Gymnase 3 (G3)', Centres Sportifs du Sart-Tilman; seizoen 'Du 14.09.26 au 21.04.27'. Slot zelf (dag/tijd/locatie) exact bevestigd.",
+      "confidence": "high",
+      "clubId": "uliege-bulls-cheerleaders"
+    },
+    {
+      "action": "update",
+      "id": "be-fly-sprimont-tr-2",
+      "fields": {
+        "notes": "Teams 3 en 4 trainen daarnaast één zondag per maand extra in Hall Sportif Louveigné (10:00-12:00), van 11 oktober 2026 t/m 30 mei 2027."
+      },
+      "source": "https://www.befly-sprimont.be/cheerleading.html",
+      "evidence": "SAMEDI 09:00-12:00 '13 ans et + Team 3 - Team 4 Chanxhe + 1 dimanche par mois' bevestigd; 'les Teams Cheer 3 et 4 participeront à des entraînements supplémentaires organisés le dimanche' te Louveigné 10:00-12:00, data 11 okt 2026 - 30 mei 2027 (30 mei uitzonderlijk 13:00-15:00). Maandelijks, geen wekelijks slot — alleen als note.",
+      "confidence": "high",
+      "clubId": "be-fly-sprimont"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Pomdance Team 1 (NEW) (2,5-5 ans)",
+        "byday": "FR",
+        "startTime": "16:30",
+        "endTime": "17:30",
+        "locationText": "Hall Sportif Louveigné",
+        "notes": null,
+        "price": null
+      },
+      "source": "https://www.befly-sprimont.be/horaires.html",
+      "evidence": "Tabel Pomdance: VENDREDI 16:30-17:30 '2,5 - 5 ans Team 1 (NEW) Louveigné' — nieuwe tweede groep naast het dinsdagslot",
+      "confidence": "high",
+      "clubId": "be-fly-sprimont"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Pomdance Team 2 (NEW) (6-8 ans)",
+        "byday": "TH",
+        "startTime": "16:00",
+        "endTime": "17:00",
+        "locationText": "Hall Sportif Louveigné",
+        "notes": null,
+        "price": null
+      },
+      "source": "https://www.befly-sprimont.be/horaires.html",
+      "evidence": "Tabel Pomdance: JEUDI 16:00-17:00 '6 - 8 ans Team 2 (NEW) Louveigné' — nieuwe tweede groep naast het dinsdagslot",
+      "confidence": "high",
+      "clubId": "be-fly-sprimont"
+    },
+    {
+      "action": "update",
+      "id": "urban-base-cheer-gent-tr-2",
+      "fields": {
+        "locationText": "Speurneus (Sportzaal), Gentbrugge"
+      },
+      "source": "https://www.urbanbasedancestudio.com/s/URBAN-BASE-lessenrooster-26-27.pdf",
+      "evidence": "Rooster 26-27: DONDERDAG 'Cheer Teens JULIE (18:30 - 20:00)' staat in de kolom Speurneus Gentbrugge Sportzaal — kolompositie nu zeker; interne notitie '— column position in PDF, double-check' hoort niet in publieke locationText",
+      "confidence": "high",
+      "clubId": "urban-base-cheer-gent"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Cheer Youth",
+        "byday": "TU",
+        "startTime": "18:00",
+        "endTime": "20:00",
+        "locationText": "Sporthal Bergenmeers, Koedreef 1, Destelbergen",
+        "notes": null,
+        "price": null
+      },
+      "source": "https://www.urbanbasedancestudio.com/s/URBAN-BASE-lessenrooster-26-27.pdf",
+      "evidence": "Rooster 26-27: DINSDAG 'Cheer youth PAULINA & ELENA' in kolom Sporthal Bergenmeers; blok beslaat de rijen 18:00-19:00 en 19:00-20:00 (geen afwijkende tijd tussen haakjes). Site: 'Cheer Youth: vanaf geboortejaar 2015'.",
+      "confidence": "medium",
+      "clubId": "urban-base-cheer-gent"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "Cheer Juniors & Seniors",
+        "byday": "TH",
+        "startTime": "20:00",
+        "endTime": "22:00",
+        "locationText": "Keiskant (Olympische Vloer), Drongen",
+        "notes": null,
+        "price": null
+      },
+      "source": "https://www.urbanbasedancestudio.com/s/URBAN-BASE-lessenrooster-26-27.pdf",
+      "evidence": "Rooster 26-27: DONDERDAG 'Cheer junior & senior JANA - CAMILLE & JULIE' in kolom Keiskant Drongen Olympische Vloer; blok beslaat de rijen 20:00-21:00 en 21:00-22:00. Site: 'Cheer Juniors: vanaf geboortejaar 2011', 'Cheer Seniors: vanaf geboortejaar 2011'.",
+      "confidence": "medium",
+      "clubId": "urban-base-cheer-gent"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "UBC (wedstrijdteam senior)",
+        "byday": "WE",
+        "startTime": "20:00",
+        "endTime": "21:00",
+        "locationText": "Speurneus (Sportzaal), Gentbrugge",
+        "notes": "Wedstrijdteam: deelname enkel na auditie of uitnodiging.",
+        "price": null
+      },
+      "source": "https://www.urbanbasedancestudio.com/s/URBAN-BASE-lessenrooster-26-27.pdf",
+      "evidence": "Rooster 26-27: WOENSDAG 'UBC* BENTE & SAMUEL' 20:00-21:00 in kolom Speurneus Sportzaal, lichtblauw gemarkeerd: 'geen vrij toegankelijke lessen, dit kan enkel na een auditie of uitnodiging'",
+      "confidence": "high",
+      "clubId": "urban-base-cheer-gent"
+    },
+    {
+      "action": "add",
+      "id": null,
+      "fields": {
+        "teamLabel": "UBC JR (wedstrijdteam junior)",
+        "byday": "SA",
+        "startTime": "12:00",
+        "endTime": "13:30",
+        "locationText": "Sporthal Bergenmeers (Danszaal), Koedreef 1, Destelbergen",
+        "notes": "Wedstrijdteam: deelname enkel na auditie of uitnodiging.",
+        "price": null
+      },
+      "source": "https://www.urbanbasedancestudio.com/s/URBAN-BASE-lessenrooster-26-27.pdf",
+      "evidence": "Rooster 26-27: ZATERDAG 'UBC JR* ELLA (12:00 - 13:30)' in kolom Sporthal Bergenmeers Danszaal, lichtblauw = enkel na auditie of uitnodiging",
+      "confidence": "medium",
+      "clubId": "urban-base-cheer-gent"
+    }
+  ],
+  "verifiedClubs": [
+    "abc-hive-cheerleading",
+    "aira-united",
+    "all-star-cheer-fire",
+    "all-star-cheerleading-ufo",
+    "athletic-cheer-aubel",
+    "be-fly-sprimont",
+    "black-eagles-cheer",
+    "blaze-cheer-andenne",
+    "blossom-heat-cheerleaders",
+    "blue-shark-cheerleaders-lokeren",
+    "cheerleader-academy",
+    "cheerteam-danshuis",
+    "dance-center-mons",
+    "danscentrum-leuven",
+    "dragons-cheer-athletics-vilvoorde",
+    "dragons-cheerleaders-umons",
+    "dynamisport",
+    "gym-danse-loisirs-aywaille",
+    "gym-izegem",
+    "henallux-pom-dance",
+    "ice-storm-cheer",
+    "lets-move-betekom",
+    "royale-vaillante-de-jupille",
+    "studio-one-denderleeuw",
+    "sykyc-bredene",
+    "ttg-cheer",
+    "uclouvain-wolves-cheerleaders",
+    "ulb-owls-cheerleading",
+    "uliege-bulls-cheerleaders",
+    "unamur-cheerleaders",
+    "up-stars-cheerleaders",
+    "urban-base-cheer-gent",
+    "variation-danse-aubel",
+    "zebrettes-dancers"
+  ]
+}

@@ -35,7 +35,9 @@ export type DanceStyle =
   "pom" | "hip_hop" | "jazz" | "kick" | "pom_doubles" | "hip_hop_doubles";
 export type Tier = "competition" | "prep" | "recreational";
 export type Division = "all_girl" | "coed" | "all_boy";
-export type AgeGroup = "mini" | "youth" | "junior" | "senior" | "open";
+// "peewee" covers the ICU/BCF Peewee–Primary band (±8–12) between mini and youth.
+export type AgeGroup =
+  "mini" | "peewee" | "youth" | "junior" | "senior" | "open";
 // One-off dated happenings. Note: recurring *team training* is a separate
 // concept living in the `open_gyms` collection as SessionType.training — an
 // organised one-off session is a workshop, so there is no event "training" type.
